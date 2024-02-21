@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - '7855:7855'
+    volumes:
+      - .:/app
+    environment:
+      PORT: 7855
