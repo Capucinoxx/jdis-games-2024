@@ -56,3 +56,18 @@ func (p *Point) normalize() {
 	p.X /= float32(length)
 	p.Y /= float32(length)
 }
+
+type ColliderType uint8
+
+// Collider représente un polygone qui représentant une collision dans le jeu.
+type Collider struct {
+	Points []*Point     `json:"points"`
+	Type   ColliderType `json:"type"`
+}
+
+// Map représente une carte de jeu. Elle contient des informations sur les
+// collisions et les points de spawn.
+type Map struct {
+	Collider []*Collider
+	Spawns   []*Point
+}
