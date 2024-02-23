@@ -18,4 +18,12 @@ type Connection interface {
 	Ping(time.Duration)
 }
 
-type Player struct{}
+type Player struct {
+	Client *Client
+}
+
+type Client struct {
+	Out        chan []byte
+	In         chan []byte
+	Connection Connection
+}

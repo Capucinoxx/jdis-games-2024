@@ -68,6 +68,22 @@ func (n *Network) SetUnregisterFunc(f func(conn model.Connection)) {
 	n.uregister = f
 }
 
+// Register enregistre une nouvelle connexion en appelant la fonction de registre
+// spécifiée.
+func (n *Network) Register(conn model.Connection) {
+	if n.register != nil {
+		n.register(conn)
+	}
+}
+
+// Unregister désenregistre une connexion en appelant la fonction de désenregistrement
+// spécifiée.
+func (n *Network) Unregister(conn model.Connection) {
+	if n.uregister != nil {
+		n.uregister(conn)
+	}
+}
+
 // Init initialise le serveur réseau en écoutant les requêtes HTTP.
 func (n *Network) Init() {
 	http.HandleFunc("/echo", func(w http.ResponseWriter, r *http.Request) {
