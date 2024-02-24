@@ -19,11 +19,28 @@ type Connection interface {
 }
 
 type Player struct {
+	ID     int
 	Client *Client
 }
 
 type Client struct {
 	Out        chan []byte
-	In         chan []byte
+	In         chan ClientMessage
 	Connection Connection
+}
+
+type ClientMessage struct {
+	MessageType uint8
+	Body        interface{}
+}
+
+func NewPlayer(id int, x float32, y float32, conn Connection) *Player {
+	return &Player{
+		ID: id,
+		Client: &Client{
+			Out:        make(chan []byte),
+			In:         make(chan ClientMessage),
+			Connection: conn,
+		},
+	}
 }
