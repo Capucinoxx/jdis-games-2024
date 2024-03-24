@@ -1,11 +1,26 @@
 package model
 
-import "math"
+import (
+	"math"
+	"math/rand"
+)
 
 // Point représente un point "continu" dans un espace 2D.
 type Point struct {
 	X float32 `json:"x"`
 	Y float32 `json:"y"`
+}
+
+func NullPoint() *Point {
+	return &Point{X: 0, Y: 0}
+}
+
+// Directions représente les directions possibles dans un espace 2D.
+var Directions = []*Point{
+	{X: 0, Y: -1}, // Up
+	{X: 1, Y: 0},  // Right
+	{X: 0, Y: 1},  // Down
+	{X: -1, Y: 0}, // Left
 }
 
 // DirectionTo retourne un vecteur normalisé pointant vers la destination à
@@ -18,6 +33,23 @@ func (p *Point) DirectionTo(dest *Point) *Point {
 	dir.normalize()
 
 	return dir
+}
+
+// Add ajoute le vecteur spécifié à ce vecteur et retourne le résultat.
+func (p *Point) Add(other *Point) *Point {
+	return &Point{
+		X: p.X + other.X,
+		Y: p.Y + other.Y,
+	}
+}
+
+// Reflect retourne le vecteur réfléchi par rapport à la normale spécifiée.
+func (p *Point) Reflect(normal *Point) *Point {
+	dot := 2 * (p.X*normal.X + p.Y*normal.Y)
+	return &Point{
+		X: p.X - dot*normal.X,
+		Y: p.Y - dot*normal.Y,
+	}
 }
 
 // WithinDistanceOf retourne vrai si le point est à une distance inférieure au
@@ -65,9 +97,86 @@ type Collider struct {
 	Type   ColliderType `json:"type"`
 }
 
+type Grid struct {
+	height, width int
+	cells         map[*Point]map[*Point]struct{}
+}
+
+// IsInBounds retourne vrai si le point est à l'intérieur des limites de la carte.
+// Sinon, retourne faux.
+func (g *Grid) isInBounds(pos *Point) bool {
+	return pos.X >= 0 && pos.X < float32(g.width) && pos.Y >= 0 && pos.Y < float32(g.height)
+}
+
+func GenerateGrid(width, height int) *Grid {
+	grid := &Grid{
+		height: height,
+		width:  width,
+		cells:  make(map[*Point]map[*Point]struct{}),
+	}
+
+	visited := make(map[*Point]bool)
+
+	var dfs func(*Point)
+	dfs = func(pos *Point) {
+		visited[pos] = true
+
+		dirs := make([]*Point, len(Directions))
+		copy(dirs, Directions)
+		rand.Shuffle(len(dirs), func(i, j int) {
+			dirs[i], dirs[j] = dirs[j], dirs[i]
+		})
+
+		for _, dir := range dirs {
+			v := pos.Add(pos)
+			if grid.isInBounds(v) && !visited[v] {
+				dfs(v)
+				grid.cells[pos][dir] = struct{}{}
+				grid.cells[v][dir.Reflect(NullPoint())] = struct{}{}
+			}
+		}
+	}
+
+	dfs(NullPoint())
+
+	return grid
+}
+
 // Map représente une carte de jeu. Elle contient des informations sur les
 // collisions et les points de spawn.
 type Map struct {
-	Collider []*Collider
-	Spawns   []*Point
+	Colliders []*Collider
+	Spawns    []*Point
+	cellSize  float32
+}
+
+// Populate remplit la carte avec des collisions en utilisant la grille spécifiée.
+func (m *Map) Populate(grid *Grid) {
+	for y := 0; y < grid.height; y++ {
+		for x := 0; x < grid.width; x++ {
+			cell := grid.cells[&Point{X: float32(x), Y: float32(y)}]
+			x1, y1 := float32(x)*m.cellSize, float32(y)*m.cellSize
+			x2, y2 := x1+m.cellSize, y1+m.cellSize
+
+			for dir := range Directions {
+				if _, exist := cell[Directions[dir]]; !exist {
+					m.Colliders = append(m.Colliders, &Collider{
+						Points: []*Point{
+							{X: x1, Y: y1},
+							{X: x2, Y: y1},
+							{X: x2, Y: y2},
+							{X: x1, Y: y2},
+						},
+						Type: 0,
+					})
+				}
+			}
+		}
+	}
+}
+
+// Clear supprime toutes les collisions et les points de spawn de la carte.
+func (m *Map) Clear() {
+	m.Colliders = nil
+	m.Spawns = nil
 }
