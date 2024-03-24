@@ -23,17 +23,6 @@ type Player struct {
 	Client *Client
 }
 
-type Client struct {
-	Out        chan []byte
-	In         chan ClientMessage
-	Connection Connection
-}
-
-type ClientMessage struct {
-	MessageType uint8
-	Body        interface{}
-}
-
 func NewPlayer(id int, x float32, y float32, conn Connection) *Player {
 	return &Player{
 		ID: id,
