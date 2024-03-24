@@ -174,3 +174,9 @@ func (m *Map) Populate(grid *Grid) {
 		}
 	}
 }
+
+// Clear supprime toutes les collisions et les points de spawn de la carte.
+func (m *Map) Clear() {
+	m.Colliders = nil
+	m.Spawns = nil
+}
