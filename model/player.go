@@ -19,8 +19,13 @@ type Connection interface {
 }
 
 type Player struct {
-	ID     int
-	Client *Client
+	ID               int
+	Token            string
+	Nickname         string
+	Health           int
+	Score            float64
+	respawnCountdown float32
+	Client           *Client
 }
 
 func NewPlayer(id int, x float32, y float32, conn Connection) *Player {
