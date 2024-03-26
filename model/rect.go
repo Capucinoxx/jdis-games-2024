@@ -33,6 +33,8 @@ type RectCollider struct {
 
 	forwardSpeed  float32
 	rotationSpeed float32
+
+	velocity float32
 }
 
 // NewRectCollider crée un nouveau RectCollider.
@@ -54,6 +56,14 @@ func NewRectCollider(x, y, size float32) *RectCollider {
 		forwardSpeed:  defaultForwardSpeed,
 		rotationSpeed: defaultRotationSpeed,
 	}
+}
+
+// CalculDirection calcule la direction du RectCollider et
+// la normalise.
+func (r *RectCollider) CalculDirection() {
+	r.dir.X = r.look.X - r.pivot.X
+	r.dir.Y = r.look.Y - r.pivot.Y
+	r.dir.normalize()
 }
 
 // Rotate tourne le RectCollider de l'angle spécifié.

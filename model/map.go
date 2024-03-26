@@ -97,6 +97,11 @@ type Collider struct {
 	Type   ColliderType `json:"type"`
 }
 
+// polygon retourne le polygone représenté par le Collider.
+func (c *Collider) polygon() Polygon {
+	return Polygon{points: c.Points}
+}
+
 type Grid struct {
 	height, width int
 	cells         map[*Point]map[*Point]struct{}
