@@ -102,7 +102,7 @@ func (gm *GameManager) gameLoop() {
 	timestep := float32(interval/time.Millisecond) / 1000.0
 
 	ticker := time.NewTicker(interval)
-	gm.nm.BroadcastGameState()
+	gm.nm.BroadcastGameState(gm.state)
 
 	for range ticker.C {
 		gm.tickStart = time.Now()
@@ -113,12 +113,12 @@ func (gm *GameManager) gameLoop() {
 			// handle respawn
 		}
 
-		gm.nm.BroadcastGameState()
+		gm.nm.BroadcastGameState(gm.state)
 
 	}
 	ticker.Stop()
 
-	// gm.server.EndGame(gm.state)
+	gm.nm.BroadcastGameEnd()
 	time.Sleep(10 * time.Second)
 	gm.Start()
 }
