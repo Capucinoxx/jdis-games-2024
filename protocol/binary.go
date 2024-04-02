@@ -16,8 +16,8 @@ const (
 // envoyés par les joueurs. Cela défini la fonction à appeler pour traiter
 // l'encodage et le décodage des données selon le type de message.
 type BinaryProtocol struct {
-	encodeHandlers map[uint8]func(message *model.ClientMessage) []byte
-	decodeHandlers map[uint8]func(data []byte, message *model.ClientMessage)
+	encodeHandlers map[model.MessageType]func(message *model.ClientMessage) []byte
+	decodeHandlers map[model.MessageType]func(data []byte, message *model.ClientMessage)
 }
 
 // NewBinaryProtocol crée un nouveau protocole binaire. Ce protocole
@@ -25,8 +25,8 @@ type BinaryProtocol struct {
 // en un tableau d'octets.
 func NewBinaryProtocol() *BinaryProtocol {
 	protocol := &BinaryProtocol{
-		encodeHandlers: make(map[uint8]func(message *model.ClientMessage) []byte),
-		decodeHandlers: make(map[uint8]func(data []byte, message *model.ClientMessage)),
+		encodeHandlers: make(map[model.MessageType]func(message *model.ClientMessage) []byte),
+		decodeHandlers: make(map[model.MessageType]func(data []byte, message *model.ClientMessage)),
 	}
 
 	protocol.encodeHandlers[0] = protocol.encodePlayerState
@@ -83,7 +83,7 @@ func (b BinaryProtocol) encodePlayerState(message *model.ClientMessage) []byte {
 // [0:1 messageType] [1:fin messageData]
 func (b BinaryProtocol) Decode(data []byte) model.ClientMessage {
 	msg := model.ClientMessage{
-		MessageType: data[0],
+		MessageType: model.MessageType(data[0]),
 	}
 
 	if handler, ok := b.decodeHandlers[msg.MessageType]; ok {

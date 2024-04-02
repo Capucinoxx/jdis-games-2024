@@ -11,7 +11,7 @@ type Client struct {
 
 // ClientMessage représente un message envoyé par un client.
 type ClientMessage struct {
-	MessageType uint8
+	MessageType MessageType
 	Body        interface{}
 }
 
