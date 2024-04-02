@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"log"
 	"time"
 
 	"github.com/capucinoxx/forlorn/model"
@@ -9,34 +10,23 @@ import (
 // tickrate est le nombre de mises à jour du jeu par seconde.
 const tickrate = 3
 
-// GameServer est une interface pour les serveurs de jeu.
-// Il doit être capable d'initialiser le serveur, de récupérer l'état du serveur,
-// d'envoyer un battement de coeur et de terminer le jeu.
-type GameServer interface {
-	Init(address string)
-	GetServerState()
-	SendHeartbeat(*model.GameState)
-	EndGame(*model.GameState)
-	AuthorizePlayer(string, *model.Player) error
-}
-
 // GameManager est responsable de la gestion de l'état du jeu, des joueurs et
 // de la boucle de jeu. Il est également responsable de la gestion des messages
 // entrants des joueurs et de la synchronisation des mises à jour du jeu.
 type GameManager struct {
-	tickStart      time.Time
-	networkManager *NetworkManager
-	state          *model.GameState
-	server         GameServer
+	tickStart time.Time
+	am        *AuthManager
+	nm        *NetworkManager
+	state     *model.GameState
 }
 
 // NewGameManager crée un nouveau gestionnaire de jeu avec le serveur de jeu et
 // le gestionnaire de réseau spécifiés.
-func NewGameManager(server GameServer, networkManager *NetworkManager) *GameManager {
+func NewGameManager(am *AuthManager, nm *NetworkManager) *GameManager {
 	return &GameManager{
-		state:          model.NewGameState(),
-		server:         server,
-		networkManager: networkManager,
+		state: model.NewGameState(),
+		am:    am,
+		nm:    nm,
 	}
 }
 
@@ -47,7 +37,7 @@ func (gm *GameManager) RegisterPlayer(conn model.Connection) {
 	spawn := []float32{0.0, 0.0} // TODO: Generate spawn position
 	player := model.NewPlayer(0, spawn[0], spawn[1], conn)
 
-	gm.networkManager.Register(player)
+	gm.nm.Register(player)
 	gm.state.AddPlayer(player)
 	if gm.state.InProgess() {
 		// TODO: send game start to player
@@ -66,18 +56,6 @@ func (gm *GameManager) UnregisterPlayer(conn model.Connection) {
 	}
 }
 
-// HeartBeat envoie un message de battement de coeur au serveur de jeu toutes les 5 secondes.
-// Cela permet au serveur de jeu de savoir que le gestionnaire de jeu est toujours actif.
-func (gm *GameManager) HeartBeat() {
-	time.Sleep(time.Second)
-
-	ticker := time.NewTicker(time.Second * 5)
-	gm.server.Init(gm.networkManager.Address())
-	for range ticker.C {
-		gm.server.SendHeartbeat(gm.state)
-	}
-}
-
 // Start démarre le gestionnaire de jeu. Il initialise le serveur de jeu et
 // démarre la boucle de jeu.
 func (gm *GameManager) Start() {
@@ -93,11 +71,23 @@ func (gm *GameManager) process(p *model.Player, players []*model.Player, timeste
 	for len(p.Client.In) != 0 {
 		message := <-p.Client.In
 		switch msgType := message.MessageType; msgType {
-		case 0:
-			// token := message.Body.(string)
-			// TODO: authenticate player
-		case 1:
-			// TODO: update player information
+		case model.Spawn:
+			// Lorsqu'un joueur se connecte, il doit envoyer un message de type Spawn
+			// pour s'authentifier. Si le jeton d'authentification est valide, le joueur
+			// est autorisé à rejoindre la partie. Sinon, le joueur est déconnecté.
+			tkn := message.Body.(string)
+			if !gm.am.Authenticate(tkn) {
+				gm.nm.ForceDisconnect(p)
+				continue
+			}
+			log.Printf("Player %d spawned", p.ID)
+		case model.Position:
+			// Lorsqu'un joueur envoie un message de type Position, cela signifie
+			// qu'il a bougé ou tourné. Le message contient les nouvelles coordonnées
+			// du joueur. Ces coordonnées sont utilisées pour mettre à jour la position
+			// du joueur.
+			p.Controls = message.Body.(model.Controls)
+			p.Update(players, gm.state, timestep)
 		}
 	}
 }
@@ -112,7 +102,7 @@ func (gm *GameManager) gameLoop() {
 	timestep := float32(interval/time.Millisecond) / 1000.0
 
 	ticker := time.NewTicker(interval)
-	gm.networkManager.BroadcastGameState()
+	gm.nm.BroadcastGameState()
 
 	for range ticker.C {
 		gm.tickStart = time.Now()
@@ -123,12 +113,12 @@ func (gm *GameManager) gameLoop() {
 			// handle respawn
 		}
 
-		gm.networkManager.BroadcastGameState()
+		gm.nm.BroadcastGameState()
 
 	}
 	ticker.Stop()
 
-	gm.server.EndGame(gm.state)
+	// gm.server.EndGame(gm.state)
 	time.Sleep(10 * time.Second)
 	gm.Start()
 }

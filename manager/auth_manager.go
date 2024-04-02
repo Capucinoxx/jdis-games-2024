@@ -10,7 +10,7 @@ import (
 // Auth est une interface pour l'authentification des utilisateurs.
 type Auth interface {
 	Register(username string) (string, error)
-	Exist(token string) bool
+	Authenticate(token string) bool
 }
 
 // AuthManager maintient une liste d'utilisateurs et de jetons d'authentification.
@@ -45,8 +45,8 @@ func (am *AuthManager) Register(username string) (string, error) {
 	return token, nil
 }
 
-// Exist retourne vrai si le jeton d'authentification existe. Sinon, retourne faux.
-func (am *AuthManager) Exist(token string) bool {
+// Authenticate retourne vrai si le jeton d'authentification existe. Sinon, retourne faux.
+func (am *AuthManager) Authenticate(token string) bool {
 	am.mu.RLock()
 	_, ok := am.uuids[token]
 	am.mu.RUnlock()
