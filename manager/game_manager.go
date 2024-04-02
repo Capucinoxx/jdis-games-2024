@@ -9,34 +9,23 @@ import (
 // tickrate est le nombre de mises à jour du jeu par seconde.
 const tickrate = 3
 
-// GameServer est une interface pour les serveurs de jeu.
-// Il doit être capable d'initialiser le serveur, de récupérer l'état du serveur,
-// d'envoyer un battement de coeur et de terminer le jeu.
-type GameServer interface {
-	Init(address string)
-	GetServerState()
-	SendHeartbeat(*model.GameState)
-	EndGame(*model.GameState)
-	AuthorizePlayer(string, *model.Player) error
-}
-
 // GameManager est responsable de la gestion de l'état du jeu, des joueurs et
 // de la boucle de jeu. Il est également responsable de la gestion des messages
 // entrants des joueurs et de la synchronisation des mises à jour du jeu.
 type GameManager struct {
-	tickStart      time.Time
-	networkManager *NetworkManager
-	state          *model.GameState
-	server         GameServer
+	tickStart time.Time
+	am        *AuthManager
+	nm        *NetworkManager
+	state     *model.GameState
 }
 
 // NewGameManager crée un nouveau gestionnaire de jeu avec le serveur de jeu et
 // le gestionnaire de réseau spécifiés.
-func NewGameManager(server GameServer, networkManager *NetworkManager) *GameManager {
+func NewGameManager(am *AuthManager, nm *NetworkManager) *GameManager {
 	return &GameManager{
-		state:          model.NewGameState(),
-		server:         server,
-		networkManager: networkManager,
+		state: model.NewGameState(),
+		am:    am,
+		nm:    nm,
 	}
 }
 
@@ -47,7 +36,7 @@ func (gm *GameManager) RegisterPlayer(conn model.Connection) {
 	spawn := []float32{0.0, 0.0} // TODO: Generate spawn position
 	player := model.NewPlayer(0, spawn[0], spawn[1], conn)
 
-	gm.networkManager.Register(player)
+	gm.nm.Register(player)
 	gm.state.AddPlayer(player)
 	if gm.state.InProgess() {
 		// TODO: send game start to player
@@ -72,9 +61,9 @@ func (gm *GameManager) HeartBeat() {
 	time.Sleep(time.Second)
 
 	ticker := time.NewTicker(time.Second * 5)
-	gm.server.Init(gm.networkManager.Address())
+	// gm.server.Init(gm.nm.Address())
 	for range ticker.C {
-		gm.server.SendHeartbeat(gm.state)
+		// gm.server.SendHeartbeat(gm.state)
 	}
 }
 
@@ -112,7 +101,7 @@ func (gm *GameManager) gameLoop() {
 	timestep := float32(interval/time.Millisecond) / 1000.0
 
 	ticker := time.NewTicker(interval)
-	gm.networkManager.BroadcastGameState()
+	gm.nm.BroadcastGameState()
 
 	for range ticker.C {
 		gm.tickStart = time.Now()
@@ -123,12 +112,12 @@ func (gm *GameManager) gameLoop() {
 			// handle respawn
 		}
 
-		gm.networkManager.BroadcastGameState()
+		gm.nm.BroadcastGameState()
 
 	}
 	ticker.Stop()
 
-	gm.server.EndGame(gm.state)
+	// gm.server.EndGame(gm.state)
 	time.Sleep(10 * time.Second)
 	gm.Start()
 }
