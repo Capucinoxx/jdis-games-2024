@@ -26,9 +26,9 @@ type RectCollider struct {
 	rect  *Rect
 	look  *Point
 	dir   *Point
-	pivot *Point
+	Pivot *Point
 
-	rotation     float32
+	Rotation     float32
 	lastRotation float32
 
 	forwardSpeed  float32
@@ -47,11 +47,11 @@ func NewRectCollider(x, y, size float32) *RectCollider {
 			d: &Point{X: x - size/2, Y: y - size/2},
 		},
 
-		pivot: &Point{X: x, Y: y},
+		Pivot: &Point{X: x, Y: y},
 		look:  &Point{X: x, Y: y + 2},
 		dir:   &Point{X: 0, Y: 0},
 
-		rotation:      0,
+		Rotation:      0,
 		lastRotation:  0,
 		forwardSpeed:  defaultForwardSpeed,
 		rotationSpeed: defaultRotationSpeed,
@@ -61,8 +61,8 @@ func NewRectCollider(x, y, size float32) *RectCollider {
 // CalculDirection calcule la direction du RectCollider et
 // la normalise.
 func (r *RectCollider) CalculDirection() {
-	r.dir.X = r.look.X - r.pivot.X
-	r.dir.Y = r.look.Y - r.pivot.Y
+	r.dir.X = r.look.X - r.Pivot.X
+	r.dir.Y = r.look.Y - r.Pivot.Y
 	r.dir.normalize()
 }
 
@@ -80,14 +80,14 @@ func (r *RectCollider) rotate(theta float32, p *Point) {
 	sint := float32(math.Sin(float64(theta)))
 	cost := float32(math.Cos(float64(theta)))
 
-	p.X -= r.pivot.X
-	p.Y -= r.pivot.Y
+	p.X -= r.Pivot.X
+	p.Y -= r.Pivot.Y
 
 	x := p.X*cost - p.Y*sint
 	y := p.X*sint + p.Y*cost
 
-	p.X = x + r.pivot.X
-	p.Y = y + r.pivot.Y
+	p.X = x + r.Pivot.X
+	p.Y = y + r.Pivot.Y
 }
 
 // polygon retourne le polygone représenté par le RectCollider.
