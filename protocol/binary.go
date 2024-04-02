@@ -29,10 +29,11 @@ func NewBinaryProtocol() *BinaryProtocol {
 		decodeHandlers: make(map[model.MessageType]func(data []byte, message *model.ClientMessage)),
 	}
 
-	protocol.encodeHandlers[0] = protocol.encodePlayerState
+	protocol.encodeHandlers[model.Spawn] = protocol.encodeMapState
+	protocol.encodeHandlers[model.GameStart] = protocol.encodeMapState
+	protocol.encodeHandlers[model.Position] = protocol.encodePlayerState
 
-	protocol.decodeHandlers[0] = decodePlayerTime
-	protocol.decodeHandlers[1] = decodePlayerInput
+	protocol.decodeHandlers[model.Position] = decodePlayerInput
 
 	return protocol
 }
@@ -77,6 +78,37 @@ func (b BinaryProtocol) encodePlayerState(message *model.ClientMessage) []byte {
 	return buf
 }
 
+// encodeMapState permet d'encoder l'état de la map.
+// L'état de la map est composé de tous les colliders présents
+// dans la map.
+func (b BinaryProtocol) encodeMapState(message *model.ClientMessage) []byte {
+	p := message.Body.([]*model.Collider)
+	buf := make([]byte, 0)
+
+	for _, c := range p {
+		buf = append(buf, b.encodeCollider(c)...)
+	}
+
+	return buf
+}
+
+// encodeCollider permet d'encoder un collider.
+// Voici la représentation d'un collider :
+// [0:1 type] [1:2 taille] [[p:p+4 x] [p+4:p+8 y] ...]
+func (b BinaryProtocol) encodeCollider(c *model.Collider) []byte {
+	buf := make([]byte, 0)
+
+	buf = append(buf, byte(c.Type))
+	buf = append(buf, byte(len(c.Points)))
+
+	for _, p := range c.Points {
+		binary.LittleEndian.PutUint32(buf, uint32(p.X))
+		binary.LittleEndian.PutUint32(buf, uint32(p.Y))
+	}
+
+	return buf
+}
+
 // Decode permet de décoder un tableau d'octets en un message.
 // Le message est composé du tyme de message et des données reçues.
 // représentation du message :
@@ -91,11 +123,6 @@ func (b BinaryProtocol) Decode(data []byte) model.ClientMessage {
 	}
 
 	return msg
-}
-
-// decodePlayerTime permet de décoder le temps envoyé par un joueur.
-func decodePlayerTime(data []byte, message *model.ClientMessage) {
-	message.Body = binary.LittleEndian.Uint32(data)
 }
 
 // decodePlayerInput permet de décoder les données de contrôle

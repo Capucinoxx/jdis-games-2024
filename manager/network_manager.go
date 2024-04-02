@@ -160,9 +160,10 @@ func (nm *NetworkManager) BroadcastGameEnd() {
 }
 
 // BroadcastGameStart envoie un message de début de partie à tous les joueurs.
-func (nm *NetworkManager) BroadcastGameStart() {
+func (nm *NetworkManager) BroadcastGameStart(state *model.GameState) {
 	nm.broadcast <- nm.protocol.Encode(0, 0, &model.ClientMessage{
 		MessageType: model.GameStart,
+		Body:        state.Map.Colliders,
 	})
 }
 
