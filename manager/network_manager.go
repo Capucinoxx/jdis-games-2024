@@ -5,6 +5,7 @@ import (
 
 	"github.com/capucinoxx/forlorn/model"
 	"github.com/capucinoxx/forlorn/network"
+	"github.com/capucinoxx/forlorn/protocol"
 )
 
 const (
@@ -23,7 +24,7 @@ const (
 
 // Protocol est une interface pour encoder et décoder des messages réseau.
 type Protocol interface {
-	Encode(id int, currentGameTime uint32, message []byte) []byte
+	Encode(id int, currentGameTime uint32, message *model.ClientMessage) []byte
 	Decode(data []byte) model.ClientMessage
 }
 
@@ -132,8 +133,37 @@ func (nm *NetworkManager) Send(client *model.Client, message []byte) {
 }
 
 // BroadcastGameState envoie l'état actuel de la partie à tous les joueurs.
-func (nm *NetworkManager) BroadcastGameState() {
-	// TODO: envoyer l'état de la map à tous les joueurs
+// On envoi pour chaque joueur un paquet de données contenant l'identifiant du
+// joueur ainsi que les données du joueur, soit:
+// [0:1 id][1:2 messageType][2:6 currentTime][6:fin (position)]
+func (nm *NetworkManager) BroadcastGameState(state *model.GameState) {
+	players := state.Players()
+	buf := make([]byte, 0, len(players)*protocol.PlayerPacketSize)
+
+	for _, p := range players {
+		buf = append(buf, nm.protocol.Encode(p.ID, 0, &model.ClientMessage{
+			MessageType: model.Position,
+			Body:        p,
+		})...)
+	}
+
+	if len(buf) > 0 {
+		nm.broadcast <- buf
+	}
+}
+
+// BroadcastGameEnd envoie un message de fin de partie à tous les joueurs.
+func (nm *NetworkManager) BroadcastGameEnd() {
+	nm.broadcast <- nm.protocol.Encode(0, 0, &model.ClientMessage{
+		MessageType: model.GameEnd,
+	})
+}
+
+// BroadcastGameStart envoie un message de début de partie à tous les joueurs.
+func (nm *NetworkManager) BroadcastGameStart() {
+	nm.broadcast <- nm.protocol.Encode(0, 0, &model.ClientMessage{
+		MessageType: model.GameStart,
+	})
 }
 
 // writer écrit les messages sortants dans le réseau WebSocket. Si un message
