@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"log"
 	"time"
 
 	"github.com/capucinoxx/forlorn/model"
@@ -55,18 +56,6 @@ func (gm *GameManager) UnregisterPlayer(conn model.Connection) {
 	}
 }
 
-// HeartBeat envoie un message de battement de coeur au serveur de jeu toutes les 5 secondes.
-// Cela permet au serveur de jeu de savoir que le gestionnaire de jeu est toujours actif.
-func (gm *GameManager) HeartBeat() {
-	time.Sleep(time.Second)
-
-	ticker := time.NewTicker(time.Second * 5)
-	// gm.server.Init(gm.nm.Address())
-	for range ticker.C {
-		// gm.server.SendHeartbeat(gm.state)
-	}
-}
-
 // Start démarre le gestionnaire de jeu. Il initialise le serveur de jeu et
 // démarre la boucle de jeu.
 func (gm *GameManager) Start() {
@@ -82,11 +71,23 @@ func (gm *GameManager) process(p *model.Player, players []*model.Player, timeste
 	for len(p.Client.In) != 0 {
 		message := <-p.Client.In
 		switch msgType := message.MessageType; msgType {
-		case 0:
-			// token := message.Body.(string)
-			// TODO: authenticate player
-		case 1:
-			// TODO: update player information
+		case model.Spawn:
+			// Lorsqu'un joueur se connecte, il doit envoyer un message de type Spawn
+			// pour s'authentifier. Si le jeton d'authentification est valide, le joueur
+			// est autorisé à rejoindre la partie. Sinon, le joueur est déconnecté.
+			tkn := message.Body.(string)
+			if !gm.am.Authenticate(tkn) {
+				gm.nm.ForceDisconnect(p)
+				continue
+			}
+			log.Printf("Player %d spawned", p.ID)
+		case model.Position:
+			// Lorsqu'un joueur envoie un message de type Position, cela signifie
+			// qu'il a bougé ou tourné. Le message contient les nouvelles coordonnées
+			// du joueur. Ces coordonnées sont utilisées pour mettre à jour la position
+			// du joueur.
+			p.Controls = message.Body.(model.Controls)
+			p.Update(players, gm.state, timestep)
 		}
 	}
 }
