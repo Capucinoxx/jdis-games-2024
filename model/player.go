@@ -88,7 +88,7 @@ func (p *Player) HandleMovement(players []*Player, m *Map, dt float32) {
 		p.applyMovement()
 	}
 
-	r.lastRotation = r.rotation
+	r.lastRotation = r.Rotation
 }
 
 // checkCollisionWithPlayers retourne vrai si le joueur entre en collision avec
@@ -138,12 +138,12 @@ func (p *Player) updateVelocity(dt float32, hasCollision bool) {
 func (p *Player) updateRotation(dt float32) {
 	r := p.Collider
 	if p.Controls.Left {
-		r.rotation += defaultRotationSpeed * dt
+		r.Rotation += defaultRotationSpeed * dt
 	}
 	if p.Controls.Right {
-		r.rotation -= defaultRotationSpeed * dt
+		r.Rotation -= defaultRotationSpeed * dt
 	}
-	rd := r.rotation - r.lastRotation
+	rd := r.Rotation - r.lastRotation
 	p.applyRotation(rd)
 }
 
@@ -162,7 +162,7 @@ func (p *Player) applyRotation(rd float32) {
 // les points du joueur.
 func (p *Player) applyMovement() {
 	r := p.Collider
-	points := []*Point{r.rect.a, r.rect.b, r.rect.c, r.rect.d, r.look, r.pivot}
+	points := []*Point{r.rect.a, r.rect.b, r.rect.c, r.rect.d, r.look, r.Pivot}
 	for _, point := range points {
 		point.X += r.dir.X * r.velocity
 		point.Y += r.dir.Y * r.velocity

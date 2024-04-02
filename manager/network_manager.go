@@ -24,7 +24,7 @@ const (
 // Protocol est une interface pour encoder et décoder des messages réseau.
 type Protocol interface {
 	Encode(id int, currentGameTime uint32, message []byte) []byte
-	Decode(data []byte) []byte
+	Decode(data []byte) model.ClientMessage
 }
 
 // Network est une interface pour les transports réseau. Il doit être capable
