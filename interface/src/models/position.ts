@@ -1,3 +1,28 @@
+import { Graphics } from 'pixi.js';
+
+class Polygon {
+  public graphics: Graphics;
+  private vertices: Vector[];
+
+  constructor(...vertices: Vector[]) {
+    this.graphics = new Graphics();
+    this.vertices = vertices;
+
+    this.draw();
+  }
+
+  private draw(): void {
+    this.graphics.clear();
+    this.graphics.moveTo(this.vertices[0].x, this.vertices[0].y);
+    for (let i = 1; i < this.vertices.length; i++) {
+      this.graphics.lineTo(this.vertices[i].x, this.vertices[i].y);
+    }
+    this.graphics.lineTo(this.vertices[0].x, this.vertices[0].y);
+    this.graphics.fill(0x000000);
+    this.graphics.stroke({ color: 0xffffff, width: 1  });
+  }
+};
+
 
 class Vector {
   constructor(public x: number, public y: number) {}
@@ -49,4 +74,4 @@ class Vector {
   }
 };
 
-export { Vector };
+export { Polygon, Vector };
