@@ -6,6 +6,7 @@ import (
 	"github.com/capucinoxx/forlorn/model"
 	"github.com/capucinoxx/forlorn/network"
 	"github.com/capucinoxx/forlorn/protocol"
+	"github.com/capucinoxx/forlorn/utils"
 )
 
 const (
@@ -88,12 +89,15 @@ func (nm *NetworkManager) run() {
 	for {
 		select {
 		case c := <-nm.register:
+			utils.Log("client", "register", "%s", c.Connection.Identifier())
 			nm.clients[c] = true
 			go nm.writer(c)
 			go nm.reader(c)
 
 		case c := <-nm.unregister:
 			if _, ok := nm.clients[c]; ok {
+				utils.Log("client", "unregister", "%s", c.Connection.Identifier())
+
 				// TODO: gracefully disconnect client
 				delete(nm.clients, c)
 				nm.transport.Register(c.Connection)
@@ -137,6 +141,8 @@ func (nm *NetworkManager) Send(client *model.Client, message []byte) {
 // joueur ainsi que les données du joueur, soit:
 // [0:1 id][1:2 messageType][2:6 currentTime][6:fin (position)]
 func (nm *NetworkManager) BroadcastGameState(state *model.GameState) {
+	utils.Log("network", "broadcast", "game state")
+
 	players := state.Players()
 	buf := make([]byte, 0, len(players)*protocol.PlayerPacketSize)
 
@@ -154,6 +160,8 @@ func (nm *NetworkManager) BroadcastGameState(state *model.GameState) {
 
 // BroadcastGameEnd envoie un message de fin de partie à tous les joueurs.
 func (nm *NetworkManager) BroadcastGameEnd() {
+	utils.Log("network", "broadcast", "game end")
+
 	nm.broadcast <- nm.protocol.Encode(0, 0, &model.ClientMessage{
 		MessageType: model.GameEnd,
 	})
@@ -161,6 +169,8 @@ func (nm *NetworkManager) BroadcastGameEnd() {
 
 // BroadcastGameStart envoie un message de début de partie à tous les joueurs.
 func (nm *NetworkManager) BroadcastGameStart(state *model.GameState) {
+	utils.Log("network", "broadcast", "game start")
+
 	nm.broadcast <- nm.protocol.Encode(0, 0, &model.ClientMessage{
 		MessageType: model.GameStart,
 		Body:        state.Map.Colliders,
