@@ -1,8 +1,7 @@
 import { Application } from 'pixi.js';
 import { Vector } from './models/position';
 import { Player } from './models/player';
-import { PlayerManager } from './manage/player_manager';
-import { MazeManager } from './manage/maze_manager';
+import { MazeManager, PlayerManager } from './manager';
 import { colliders } from './models/fake_maze';
 
 const players = [
