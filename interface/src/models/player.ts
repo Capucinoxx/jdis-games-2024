@@ -5,7 +5,7 @@ import { Vector } from './position';
  * Player représente un joueur dans le jeu.
  */
 class Player {
-  static readonly RADIUS: number = 20;
+  static readonly RADIUS: number = 24;
 
   private name: string;
   private color: string;
@@ -30,8 +30,9 @@ class Player {
    */
   private draw(): void {
     this.graphics.clear();
-    this.graphics.poly(this.points(), false);
+    this.graphics.poly(this.points(), true);
     this.graphics.fill(this.color);
+    this.graphics.stroke({ color: 0x000000, width: 4 });
   }
 
   /**
@@ -70,3 +71,5 @@ class Player {
     this.graphics.y += (dy / distance * speed) || 0;
   }
 };
+
+export { Player };
