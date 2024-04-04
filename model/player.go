@@ -30,8 +30,7 @@ const (
 // orsqu'un contrôle est activé, le joueur effectue
 // cette action.
 type Controls struct {
-	Left  bool
-	Right bool
+	Rotation uint32
 }
 
 type Player struct {
@@ -83,12 +82,12 @@ func (p *Player) HandleMovement(players []*Player, m *Map, dt float32) {
 	hasCollision := p.checkCollisionWithPlayers(players) || p.checkCollisionWithMap(m)
 
 	p.updateVelocity(dt, hasCollision)
-	p.updateRotation(dt)
+	p.updateRotation()
 	if hasCollision {
 		p.applyMovement()
 	}
 
-	r.lastRotation = r.Rotation
+	r.Rotation = (r.Rotation) % 360
 }
 
 // checkCollisionWithPlayers retourne vrai si le joueur entre en collision avec
@@ -123,11 +122,7 @@ func (p *Player) checkCollisionWithMap(m *Map) bool {
 // Si le joueur entre en collision, sa vitesse est réduite à 0.
 func (p *Player) updateVelocity(dt float32, hasCollision bool) {
 	r := p.Collider
-	r.velocity -= float32(defaultForwardSpeed*defaultRotationSpeed) * dt
-
-	if r.velocity < 0 {
-		r.velocity = 0
-	}
+	r.velocity -= float32(defaultForwardSpeed) * dt
 
 	if !hasCollision {
 		r.velocity += float32(defaultForwardSpeed) * dt
@@ -135,21 +130,13 @@ func (p *Player) updateVelocity(dt float32, hasCollision bool) {
 }
 
 // updateRotation met à jour la rotation du joueur en fonction de ses contrôles.
-func (p *Player) updateRotation(dt float32) {
-	r := p.Collider
-	if p.Controls.Left {
-		r.Rotation += defaultRotationSpeed * dt
-	}
-	if p.Controls.Right {
-		r.Rotation -= defaultRotationSpeed * dt
-	}
-	rd := r.Rotation - r.lastRotation
-	p.applyRotation(rd)
+func (p *Player) updateRotation() {
+	p.applyRotation(p.Controls.Rotation)
 }
 
 // applyRotation applique la rotation spécifiée au joueur. La rotation est appliquée
 // à tous les points du joueur.
-func (p *Player) applyRotation(rd float32) {
+func (p *Player) applyRotation(rd uint32) {
 	r := p.Collider
 	points := []*Point{r.rect.a, r.rect.b, r.rect.c, r.rect.d, r.look}
 	for _, point := range points {

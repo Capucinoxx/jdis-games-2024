@@ -130,8 +130,7 @@ func (b BinaryProtocol) Decode(data []byte) model.ClientMessage {
 func decodePlayerInput(data []byte, message *model.ClientMessage) {
 	p := message.Body.(*model.Player)
 
-	p.Controls.Left = data[0] == 1
-	p.Controls.Right = data[1] == 1
+	p.Controls.Rotation = binary.LittleEndian.Uint32(data)
 
 	message.Body = p
 }

@@ -5,9 +5,6 @@ import "math"
 const (
 	// defaultForwardSpeed est la vitesse de déplacement par défaut.
 	defaultForwardSpeed = 15
-
-	// defaultRotationSpeed est la vitesse de rotation par défaut.
-	defaultRotationSpeed = 1.5
 )
 
 // Rect représente un rectangle dans un espace 2D.
@@ -28,11 +25,8 @@ type RectCollider struct {
 	dir   *Point
 	Pivot *Point
 
-	Rotation     float32
-	lastRotation float32
-
-	forwardSpeed  float32
-	rotationSpeed float32
+	Rotation     uint32
+	forwardSpeed float32
 
 	velocity float32
 }
@@ -51,10 +45,8 @@ func NewRectCollider(x, y, size float32) *RectCollider {
 		look:  &Point{X: x, Y: y + 2},
 		dir:   &Point{X: 0, Y: 0},
 
-		Rotation:      0,
-		lastRotation:  0,
-		forwardSpeed:  defaultForwardSpeed,
-		rotationSpeed: defaultRotationSpeed,
+		Rotation:     0,
+		forwardSpeed: defaultForwardSpeed,
 	}
 }
 
@@ -67,7 +59,7 @@ func (r *RectCollider) CalculDirection() {
 }
 
 // Rotate tourne le RectCollider de l'angle spécifié.
-func (r *RectCollider) Rotate(angle float32) {
+func (r *RectCollider) Rotate(angle uint32) {
 	r.rotate(angle, r.look)
 	r.rotate(angle, r.rect.a)
 	r.rotate(angle, r.rect.b)
@@ -76,7 +68,7 @@ func (r *RectCollider) Rotate(angle float32) {
 }
 
 // rotate tourne le point spécifié autour du pivot du RectCollider.
-func (r *RectCollider) rotate(theta float32, p *Point) {
+func (r *RectCollider) rotate(theta uint32, p *Point) {
 	sint := float32(math.Sin(float64(theta)))
 	cost := float32(math.Cos(float64(theta)))
 
