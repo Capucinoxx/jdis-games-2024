@@ -1,5 +1,5 @@
 import { Application, Container } from 'pixi.js';
-import { Polygon } from '../models/position';
+import { Polygon, Vector } from '../models/position';
 
 class MazeManager {
   private container: Container;
@@ -12,23 +12,33 @@ class MazeManager {
     app.stage.addChild(this.container);
   }
 
+  /**
+   * set Met à jour la liste de polygones à afficher. Cela
+   * force le re-rendu des polygones. 
+   * 
+   * @param colliders {Polygon[]} Les polygones à afficher.
+   */
   public set(colliders: Polygon[]): void {
     this.colliders = colliders;
     this.draw();
   }
 
+  /**
+   * draw Force le rendu des polygones.
+   */
   public draw(): void {
     this.container.removeChildren();
     this.colliders.forEach(collider => {
       this.container.addChild(collider.graphics);
     });
   }
+  
+  public get view(): Container {
+    return this.container;
+  }
 
-  public multiply_scale(factor: number): void {
-    this.scale *= factor;
-    this.colliders.map(collider => {
-      collider.graphics.scale.set(this.scale);
-    });
+  public get size(): Vector {
+    return new Vector(this.container.width, this.container.height);
   }
 };
 

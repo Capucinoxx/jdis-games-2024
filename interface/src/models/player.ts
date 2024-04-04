@@ -1,4 +1,4 @@
-import { Graphics, PointData } from 'pixi.js';
+import { Graphics, ObservablePoint, PointData } from 'pixi.js';
 import { Vector } from './position';
 
 /**
@@ -18,7 +18,7 @@ class Player {
     this.name = name;
     this.color = color;
     this.sides = sides;
-    this.speed = 1;
+    this.speed = 10;
     this.graphics = new Graphics();
     this.destination = pos;
 
@@ -69,6 +69,14 @@ class Player {
 
     this.graphics.x += (dx / distance * speed) || 0;
     this.graphics.y += (dy / distance * speed) || 0;
+  }
+
+  public get position(): ObservablePoint {
+    return this.graphics.position;
+  }
+
+  public set position(pos: ObservablePoint) {
+    this.graphics.position = pos;
   }
 };
 

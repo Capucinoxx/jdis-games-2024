@@ -41,6 +41,10 @@ class PlayerManager {
     this.container.removeChildren();
     this.players.forEach(player => this.container.addChild(player.graphics));
   }
+
+  public get view(): Container {
+    return this.container;
+  }
 };
 
 export { PlayerManager };
