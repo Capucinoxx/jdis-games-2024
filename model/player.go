@@ -34,7 +34,7 @@ type Controls struct {
 }
 
 type Player struct {
-	ID               int
+	ID               uint8
 	Token            string
 	Nickname         string
 	Health           int
@@ -45,7 +45,7 @@ type Player struct {
 	Collider         *RectCollider
 }
 
-func NewPlayer(id int, x float32, y float32, conn Connection) *Player {
+func NewPlayer(id uint8, x float32, y float32, conn Connection) *Player {
 	return &Player{
 		ID:       id,
 		Collider: NewRectCollider(x, y, playerSize),

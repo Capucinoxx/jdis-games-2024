@@ -14,7 +14,7 @@ type GameState struct {
 	inProgress   bool
 	lastPlayerID int64
 	playerCount  int
-	players      map[int]*Player
+	players      map[uint8]*Player
 	Map          *Map
 	mu           *sync.RWMutex
 }
@@ -26,7 +26,7 @@ func NewGameState() *GameState {
 		inProgress:   false,
 		lastPlayerID: 0,
 		playerCount:  0,
-		players:      make(map[int]*Player),
+		players:      make(map[uint8]*Player),
 		Map:          &Map{},
 		mu:           &sync.RWMutex{},
 	}

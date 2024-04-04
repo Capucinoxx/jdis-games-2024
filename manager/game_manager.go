@@ -56,6 +56,12 @@ func (gm *GameManager) UnregisterPlayer(conn model.Connection) {
 	}
 }
 
+// Init initialise le gestionnaire de jeu. Il démarre le serveur de jeu et
+// attend les connexions des joueurs.
+func (gm *GameManager) Init() error {
+	return gm.nm.Start()
+}
+
 // Start démarre le gestionnaire de jeu. Il initialise le serveur de jeu et
 // démarre la boucle de jeu.
 func (gm *GameManager) Start() {
