@@ -11,6 +11,9 @@ class Polygon {
     this.draw();
   }
 
+  /**
+   * draw Dessine le polygone sur le canvas.
+   */
   private draw(): void {
     this.graphics.clear();
     this.graphics.moveTo(this.vertices[0].x, this.vertices[0].y);
@@ -22,6 +25,12 @@ class Polygon {
     this.graphics.stroke({ color: 0xffffff, width: 1  });
   }
 
+  /**
+   * multiply Multiplie les vecteurs du polygone par un scalaire.
+   * 
+   * @param scalar {number} Scalaire par lequel multiplier le vecteur
+   * @returns Polygone résultant de la multiplication par scalaire
+   */
   public multiply(scalar: number): Polygon {
     let vertices = this.vertices.map(v => v.multiply(scalar));
     return new Polygon(...vertices);
