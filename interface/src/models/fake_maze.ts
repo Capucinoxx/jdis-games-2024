@@ -354,7 +354,6 @@ const colliders: Polygon[] = [
   new Polygon(new Vector(180, 200), new Vector(190, 200)),
   new Polygon(new Vector(200, 190), new Vector(200, 200)),
   new Polygon(new Vector(190, 200), new Vector(200, 200)),
-  
-];
+].map(polygon => polygon.multiply(20));
 
 export { colliders };

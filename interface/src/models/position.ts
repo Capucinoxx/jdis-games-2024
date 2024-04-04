@@ -21,6 +21,11 @@ class Polygon {
     this.graphics.fill(0x000000);
     this.graphics.stroke({ color: 0xffffff, width: 1  });
   }
+
+  public multiply(scalar: number): Polygon {
+    let vertices = this.vertices.map(v => v.multiply(scalar));
+    return new Polygon(...vertices);
+  }
 };
 
 

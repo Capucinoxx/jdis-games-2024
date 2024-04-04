@@ -1,5 +1,5 @@
 import { Application, Container } from 'pixi.js';
-import { Polygon } from '../models/position';
+import { Polygon, Vector } from '../models/position';
 
 class MazeManager {
   private container: Container;
@@ -29,6 +29,14 @@ class MazeManager {
     this.colliders.map(collider => {
       collider.graphics.scale.set(this.scale);
     });
+  }
+
+  public get view(): Container {
+    return this.container;
+  }
+
+  public get size(): Vector {
+    return new Vector(this.container.width, this.container.height);
   }
 };
 
