@@ -25,7 +25,7 @@ const (
 
 // Protocol est une interface pour encoder et décoder des messages réseau.
 type Protocol interface {
-	Encode(id int, currentGameTime uint32, message *model.ClientMessage) []byte
+	Encode(id uint8, currentGameTime uint32, message *model.ClientMessage) []byte
 	Decode(data []byte) model.ClientMessage
 }
 
@@ -42,7 +42,7 @@ type Network interface {
 type NetworkManager struct {
 	Ready bool
 
-	transport network.Network
+	transport *network.Network
 
 	protocol Protocol
 
@@ -57,7 +57,7 @@ type NetworkManager struct {
 
 // NewNetworkManager crée un nouveau NetworkManager avec le transport réseau et le
 // protocole spécifiés.
-func NewNetworkManager(transport network.Network, protocol Protocol) *NetworkManager {
+func NewNetworkManager(transport *network.Network, protocol Protocol) *NetworkManager {
 	return &NetworkManager{
 		Ready:      false,
 		transport:  transport,
