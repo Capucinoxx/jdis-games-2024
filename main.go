@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/capucinoxx/forlorn/handler"
 	"github.com/capucinoxx/forlorn/manager"
 	"github.com/capucinoxx/forlorn/network"
 	"github.com/capucinoxx/forlorn/protocol"
@@ -22,6 +23,7 @@ func main() {
 	transport.SetUnregisterFunc(gm.UnregisterPlayer)
 
 	go func() {
+		handler.NewHttpHandler(gm, am).Handle()
 		log.Fatal(gm.Init())
 	}()
 
