@@ -100,7 +100,7 @@ func (nm *NetworkManager) run() {
 
 				// TODO: gracefully disconnect client
 				delete(nm.clients, c)
-				nm.transport.Register(c.Connection)
+				nm.transport.Unregister(c.Connection)
 			}
 
 		case message := <-nm.broadcast:
@@ -220,8 +220,15 @@ func (nm *NetworkManager) reader(client *model.Client) {
 	for {
 		msg, err := client.Connection.Read()
 		if err != nil {
+
+			utils.Log("client", "read", "error: %v", err)
 			break
 		}
-		client.In <- nm.protocol.Decode(msg)
+		// utils.Log("client", "read", "%v", nm.protocol.Decode(msg))
+
+		decoded := nm.protocol.Decode(msg)
+		utils.Log("client", "read", "%v", decoded)
+
+		client.In <- decoded
 	}
 }

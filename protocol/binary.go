@@ -114,6 +114,7 @@ func (b BinaryProtocol) encodeCollider(c *model.Collider) []byte {
 // représentation du message :
 // [0:1 messageType] [1:fin messageData]
 func (b BinaryProtocol) Decode(data []byte) model.ClientMessage {
+	// TODO: validate data length
 	msg := model.ClientMessage{
 		MessageType: model.MessageType(data[0]),
 	}
@@ -128,9 +129,9 @@ func (b BinaryProtocol) Decode(data []byte) model.ClientMessage {
 // decodePlayerInput permet de décoder les données de contrôle
 // envoyées par un joueur.
 func decodePlayerInput(data []byte, message *model.ClientMessage) {
-	p := message.Body.(*model.Player)
+	controls := model.Controls{
+		Rotation: binary.LittleEndian.Uint32(data),
+	}
 
-	p.Controls.Rotation = binary.LittleEndian.Uint32(data)
-
-	message.Body = p
+	message.Body = controls
 }

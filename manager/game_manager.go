@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/capucinoxx/forlorn/model"
+	"github.com/capucinoxx/forlorn/utils"
 )
 
 // tickrate est le nombre de mises à jour du jeu par seconde.
@@ -76,6 +77,7 @@ func (gm *GameManager) Start() {
 func (gm *GameManager) process(p *model.Player, players []*model.Player, timestep float32) {
 	for len(p.Client.In) != 0 {
 		message := <-p.Client.In
+
 		switch msgType := message.MessageType; msgType {
 		case model.Spawn:
 			// Lorsqu'un joueur se connecte, il doit envoyer un message de type Spawn
@@ -108,18 +110,21 @@ func (gm *GameManager) gameLoop() {
 	timestep := float32(interval/time.Millisecond) / 1000.0
 
 	ticker := time.NewTicker(interval)
-	gm.nm.BroadcastGameState(gm.state)
+	gm.nm.BroadcastGameStart(gm.state)
 
 	for range ticker.C {
 		gm.tickStart = time.Now()
 		players := gm.state.Players()
 
+		utils.Log("game", "loop", "Timestep: %f", timestep)
 		for _, p := range players {
 			gm.process(p, players, timestep)
 			// handle respawn
 		}
 
+		utils.Log("game", "loop", "Elapsed time: %f", time.Since(gm.tickStart).Seconds())
 		gm.nm.BroadcastGameState(gm.state)
+		utils.Log("game", "loop", "Elapsed time: %f", time.Since(gm.tickStart).Seconds())
 
 	}
 	ticker.Stop()

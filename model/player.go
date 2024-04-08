@@ -1,6 +1,10 @@
 package model
 
-import "time"
+import (
+	"time"
+
+	"github.com/capucinoxx/forlorn/utils"
+)
 
 // Connection représente une connexion réseau. Elle peut être utilisée pour lire
 // et écrire des données sur le réseau. Elle peut également être utilisée pour
@@ -67,6 +71,7 @@ func (p *Player) IsAlive() bool {
 // Update met à jour l'état du joueur en fonction de l'état actuel du jeu.
 func (p *Player) Update(players []*Player, game *GameState, dt float32) {
 	m := game.Map
+	utils.Log("player", "update", "%f", dt)
 	if !p.IsAlive() {
 		p.respawnCountdown += dt
 		return
@@ -88,6 +93,7 @@ func (p *Player) HandleMovement(players []*Player, m *Map, dt float32) {
 	}
 
 	r.Rotation = (r.Rotation) % 360
+	utils.Log("player", "rotation", "%f", r.Rotation)
 }
 
 // checkCollisionWithPlayers retourne vrai si le joueur entre en collision avec
