@@ -55,8 +55,8 @@ func NewPlayer(id uint8, x float32, y float32, conn Connection) *Player {
 		Collider: NewRectCollider(x, y, playerSize),
 		Health:   defaultHealth,
 		Client: &Client{
-			Out:        make(chan []byte),
-			In:         make(chan ClientMessage),
+			Out:        make(chan []byte, 10),
+			In:         make(chan ClientMessage, 10),
 			Connection: conn,
 		},
 	}
@@ -93,7 +93,6 @@ func (p *Player) HandleMovement(players []*Player, m *Map, dt float32) {
 	}
 
 	r.Rotation = (r.Rotation) % 360
-	utils.Log("player", "rotation", "%f", r.Rotation)
 }
 
 // checkCollisionWithPlayers retourne vrai si le joueur entre en collision avec
