@@ -141,8 +141,6 @@ func (nm *NetworkManager) Send(client *model.Client, message []byte) {
 // joueur ainsi que les données du joueur, soit:
 // [0:1 id][1:2 messageType][2:6 currentTime][6:fin (position)]
 func (nm *NetworkManager) BroadcastGameState(state *model.GameState) {
-	utils.Log("network", "broadcast", "game state")
-
 	players := state.Players()
 	buf := make([]byte, 0, len(players)*protocol.PlayerPacketSize)
 
