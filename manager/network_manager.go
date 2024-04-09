@@ -220,15 +220,10 @@ func (nm *NetworkManager) reader(client *model.Client) {
 	for {
 		msg, err := client.Connection.Read()
 		if err != nil {
-
-			utils.Log("client", "read", "error: %v", err)
 			break
 		}
-		// utils.Log("client", "read", "%v", nm.protocol.Decode(msg))
 
 		decoded := nm.protocol.Decode(msg)
-		utils.Log("client", "read", "%v", decoded)
-
 		client.In <- decoded
 	}
 }

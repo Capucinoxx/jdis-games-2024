@@ -3,8 +3,6 @@ package model
 import (
 	"sync"
 	"time"
-
-	"github.com/capucinoxx/forlorn/utils"
 )
 
 const gameLength = 10
@@ -44,10 +42,8 @@ func (gs *GameState) InProgess() bool {
 
 // Players retourne une liste de tous les joueurs.
 func (gd *GameState) Players() []*Player {
-	utils.Log("game", "players", "Retrieving players")
 	gd.mu.RLock()
 	defer gd.mu.RUnlock()
-	utils.Log("game", "players", "Retrieving players--")
 
 	players := make([]*Player, 0, len(gd.players))
 	for _, p := range gd.players {

@@ -77,6 +77,7 @@ func (gm *GameManager) Start() {
 func (gm *GameManager) process(p *model.Player, players []*model.Player, timestep float32) {
 	for len(p.Client.In) != 0 {
 		message := <-p.Client.In
+		utils.Log("game", "process", "Player %d received message %v", p.ID, message)
 
 		switch msgType := message.MessageType; msgType {
 		case model.Spawn:
@@ -96,6 +97,7 @@ func (gm *GameManager) process(p *model.Player, players []*model.Player, timeste
 			// du joueur.
 			p.Controls = message.Body.(model.Controls)
 			p.Update(players, gm.state, timestep)
+
 		}
 	}
 }
@@ -116,16 +118,12 @@ func (gm *GameManager) gameLoop() {
 		gm.tickStart = time.Now()
 		players := gm.state.Players()
 
-		utils.Log("game", "loop", "Timestep: %f", timestep)
 		for _, p := range players {
 			gm.process(p, players, timestep)
 			// handle respawn
 		}
 
-		utils.Log("game", "loop", "Elapsed time: %f", time.Since(gm.tickStart).Seconds())
 		gm.nm.BroadcastGameState(gm.state)
-		utils.Log("game", "loop", "Elapsed time: %f", time.Since(gm.tickStart).Seconds())
-
 	}
 	ticker.Stop()
 
