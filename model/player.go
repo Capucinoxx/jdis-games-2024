@@ -1,9 +1,8 @@
 package model
 
 import (
+	"fmt"
 	"time"
-
-	"github.com/capucinoxx/forlorn/utils"
 )
 
 // Connection représente une connexion réseau. Elle peut être utilisée pour lire
@@ -71,7 +70,6 @@ func (p *Player) IsAlive() bool {
 // Update met à jour l'état du joueur en fonction de l'état actuel du jeu.
 func (p *Player) Update(players []*Player, game *GameState, dt float32) {
 	m := game.Map
-	utils.Log("player", "update", "%f", dt)
 	if !p.IsAlive() {
 		p.respawnCountdown += dt
 		return
@@ -92,7 +90,12 @@ func (p *Player) HandleMovement(players []*Player, m *Map, dt float32) {
 		p.applyMovement()
 	}
 
-	r.Rotation = (r.Rotation) % 360
+	r.Rotation = (r.Rotation + p.Controls.Rotation) % 360
+}
+
+// String retourne une représentation en chaîne de caractères du joueur.
+func (p *Player) String() string {
+	return fmt.Sprintf("[%d: { pos: (%f, %f), rot: %d, health: %d }]", p.ID, p.Collider.Pivot.X, p.Collider.Pivot.Y, p.Collider.Rotation, p.Health)
 }
 
 // checkCollisionWithPlayers retourne vrai si le joueur entre en collision avec
