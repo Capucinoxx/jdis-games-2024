@@ -100,7 +100,7 @@ func (nm *NetworkManager) run() {
 
 				// TODO: gracefully disconnect client
 				delete(nm.clients, c)
-				nm.transport.Register(c.Connection)
+				nm.transport.Unregister(c.Connection)
 			}
 
 		case message := <-nm.broadcast:
@@ -222,6 +222,8 @@ func (nm *NetworkManager) reader(client *model.Client) {
 		if err != nil {
 			break
 		}
-		client.In <- nm.protocol.Decode(msg)
+
+		decoded := nm.protocol.Decode(msg)
+		client.In <- decoded
 	}
 }

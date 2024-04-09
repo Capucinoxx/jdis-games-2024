@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 // Connection représente une connexion réseau. Elle peut être utilisée pour lire
 // et écrire des données sur le réseau. Elle peut également être utilisée pour
@@ -51,8 +54,8 @@ func NewPlayer(id uint8, x float32, y float32, conn Connection) *Player {
 		Collider: NewRectCollider(x, y, playerSize),
 		Health:   defaultHealth,
 		Client: &Client{
-			Out:        make(chan []byte),
-			In:         make(chan ClientMessage),
+			Out:        make(chan []byte, 10),
+			In:         make(chan ClientMessage, 10),
 			Connection: conn,
 		},
 	}
@@ -87,7 +90,12 @@ func (p *Player) HandleMovement(players []*Player, m *Map, dt float32) {
 		p.applyMovement()
 	}
 
-	r.Rotation = (r.Rotation) % 360
+	r.Rotation = (r.Rotation + p.Controls.Rotation) % 360
+}
+
+// String retourne une représentation en chaîne de caractères du joueur.
+func (p *Player) String() string {
+	return fmt.Sprintf("[%d: { pos: (%f, %f), rot: %d, health: %d }]", p.ID, p.Collider.Pivot.X, p.Collider.Pivot.Y, p.Collider.Rotation, p.Health)
 }
 
 // checkCollisionWithPlayers retourne vrai si le joueur entre en collision avec
