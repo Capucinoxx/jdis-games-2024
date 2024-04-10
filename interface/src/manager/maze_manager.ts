@@ -10,8 +10,6 @@ class MazeManager {
   constructor(app: Application) {
     this.container = new Container();
     app.stage.addChild(this.container);
-
-    this.retrieve();
   }
 
   /**
@@ -43,10 +41,10 @@ class MazeManager {
     return new Vector(this.container.width, this.container.height);
   }
 
-  public async retrieve(): Promise<void> {
+  public async retrieve(): Promise<Polygon[]> {
     const response = await fetch('http://localhost:8087/map');
     const data = await response.json();
-    console.log(data);
+    return (data.map.Colliders as { 'points': { 'x': number, 'y': number }[] }[]).map(collider => new Polygon(...collider.points.map(p => new Vector(p.x, p.y).multiply(150))));
   }
 };
 

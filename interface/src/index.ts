@@ -25,7 +25,8 @@ ws.subscribe((msg: ArrayBuffer): void => {
   document.body.appendChild(app.canvas);
 
   const maze_manager = new MazeManager(app);
-  maze_manager.set(colliders);
+  // maze_manager.set(colliders);
+  maze_manager.set(await maze_manager.retrieve());
 
   const player_manager = new PlayerManager(app);
   player_manager.append(...players);
