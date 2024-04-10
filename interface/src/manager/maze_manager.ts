@@ -40,6 +40,12 @@ class MazeManager {
   public get size(): Vector {
     return new Vector(this.container.width, this.container.height);
   }
+
+  public async retrieve(): Promise<Polygon[]> {
+    const response = await fetch('http://localhost:8087/map');
+    const data = await response.json();
+    return (data.map.Colliders as { 'points': { 'x': number, 'y': number }[] }[]).map(collider => new Polygon(...collider.points.map(p => new Vector(p.x, p.y).multiply(150))));
+  }
 };
 
 export { MazeManager };

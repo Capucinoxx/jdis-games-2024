@@ -2,6 +2,7 @@ package manager
 
 import (
 	"log"
+	"sync"
 	"time"
 
 	"github.com/capucinoxx/forlorn/model"
@@ -19,6 +20,7 @@ type GameManager struct {
 	am        *AuthManager
 	nm        *NetworkManager
 	state     *model.GameState
+	mu        sync.Mutex
 }
 
 // NewGameManager crée un nouveau gestionnaire de jeu avec le serveur de jeu et
@@ -68,6 +70,15 @@ func (gm *GameManager) Init() error {
 func (gm *GameManager) Start() {
 	gm.state.Start()
 	go gm.gameLoop()
+}
+
+// State retourne l'état actuel du jeu.
+func (gm *GameManager) State() (model.Map, int) {
+	gm.mu.Lock()
+	defer gm.mu.Unlock()
+
+	state := gm.state
+	return *state.Map, 0
 }
 
 // process traite les messages entrants des joueurs. Il met à jour l'état du jeu

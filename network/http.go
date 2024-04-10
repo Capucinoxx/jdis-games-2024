@@ -17,10 +17,37 @@ func logMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+// headers est un Middleware qui définit les en-têtes de réponse HTTP
+// en ajoutant certaines protections et configurations.
+func headers(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Prévenir le navigateur de ne pas effectuer de requêtes DNS préalables.
+		w.Header().Set("X-DNS-Prefetch-Control", "off")
+
+		// Refuse les requêtes de navigateur à travers les frames.
+		w.Header().Set("X-Frame-Options", "DENY")
+		w.Header().Set("Strict-Transport-Security", "max-age=5184000; includeSubDomains")
+
+		// Protection contre les attaques XSS.
+		w.Header().Set("X-XSS-Protection", "1; mode=block")
+
+		// TODO: Changer l'accès à l'origine pour correspondre à l'URL du jeu.
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		if r.Method == "OPTIONS" {
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 // chain renvoie une fonction http.HandlerFunc qui exécute les middlewares
 // dans l'ordre donné.
 func chain(handler http.HandlerFunc, middlewares ...Middleware) http.HandlerFunc {
-	handler = logMiddleware(handler).ServeHTTP
+	handler = logMiddleware(headers(handler)).ServeHTTP
 	for _, middleware := range middlewares {
 		handler = middleware(handler).ServeHTTP
 	}
