@@ -4,12 +4,20 @@ import { Player } from './models/player';
 import { MazeManager, PlayerManager } from './manager';
 import { colliders } from './models/fake_maze';
 import { Camera } from './models/camera';
+import { WebsocketService } from './service';
 
 const players = [
   new Player('player1', 'red', 7, new Vector(300, 300)),
 ];
 
 players[0].set_destination(new Vector(500, 3000));
+
+const ws = new WebsocketService();
+ws.connect('ws://localhost:8080');
+
+ws.subscribe((msg: ArrayBuffer): void => {
+  console.log(`Receive message: ${msg.byteLength} bytes`);
+});
 
 (async () => {
   const app = new Application();
