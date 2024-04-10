@@ -2,6 +2,7 @@ package protocol
 
 import (
 	"encoding/binary"
+	"math"
 
 	"github.com/capucinoxx/forlorn/model"
 )
@@ -67,8 +68,8 @@ func (b BinaryProtocol) encodePlayerState(message *model.ClientMessage) []byte {
 	p := message.Body.(*model.Player)
 	buf := make([]byte, PlayerPacketSize)
 
-	binary.LittleEndian.PutUint32(buf[0:4], uint32(p.Collider.Pivot.X))
-	binary.LittleEndian.PutUint32(buf[4:8], uint32(p.Collider.Pivot.Y))
+	binary.LittleEndian.PutUint32(buf[0:4], math.Float32bits(p.Collider.Pivot.X))
+	binary.LittleEndian.PutUint32(buf[4:8], math.Float32bits(p.Collider.Pivot.Y))
 	binary.LittleEndian.PutUint32(buf[8:12], uint32(p.Collider.Rotation))
 
 	// TODO: shooting statement
