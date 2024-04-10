@@ -81,6 +81,10 @@ func (p *Point) IsInPolygon(poly []*Point) bool {
 	return inside
 }
 
+func (p *Point) Hash() uint64 {
+	return uint64(math.Float32bits(p.X))<<32 | uint64(math.Float32bits(p.Y))
+}
+
 // normalize normalise le vecteur. Cela signifie que la longueur du vecteur est
 // égale à 1.
 func (p *Point) normalize() {
@@ -104,7 +108,7 @@ func (c *Collider) polygon() Polygon {
 
 type Grid struct {
 	height, width int
-	cells         map[*Point]map[*Point]struct{}
+	cells         map[uint64]map[uint64]struct{}
 }
 
 // IsInBounds retourne vrai si le point est à l'intérieur des limites de la carte.
@@ -117,14 +121,14 @@ func GenerateGrid(width, height int) *Grid {
 	grid := &Grid{
 		height: height,
 		width:  width,
-		cells:  make(map[*Point]map[*Point]struct{}),
+		cells:  make(map[uint64]map[uint64]struct{}),
 	}
 
-	visited := make(map[*Point]bool)
+	visited := make(map[uint64]bool)
 
-	var dfs func(*Point)
-	dfs = func(pos *Point) {
-		visited[pos] = true
+	var dfs func(Point)
+	dfs = func(pos Point) {
+		visited[pos.Hash()] = true
 
 		dirs := make([]*Point, len(Directions))
 		copy(dirs, Directions)
@@ -133,16 +137,16 @@ func GenerateGrid(width, height int) *Grid {
 		})
 
 		for _, dir := range dirs {
-			v := pos.Add(pos)
-			if grid.isInBounds(v) && !visited[v] {
-				dfs(v)
-				grid.cells[pos][dir] = struct{}{}
-				grid.cells[v][dir.Reflect(NullPoint())] = struct{}{}
+			v := pos.Add(&pos)
+			if grid.isInBounds(v) && !visited[v.Hash()] {
+				dfs(*v)
+				grid.cells[pos.Hash()][dir.Hash()] = struct{}{}
+				grid.cells[v.Hash()][dir.Reflect(NullPoint()).Hash()] = struct{}{}
 			}
 		}
 	}
 
-	dfs(NullPoint())
+	dfs(Point{X: 0, Y: 0})
 
 	return grid
 }
@@ -157,14 +161,19 @@ type Map struct {
 
 // Populate remplit la carte avec des collisions en utilisant la grille spécifiée.
 func (m *Map) Populate(grid *Grid) {
+	// TODO: Fix It
+	if m.cellSize == 0 {
+		m.cellSize = 1
+	}
+
 	for y := 0; y < grid.height; y++ {
 		for x := 0; x < grid.width; x++ {
-			cell := grid.cells[&Point{X: float32(x), Y: float32(y)}]
+			cell := grid.cells[(&Point{X: float32(x), Y: float32(y)}).Hash()]
 			x1, y1 := float32(x)*m.cellSize, float32(y)*m.cellSize
 			x2, y2 := x1+m.cellSize, y1+m.cellSize
 
 			for dir := range Directions {
-				if _, exist := cell[Directions[dir]]; !exist {
+				if _, exist := cell[Directions[dir].Hash()]; !exist {
 					m.Colliders = append(m.Colliders, &Collider{
 						Points: []*Point{
 							{X: x1, Y: y1},

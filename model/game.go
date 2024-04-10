@@ -87,6 +87,8 @@ func (gs *GameState) RemovePlayer(p *Player) int {
 // démarre le chronomètre et met un drapeau pour indiquer
 // que le jeu est en cours.
 func (gs *GameState) Start() {
+	gs.Map.Populate(GenerateGrid(10, 10))
+
 	// players := gs.Players()
 
 	// TODO: initialize player informations (health, score, position)
