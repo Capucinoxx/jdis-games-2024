@@ -25,6 +25,7 @@ func NewHttpHandler(gm *manager.GameManager, am *manager.AuthManager) *HttpHandl
 func (h *HttpHandler) Handle() {
 	network.HandleFunc("/start", h.startGame)
 	network.HandleFunc("/create", h.createAccount)
+	network.HandleFunc("/map", h.getMap)
 }
 
 // createAccount crée un compte utilisateur et retourne un jeton d'authentification.
@@ -52,4 +53,13 @@ func (h *HttpHandler) createAccount(w http.ResponseWriter, r *http.Request) {
 // startGame démarre le serveur de jeu.
 func (h *HttpHandler) startGame(w http.ResponseWriter, r *http.Request) {
 	h.gm.Start()
+}
+
+func (h *HttpHandler) getMap(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	state, ttl := h.gm.State()
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"map": state,
+		"ttl": ttl,
+	})
 }

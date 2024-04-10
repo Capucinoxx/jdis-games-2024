@@ -10,6 +10,8 @@ class MazeManager {
   constructor(app: Application) {
     this.container = new Container();
     app.stage.addChild(this.container);
+
+    this.retrieve();
   }
 
   /**
@@ -39,6 +41,12 @@ class MazeManager {
 
   public get size(): Vector {
     return new Vector(this.container.width, this.container.height);
+  }
+
+  public async retrieve(): Promise<void> {
+    const response = await fetch('http://localhost:8087/map');
+    const data = await response.json();
+    console.log(data);
   }
 };
 
