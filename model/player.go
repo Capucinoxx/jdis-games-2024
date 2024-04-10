@@ -86,7 +86,7 @@ func (p *Player) HandleMovement(players []*Player, m *Map, dt float32) {
 
 	p.updateVelocity(dt, hasCollision)
 	p.updateRotation()
-	if hasCollision {
+	if !hasCollision {
 		p.applyMovement()
 	}
 
@@ -95,7 +95,7 @@ func (p *Player) HandleMovement(players []*Player, m *Map, dt float32) {
 
 // String retourne une représentation en chaîne de caractères du joueur.
 func (p *Player) String() string {
-	return fmt.Sprintf("[%d: { pos: (%f, %f), rot: %d, health: %d }]", p.ID, p.Collider.Pivot.X, p.Collider.Pivot.Y, p.Collider.Rotation, p.Health)
+	return fmt.Sprintf("[%d: { pos: (%f, %f), v: %f, rot: %d, health: %d }]", p.ID, p.Collider.Pivot.X, p.Collider.Pivot.Y, p.Collider.velocity, p.Collider.Rotation, p.Health)
 }
 
 // checkCollisionWithPlayers retourne vrai si le joueur entre en collision avec
@@ -130,11 +130,7 @@ func (p *Player) checkCollisionWithMap(m *Map) bool {
 // Si le joueur entre en collision, sa vitesse est réduite à 0.
 func (p *Player) updateVelocity(dt float32, hasCollision bool) {
 	r := p.Collider
-	r.velocity -= float32(defaultForwardSpeed) * dt
-
-	if !hasCollision {
-		r.velocity += float32(defaultForwardSpeed) * dt
-	}
+	r.velocity = defaultForwardSpeed
 }
 
 // updateRotation met à jour la rotation du joueur en fonction de ses contrôles.
