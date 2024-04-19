@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/capucinoxx/forlorn/model"
-	"github.com/capucinoxx/forlorn/utils"
+	"github.com/capucinoxx/forlorn/pkg/model"
+	"github.com/capucinoxx/forlorn/pkg/utils"
 )
 
 // tickrate est le nombre de mises à jour du jeu par seconde.

@@ -3,7 +3,7 @@ package network
 import (
 	"net/http"
 
-	"github.com/capucinoxx/forlorn/utils"
+	"github.com/capucinoxx/forlorn/pkg/utils"
 )
 
 // Middleware est une fonction qui prend un http.Handler et renvoie un http.Handler.

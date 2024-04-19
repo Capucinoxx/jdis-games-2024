@@ -1,6 +1,8 @@
 package model
 
-import "math"
+import (
+	"math"
+)
 
 const (
 	// defaultForwardSpeed est la vitesse de déplacement par défaut.

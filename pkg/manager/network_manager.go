@@ -3,10 +3,10 @@ package manager
 import (
 	"time"
 
-	"github.com/capucinoxx/forlorn/model"
-	"github.com/capucinoxx/forlorn/network"
-	"github.com/capucinoxx/forlorn/protocol"
-	"github.com/capucinoxx/forlorn/utils"
+	"github.com/capucinoxx/forlorn/pkg/model"
+	"github.com/capucinoxx/forlorn/pkg/network"
+	"github.com/capucinoxx/forlorn/pkg/protocol"
+	"github.com/capucinoxx/forlorn/pkg/utils"
 )
 
 const (

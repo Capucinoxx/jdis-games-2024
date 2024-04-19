@@ -17,7 +17,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/capucinoxx/forlorn/model"
+	"github.com/capucinoxx/forlorn/pkg/model"
 	"github.com/gorilla/websocket"
 )
 
