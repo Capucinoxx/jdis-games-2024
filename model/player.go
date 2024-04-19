@@ -23,7 +23,7 @@ type Connection interface {
 
 const (
 	// playerSize est la taille du joueur.
-	playerSize = 5
+	playerSize = 0.1
 
 	// defaultHealth est la vie par défaut du joueur.
 	defaultHealth = 100
@@ -119,6 +119,8 @@ func (p *Player) checkCollisionWithPlayers(players []*Player) bool {
 func (p *Player) checkCollisionWithMap(m *Map) bool {
 	for _, collider := range m.Colliders {
 		if p.Collider.Collisions(collider.polygon()) {
+			fmt.Println(p.Collider.polygon().String())
+			fmt.Println(collider.polygon().String())
 			return true
 		}
 	}

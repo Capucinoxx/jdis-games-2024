@@ -37,7 +37,7 @@ func NewGameManager(am *AuthManager, nm *NetworkManager) *GameManager {
 func (gm *GameManager) RegisterPlayer(conn model.Connection) {
 	// players := gm.state.Players()
 
-	spawn := []float32{0.0, 0.0} // TODO: Generate spawn position
+	spawn := []float32{3.5, 3.6} // TODO: Generate spawn position
 	player := model.NewPlayer(0, spawn[0], spawn[1], conn)
 
 	gm.nm.Register(player)
@@ -107,6 +107,7 @@ func (gm *GameManager) process(p *model.Player, players []*model.Player, timeste
 			// du joueur. Ces coordonnées sont utilisées pour mettre à jour la position
 			// du joueur.
 			p.Controls = message.Body.(model.Controls)
+
 			p.Update(players, gm.state, timestep)
 
 		}

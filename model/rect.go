@@ -4,7 +4,7 @@ import "math"
 
 const (
 	// defaultForwardSpeed est la vitesse de déplacement par défaut.
-	defaultForwardSpeed = 15
+	defaultForwardSpeed = 1
 )
 
 // Rect représente un rectangle dans un espace 2D.
@@ -15,6 +15,18 @@ type Rect struct {
 // Polygon représente un polygone dans un espace 2D.
 type Polygon struct {
 	points []*Point
+}
+
+// String retourne une représentation en chaîne de caractères du polygone.
+func (p Polygon) String() string {
+	str := "["
+	for _, point := range p.points {
+		str += point.String() + ", "
+	}
+
+	str = str[:len(str)-2]
+	str += "]"
+	return str
 }
 
 // RectCollider représente un rectangle avec des capacités de collision

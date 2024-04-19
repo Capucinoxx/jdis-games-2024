@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"math"
 	"math/rand"
 )
@@ -9,6 +10,10 @@ import (
 type Point struct {
 	X float32 `json:"x"`
 	Y float32 `json:"y"`
+}
+
+func (p Point) String() string {
+	return fmt.Sprintf("(%f, %f)", p.X, p.Y)
 }
 
 func NullPoint() *Point {
@@ -181,14 +186,20 @@ func (m *Map) Populate(grid *Grid) {
 		m.cellSize = 1
 	}
 
-	// ajout de la bordure du labyrinthe
 	m.Colliders = append(m.Colliders, &Collider{
-		Points: []*Point{
-			{X: 0, Y: 0},
-			{X: 0, Y: float32(grid.height) * m.cellSize},
-			{X: float32(grid.width) * m.cellSize, Y: float32(grid.height) * m.cellSize},
-			{X: float32(grid.width) * m.cellSize, Y: 0},
-		},
+		Points: []*Point{{X: 0, Y: 0}, {X: 0, Y: float32(grid.height) * m.cellSize}},
+	})
+
+	m.Colliders = append(m.Colliders, &Collider{
+		Points: []*Point{{X: 0, Y: 0}, {X: float32(grid.height) * m.cellSize, Y: 0}},
+	})
+
+	m.Colliders = append(m.Colliders, &Collider{
+		Points: []*Point{{X: float32(grid.width) * m.cellSize, Y: 0}, {X: float32(grid.width) * m.cellSize, Y: float32(grid.height) * m.cellSize}},
+	})
+
+	m.Colliders = append(m.Colliders, &Collider{
+		Points: []*Point{{X: 0, Y: float32(grid.height) * m.cellSize}, {X: float32(grid.width) * m.cellSize, Y: float32(grid.height) * m.cellSize}},
 	})
 
 	for y := 0; y < grid.height; y++ {
