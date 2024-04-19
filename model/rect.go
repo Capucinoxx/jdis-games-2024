@@ -17,6 +17,7 @@ type Polygon struct {
 	points []*Point
 }
 
+// String retourne une représentation en chaîne de caractères du polygone.
 func (p Polygon) String() string {
 	str := "["
 	for _, point := range p.points {
