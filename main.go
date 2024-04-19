@@ -6,10 +6,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/capucinoxx/forlorn/handler"
-	"github.com/capucinoxx/forlorn/manager"
-	"github.com/capucinoxx/forlorn/network"
-	"github.com/capucinoxx/forlorn/protocol"
+	"github.com/capucinoxx/forlorn/internal/handler"
+	"github.com/capucinoxx/forlorn/internal/protocol"
+	"github.com/capucinoxx/forlorn/pkg/manager"
+	"github.com/capucinoxx/forlorn/pkg/network"
 )
 
 func main() {

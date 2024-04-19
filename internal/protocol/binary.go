@@ -4,7 +4,8 @@ import (
 	"encoding/binary"
 	"math"
 
-	"github.com/capucinoxx/forlorn/model"
+	"github.com/capucinoxx/forlorn/pkg/model"
+	p "github.com/capucinoxx/forlorn/pkg/protocol"
 )
 
 const (
@@ -13,50 +14,27 @@ const (
 	PlayerPacketSize = 14
 )
 
-// BinaryProtocol est une structure qui permet de gérer les paquets de données
-// envoyés par les joueurs. Cela défini la fonction à appeler pour traiter
-// l'encodage et le décodage des données selon le type de message.
-type BinaryProtocol struct {
-	encodeHandlers map[model.MessageType]func(message *model.ClientMessage) []byte
-	decodeHandlers map[model.MessageType]func(data []byte, message *model.ClientMessage)
-}
+// BinaryProtocol est une structure vide encapsulant les différentes
+// fonctions de traitement des messages.
+type BinaryProtocol struct{}
 
 // NewBinaryProtocol crée un nouveau protocole binaire. Ce protocole
 // permet de gérer les messages clients en les encodant et les décodant
 // en un tableau d'octets.
-func NewBinaryProtocol() *BinaryProtocol {
-	protocol := &BinaryProtocol{
-		encodeHandlers: make(map[model.MessageType]func(message *model.ClientMessage) []byte),
-		decodeHandlers: make(map[model.MessageType]func(data []byte, message *model.ClientMessage)),
+func NewBinaryProtocol() *p.BinaryProtocol {
+	protocol := &p.BinaryProtocol{
+		EncodeHandlers: make(map[model.MessageType]func(message *model.ClientMessage) []byte),
+		DecodeHandlers: make(map[model.MessageType]func(data []byte, message *model.ClientMessage)),
 	}
 
-	protocol.encodeHandlers[model.Spawn] = protocol.encodeMapState
-	protocol.encodeHandlers[model.GameStart] = protocol.encodeMapState
-	protocol.encodeHandlers[model.Position] = protocol.encodePlayerState
+	bp := BinaryProtocol{}
+	protocol.EncodeHandlers[model.Spawn] = bp.encodeMapState
+	protocol.EncodeHandlers[model.GameStart] = bp.encodeMapState
+	protocol.EncodeHandlers[model.Position] = bp.encodePlayerState
 
-	protocol.decodeHandlers[model.Position] = decodePlayerInput
+	protocol.DecodeHandlers[model.Position] = decodePlayerInput
 
 	return protocol
-}
-
-// Encode permet d'encoder un message en un tableau d'octets.
-// Le message est composé de l'identifiant du joueur, du type de message et des données à envoyer.
-// représentation du message :
-// [0:1 id] [1:2 messageType] [2:6 currentTime] [6:fin messageData]
-func (b BinaryProtocol) Encode(id uint8, currentTime uint32, message *model.ClientMessage) []byte {
-	buf := make([]byte, 0)
-	buf = append(buf, byte(id))
-	buf = append(buf, byte(message.MessageType))
-
-	currentTimeBytes := make([]byte, 4)
-	binary.LittleEndian.PutUint32(currentTimeBytes, currentTime)
-	buf = append(buf, currentTimeBytes...)
-
-	if handler, ok := b.encodeHandlers[message.MessageType]; ok {
-		buf = append(buf, handler(message)...)
-	}
-
-	return buf
 }
 
 // encodePlayerState permet d'encoder l'état d'un joueur.
@@ -108,23 +86,6 @@ func (b BinaryProtocol) encodeCollider(c *model.Collider) []byte {
 	}
 
 	return buf
-}
-
-// Decode permet de décoder un tableau d'octets en un message.
-// Le message est composé du tyme de message et des données reçues.
-// représentation du message :
-// [0:1 messageType] [1:fin messageData]
-func (b BinaryProtocol) Decode(data []byte) model.ClientMessage {
-	// TODO: validate data length
-	msg := model.ClientMessage{
-		MessageType: model.MessageType(data[0]),
-	}
-
-	if handler, ok := b.decodeHandlers[msg.MessageType]; ok {
-		handler(data[1:], &msg)
-	}
-
-	return msg
 }
 
 // decodePlayerInput permet de décoder les données de contrôle

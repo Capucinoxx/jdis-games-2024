@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/capucinoxx/forlorn/manager"
-	"github.com/capucinoxx/forlorn/network"
+	"github.com/capucinoxx/forlorn/pkg/manager"
+	"github.com/capucinoxx/forlorn/pkg/network"
 )
 
 type HttpHandler struct {
