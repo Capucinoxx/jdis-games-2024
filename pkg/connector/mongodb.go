@@ -35,16 +35,9 @@ func NewMongoService(uri, dbName string) (*MongoService, error) {
 	}, nil
 }
 
-// MongoDataDocument est une interface permettant de convertir un type en un document BSON.
-// Comme MongoDB stocke les données sous forme de documents BSON, chaque type de données
-// doit implémenter cette interface pour être inséré dans la base de données.
-type MongoDataDocument interface {
-	ToBSON() bson.M
-}
-
 // Insert permet d'insérer un document dans une collection MongoDB.
-func (m *MongoService) Insert(collection string, data MongoDataDocument) (*mongo.InsertOneResult, error) {
-	result, err := m.db.Collection(collection).InsertOne(context.Background(), data.ToBSON())
+func (m *MongoService) Insert(collection string, data bson.M) (*mongo.InsertOneResult, error) {
+	result, err := m.db.Collection(collection).InsertOne(context.Background(), data)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +58,16 @@ func (m *MongoService) FindOne(collection string, filter bson.M) (*mongo.SingleR
 // Find permet de rechercher des documents dans une collection MongoDB. Cela
 // retourne un tableau de résultats.
 func (m *MongoService) Find(collection string, filter bson.M) ([]bson.M, error) {
-	cursor, err := m.db.Collection(collection).Find(context.Background(), filter)
+	return m.FindKeep(collection, filter, nil)
+}
+
+func (m *MongoService) FindKeep(collection string, filter bson.M, fields *bson.M) ([]bson.M, error) {
+	findOptions := options.Find()
+	if fields != nil {
+		findOptions.SetProjection(*fields)
+	}
+
+	cursor, err := m.db.Collection(collection).Find(context.Background(), filter, findOptions)
 	if err != nil {
 		return nil, err
 	}

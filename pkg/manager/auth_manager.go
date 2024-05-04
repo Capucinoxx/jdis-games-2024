@@ -1,10 +1,11 @@
 package manager
 
 import (
-	"fmt"
-	"sync"
+	"errors"
 
+	"github.com/capucinoxx/forlorn/pkg/connector"
 	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // Auth est une interface pour l'authentification des utilisateurs.
@@ -15,16 +16,15 @@ type Auth interface {
 
 // AuthManager maintient une liste d'utilisateurs et de jetons d'authentification.
 type AuthManager struct {
-	users map[string]string
-	uuids map[string]string
-	mu    sync.RWMutex
+	service    *connector.MongoService
+	collection string
 }
 
 // NewAuthManager crée un nouveau AuthManager.
-func NewAuthManager() *AuthManager {
+func NewAuthManager(db *connector.MongoService) *AuthManager {
 	return &AuthManager{
-		users: make(map[string]string),
-		uuids: make(map[string]string),
+		service:    db,
+		collection: "users",
 	}
 }
 
@@ -32,25 +32,28 @@ func NewAuthManager() *AuthManager {
 // Si l'utilisateur existe déjà, une erreur est retournée. Si l'enregistrement est
 // réussi, le jeton d'authentification est retourné.
 func (am *AuthManager) Register(username string) (string, error) {
-	if _, ok := am.users[username]; ok {
-		return "", fmt.Errorf("user already exists")
+	filter := bson.M{"username": username}
+
+	if v, _ := am.service.FindOne(am.collection, filter); v != nil {
+		return "", errors.New("user already exist")
 	}
 
-	am.mu.Lock()
 	token := am.uuid()
-	am.users[username] = token
-	am.uuids[token] = username
-	am.mu.Unlock()
+	user := bson.M{"username": username, "token": token}
+
+	_, err := am.service.Insert(am.collection, user)
+	if err != nil {
+		return "", errors.New("error inserting user")
+	}
 
 	return token, nil
 }
 
 // Authenticate retourne vrai si le jeton d'authentification existe. Sinon, retourne faux.
 func (am *AuthManager) Authenticate(token string) bool {
-	// am.mu.RLock()
-	// _, ok := am.uuids[token]
-	// am.mu.RUnlock()
-	return true
+	filter := bson.M{"token": token}
+	v, _ := am.service.FindOne(am.collection, filter)
+	return v != nil
 }
 
 // uuid génère un nouvel identifiant unique universel.
@@ -59,13 +62,16 @@ func (am *AuthManager) uuid() string {
 }
 
 // Users retourne une liste de tous les utilisateurs enregistrés.
-func (am *AuthManager) Users() []string {
-	am.mu.RLock()
-	defer am.mu.RUnlock()
-
-	users := make([]string, 0, len(am.users))
-	for user := range am.users {
-		users = append(users, user)
+func (am *AuthManager) Users() ([]string, error) {
+	bsonUsers, err := am.service.FindKeep(am.collection, bson.M{}, &bson.M{"username": 1})
+	if err != nil {
+		return []string{}, err
 	}
-	return users
+
+	users := make([]string, len(bsonUsers))
+	for i, user := range bsonUsers {
+		users[i] = user["username"].(string)
+	}
+
+	return users, nil
 }
