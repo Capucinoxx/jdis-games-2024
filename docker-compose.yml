@@ -22,4 +22,11 @@ services:
     ports:
       - '8056:8086'
     volumes:
-      - data:/var/lib/influxdb2
+      - data/influx:/var/lib/influxdb2
+
+  mongodb:
+    image: mongo
+    ports:
+      - '27017:27017'
+    volumes:
+      - data/mongo:/data/db
