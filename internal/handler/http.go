@@ -24,15 +24,14 @@ func NewHttpHandler(gm *manager.GameManager, am *manager.AuthManager) *HttpHandl
 // Handle commence à écouter les différentes routes HTTP et les associe à des fonctions.
 func (h *HttpHandler) Handle() {
 	network.HandleFunc("/start", h.startGame)
-	network.HandleFunc("/create", h.createAccount)
+	network.HandleFunc("/create", h.register)
 	network.HandleFunc("/map", h.getMap)
 }
 
-// createAccount crée un compte utilisateur et retourne un jeton d'authentification.
-func (h *HttpHandler) createAccount(w http.ResponseWriter, r *http.Request) {
+// register crée un compte utilisateur et retourne un jeton d'authentification.
+func (h *HttpHandler) register(w http.ResponseWriter, r *http.Request) {
 	payload := struct {
 		Username string `json:"username"`
-		Sides    int    `json:"sides"`
 	}{}
 
 	if r.Method != http.MethodPost {
