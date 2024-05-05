@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/capucinoxx/forlorn/pkg/model"
@@ -38,6 +39,8 @@ type Network struct {
 
 	// address est l'adresse IP sur laquelle le serveur écoute.
 	address string
+
+	connected sync.Map
 }
 
 // NewNetwork crée un nouveau serveur réseau avec l'adresse et le port spécifiés.
@@ -48,8 +51,9 @@ func NewNetwork(address string, port int) *Network {
 			WriteBufferSize: 1024,
 			CheckOrigin:     func(r *http.Request) bool { return true },
 		},
-		port:    port,
-		address: address,
+		port:      port,
+		address:   address,
+		connected: sync.Map{},
 	}
 }
 
@@ -82,13 +86,25 @@ func (n *Network) Unregister(conn model.Connection) {
 	if n.uregister != nil {
 		n.uregister(conn)
 	}
+
+	n.connected.Delete(conn.Identifier())
 }
 
 // Init initialise le serveur réseau en écoutant les requêtes HTTP.
 func (n *Network) Init() {
 	http.HandleFunc("/echo", func(w http.ResponseWriter, r *http.Request) {
+		token := r.Header.Get("Authorization")
+		if token != "" {
+			if _, ok := n.connected.Load(token); ok {
+				http.Error(w, "error expected", http.StatusUnauthorized)
+				return
+			}
+
+			n.connected.Store(token, true)
+		}
+
 		ws, _ := n.upgrader.Upgrade(w, r, nil)
-		n.register(NewConnection(ws))
+		n.register(NewConnection(ws, token))
 	})
 }
 
@@ -113,21 +129,19 @@ func (n *Network) Run() error {
 type Connection struct {
 	// conn est la connexion WebSocket.
 	conn *websocket.Conn
+
+	token string
 }
 
 // NewConnection crée une nouvelle connexion à partir d'une connexion WebSocket.
-func NewConnection(conn *websocket.Conn) *Connection {
-	return &Connection{conn: conn}
+func NewConnection(conn *websocket.Conn, token string) *Connection {
+	return &Connection{conn: conn, token: token}
 }
 
 // Identifier retourne une chaîne de caractères représentant l'adresse IP et le
 // port de la connexion.
 func (c *Connection) Identifier() string {
-	return fmt.Sprintf(
-		"%s - %s",
-		c.conn.RemoteAddr().Network(),
-		c.conn.RemoteAddr().String(),
-	)
+	return c.token
 }
 
 // Close ferme la connexion en envoyant un message de fermeture et en fermant la
@@ -135,6 +149,7 @@ func (c *Connection) Identifier() string {
 func (c *Connection) Close(writeWait time.Duration) {
 	c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 	c.conn.WriteMessage(websocket.CloseMessage, []byte{})
+
 }
 
 // PrepareRead configure la connexion pour la lecture en définissant la taille
