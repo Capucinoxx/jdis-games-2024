@@ -4,11 +4,16 @@ services:
   app:
     build: .
     ports:
-      - '7855:7855'
+      - '8087:8087'
     volumes:
       - .:/app
     environment:
       PORT: 7855
+      MONGO_USERNAME: admin
+      MONGO_PASSWORD: super_long_password
+      MONGO_HOST: mongodb
+      MONGO_PORT: 27017
+      MONGO_DB: db
 
   influxdb:
     image: influxdb:2.0.7
@@ -22,11 +27,20 @@ services:
     ports:
       - '8056:8086'
     volumes:
-      - data/influx:/var/lib/influxdb2
+      - data_influx:/var/lib/influxdb2
 
   mongodb:
     image: mongo
     ports:
       - '27017:27017'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: super_long_password
     volumes:
-      - data/mongo:/data/db
+      - data_mongo:/data/db
+
+volumes:
+  data_influx:
+    driver: local
+  data_mongo:
+    driver: local

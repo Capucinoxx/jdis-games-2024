@@ -8,14 +8,27 @@ import (
 
 	"github.com/capucinoxx/forlorn/internal/handler"
 	"github.com/capucinoxx/forlorn/internal/protocol"
+	"github.com/capucinoxx/forlorn/pkg/config"
+	"github.com/capucinoxx/forlorn/pkg/connector"
 	"github.com/capucinoxx/forlorn/pkg/manager"
 	"github.com/capucinoxx/forlorn/pkg/network"
 )
 
-func main() {
-	transport := network.NewNetwork("localhost", 8087)
+func init_mongo() *connector.MongoService {
+	service, err := connector.NewMongoService(config.MongoDNS(), config.MongoDatabase())
+	if err != nil {
+		panic(err)
+	}
 
-	am := manager.NewAuthManager()
+	return service
+}
+
+func main() {
+	mongo := init_mongo()
+
+	transport := network.NewNetwork("0.0.0.0", 8087)
+
+	am := manager.NewAuthManager(mongo)
 	nm := manager.NewNetworkManager(transport, protocol.NewBinaryProtocol())
 	gm := manager.NewGameManager(am, nm)
 
