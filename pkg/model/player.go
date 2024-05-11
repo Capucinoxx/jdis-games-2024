@@ -34,6 +34,7 @@ const (
 // cette action.
 type Controls struct {
 	Rotation uint32
+	Shoot    *Point
 }
 
 type Player struct {
@@ -46,10 +47,11 @@ type Player struct {
 	Client           *Client
 	Controls         Controls
 	Collider         *RectCollider
+	cannon           *Cannon
 }
 
 func NewPlayer(id uint8, x float32, y float32, conn Connection) *Player {
-	return &Player{
+	p := &Player{
 		ID:       id,
 		Collider: NewRectCollider(x, y, playerSize),
 		Health:   defaultHealth,
@@ -59,6 +61,9 @@ func NewPlayer(id uint8, x float32, y float32, conn Connection) *Player {
 			Connection: conn,
 		},
 	}
+
+	p.cannon = NewCanon(p)
+	return p
 }
 
 // IsAlive retourne vrai si le joueur est en vie. Sinon, il retourne faux.
@@ -76,6 +81,7 @@ func (p *Player) Update(players []*Player, game *GameState, dt float32) {
 	}
 
 	p.HandleMovement(players, m, dt)
+	p.HandleCannon(players, m, dt)
 }
 
 // HandleMovement gère le mouvement du joueur en fonction de ses contrôles.
@@ -159,5 +165,11 @@ func (p *Player) applyMovement() {
 	for _, point := range points {
 		point.X += r.dir.X * r.velocity
 		point.Y += r.dir.Y * r.velocity
+	}
+}
+
+func (p *Player) HandleCannon(players []*Player, m *Map, dt float32) {
+	if p.Controls.Shoot != nil {
+		p.cannon.ShootAt(*p.Controls.Shoot)
 	}
 }

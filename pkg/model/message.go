@@ -17,7 +17,7 @@ const (
 	Register
 
 	// Projectile est un
-	Projectile
+	Fire
 
 	// GameStart est un message envoyé pour informer les clients que la partie commence.
 	GameStart

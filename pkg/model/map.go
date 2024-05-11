@@ -107,6 +107,11 @@ func (p *Point) normalize() {
 
 type ColliderType uint8
 
+const (
+	ColliderWall ColliderType = iota
+	ColliderProjectile
+)
+
 // Collider représente un polygone qui représentant une collision dans le jeu.
 type Collider struct {
 	Points []*Point     `json:"points"`
