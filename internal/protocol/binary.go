@@ -88,12 +88,25 @@ func (b BinaryProtocol) encodeCollider(c *model.Collider) []byte {
 	return buf
 }
 
-// decodePlayerInput permet de décoder les données de contrôle
-// envoyées par un joueur.
+func decodePoint(data []byte) *model.Point {
+	p := &model.Point{
+		X: math.Float32frombits(binary.LittleEndian.Uint32(data[4:])),
+		Y: math.Float32frombits(binary.LittleEndian.Uint32(data[4:8])),
+	}
+
+	if math.IsNaN(float64(p.X)) || math.IsNaN(float64(p.Y)) {
+		return nil
+	}
+
+	return p
+}
+
 func decodePlayerInput(data []byte, message *model.ClientMessage) {
 	controls := model.Controls{
 		Rotation: binary.LittleEndian.Uint32(data),
+		Shoot:    decodePoint(data[4:12]),
 	}
 
+	// decode shoot position
 	message.Body = controls
 }
