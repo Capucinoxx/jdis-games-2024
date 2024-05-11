@@ -6,21 +6,23 @@ import (
 	"math/rand"
 )
 
-// Point représente un point "continu" dans un espace 2D.
+// Point represents a continuous point in 2D space.
 type Point struct {
 	X float32 `json:"x"`
 	Y float32 `json:"y"`
 }
 
+// String returns the string representation of the Point in the format "(X, Y)".
 func (p Point) String() string {
 	return fmt.Sprintf("(%f, %f)", p.X, p.Y)
 }
 
+// NullPoint returns a new Point with both coordinates set to zero.
 func NullPoint() *Point {
 	return &Point{X: 0, Y: 0}
 }
 
-// Directions représente les directions possibles dans un espace 2D.
+// Directions represents the possible movement directions in a 2D space.
 var Directions = []Point{
 	{X: 0, Y: -1}, // Up
 	{X: 1, Y: 0},  // Right
@@ -35,19 +37,15 @@ var (
 	LEFT  = Directions[3]
 )
 
-// DirectionTo retourne un vecteur normalisé pointant vers la destination à
-// partir du point actuel.
+// DirectionTo returns a normalized vector pointing towards the destination from the
+// current point.
 func (p *Point) DirectionTo(dest *Point) *Point {
-	dir := &Point{X: 0, Y: 0}
-
-	dir.X = p.X - dest.X
-	dir.Y = p.Y - dest.Y
+	dir := &Point{X: dest.X - p.X, Y: dest.Y - p.Y}
 	dir.normalize()
-
 	return dir
 }
 
-// Add ajoute le vecteur spécifié à ce vecteur et retourne le résultat.
+// Add adds the specified vector to this vector and returns the result.
 func (p *Point) Add(other *Point) *Point {
 	return &Point{
 		X: p.X + other.X,
@@ -55,7 +53,7 @@ func (p *Point) Add(other *Point) *Point {
 	}
 }
 
-// Reflect retourne le vecteur réfléchi par rapport à la normale spécifiée.
+// Reflect returns the vector reflected by the specified normal.
 func (p *Point) Reflect(normal *Point) *Point {
 	dot := 2 * (p.X*normal.X + p.Y*normal.Y)
 	return &Point{
@@ -64,25 +62,24 @@ func (p *Point) Reflect(normal *Point) *Point {
 	}
 }
 
-// WithinDistanceOf retourne vrai si le point est à une distance inférieure au
-// rayon spécifié de l'autre point. Sinon, il retourne faux.
+// WithinDistanceOf returns true if the point is within the specified radius of another
+// point, otherwise false.
 func (p *Point) WithinDistanceOf(radius float32, oth *Point) bool {
 	return (math.Pow(float64(oth.X-p.X), 2) +
 		math.Pow(float64(oth.Y-p.Y), 2)) < math.Pow(float64(radius), 2)
 }
 
-// IsInPolygon retourne vrai si le point est à l'intérieur du polygone spécifié.
-// Sinon, il retourne faux.
+// IsInPolygon returns true if the point is inside the specified polygon, otherwise false.
 func (p *Point) IsInPolygon(poly []*Point) bool {
 	inside := false
 	for i, j := 0, len(poly)-1; i < len(poly); i++ {
 		pi, pj := poly[i], poly[j]
 
-		// regarde si est entre les ordonnées de pi et pj
+		// Checks if it is between the y-coordinates of pi and pj.
 		cond := (pi.Y > p.Y) != (pj.Y > p.Y)
 
-		// interpoler l'abscisse de l'intersection entre la droite horizontale
-		// passant par p et la droite passant par pi et pj à l'ordonnée p.Y
+		// Interpolate the x-coordinate of the intersection between the horizontal line through
+		// p and the line passing through pi and pj at the y-coordinate p.Y.
 		px := (pj.X-pi.X)*(p.Y-pi.Y)/(pj.Y-pi.Y) + pi.X
 
 		if cond && p.X < px {
@@ -93,18 +90,17 @@ func (p *Point) IsInPolygon(poly []*Point) bool {
 	return inside
 }
 
-func (p *Point) Hash() uint64 {
-	return uint64(math.Float32bits(p.X))<<32 | uint64(math.Float32bits(p.Y))
-}
-
-// normalize normalise le vecteur. Cela signifie que la longueur du vecteur est
-// égale à 1.
+// normalize normalizes the vector such that its length becomes 1.
 func (p *Point) normalize() {
 	length := math.Sqrt(float64(p.X*p.X + p.Y*p.Y))
 	p.X /= float32(length)
 	p.Y /= float32(length)
 }
 
+// ================================================================================================
+// ================================================================================================
+
+// ColliderType defines the type of object in the game environment that can collide.
 type ColliderType uint8
 
 const (
@@ -112,28 +108,29 @@ const (
 	ColliderProjectile
 )
 
-// Collider représente un polygone qui représentant une collision dans le jeu.
+// Collider represents a polygon that models a collision in the game.
 type Collider struct {
 	Points []*Point     `json:"points"`
 	Type   ColliderType `json:"type"`
 }
 
-// polygon retourne le polygone représenté par le Collider.
+// polygon returns the polygon represented by the Collider.
 func (c *Collider) polygon() Polygon {
 	return Polygon{points: c.Points}
 }
 
+// Grid represents a 2D grid structure in a game environment.
 type Grid struct {
 	height, width int
 	cells         map[Point]map[Point]bool
 }
 
-// IsInBounds retourne vrai si le point est à l'intérieur des limites de la carte.
-// Sinon, retourne faux.
+// isInBounds returns true if the point is within the grid's boundaries, otherwise false.
 func (g *Grid) isInBounds(pos *Point) bool {
 	return pos.X >= 0 && pos.X < float32(g.width) && pos.Y >= 0 && pos.Y < float32(g.height)
 }
 
+// GenerateGrid creates and returns a new Grid of the specified dimensions.
 func GenerateGrid(width, height int) *Grid {
 	grid := &Grid{
 		height: height,
@@ -176,15 +173,14 @@ func GenerateGrid(width, height int) *Grid {
 	return grid
 }
 
-// Map représente une carte de jeu. Elle contient des informations sur les
-// collisions et les points de spawn.
+// Map represents a game map, containing information about collisions and spawn points.
 type Map struct {
 	Colliders []*Collider
 	Spawns    []*Point
 	cellSize  float32
 }
 
-// Populate remplit la carte avec des collisions en utilisant la grille spécifiée.
+// Populate fills the map with colliders using the specified grid.
 func (m *Map) Populate(grid *Grid) {
 	// TODO: Fix It
 	if m.cellSize == 0 {
@@ -228,7 +224,7 @@ func (m *Map) Populate(grid *Grid) {
 	}
 }
 
-// Clear supprime toutes les collisions et les points de spawn de la carte.
+// Clear removes all colliders and spawn points from the map.
 func (m *Map) Clear() {
 	m.Colliders = nil
 	m.Spawns = nil
