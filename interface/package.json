@@ -9,12 +9,9 @@
   },
   "author": "Capucinoxx",
   "license": "MIT",
-  "devDependencies": {
-    "parcel-bundler": "^1.12.5",
-    "typescript": "^5.4.3"
-  },
   "dependencies": {
-    "@types/pixi.js": "^5.0.0",
-    "pixi.js": "^8.0.4"
+    "parcel-bundler": "^1.12.5",
+    "phaser": "^3.80.1",
+    "typescript": "^5.4.5"
   }
 }
