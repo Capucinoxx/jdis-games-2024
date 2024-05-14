@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GameManager } from './game-manager';
+import { GameManager } from '../../lib';
 
 class MainScene extends Phaser.Scene {
   private manager: GameManager;

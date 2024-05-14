@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { Player } from './player';
+import { Player } from '.';
 
 class GameManager {
   private scene: Phaser.Scene;
