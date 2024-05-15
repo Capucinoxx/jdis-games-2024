@@ -43,19 +43,11 @@ func NewBinaryProtocol() *p.BinaryProtocol {
 // de son état de tir et de sa vie.
 // représentation de l'état d'un joueur :
 // [0:4 x] [4:8 y] [8:12 rotation] [12:13 shooting] [13:14 health]
-func (b BinaryProtocol) encodePlayerState(message *model.ClientMessage) []byte {
+func (b BinaryProtocol) encodePlayerState(w *codec.ByteWriter, message *model.ClientMessage) {
 	p := message.Body.(*model.Player)
-	buf := make([]byte, PlayerPacketSize)
 
-	binary.LittleEndian.PutUint32(buf[0:4], math.Float32bits(p.Collider.Pivot.X))
-	binary.LittleEndian.PutUint32(buf[4:8], math.Float32bits(p.Collider.Pivot.Y))
-	binary.LittleEndian.PutUint32(buf[8:12], uint32(p.Collider.Rotation))
-
-	// TODO: shooting statement
-
-	buf[13] = byte(p.Health)
-
-	return buf
+	_ = p.Collider.Pivot.Encode(w)
+	_ = w.WriteByte(byte(p.Health))
 }
 
 // encodeMapState permet d'encoder l'état de la map.
@@ -65,7 +57,6 @@ func (b BinaryProtocol) encodeMapState(w *codec.ByteWriter, message *model.Clien
 	p := message.Body.([]*model.Collider)
 
 	for _, c := range p {
-		// buf = append(buf, b.encodeCollider(c)...)
 		c.Encode(w)
 	}
 }
@@ -100,12 +91,15 @@ func decodePoint(data []byte) *model.Point {
 	return p
 }
 
-func decodePlayerInput(data []byte, message *model.ClientMessage) {
-	controls := model.Controls{
-		Rotation: binary.LittleEndian.Uint32(data),
-		Shoot:    decodePoint(data[4:12]),
+func decodePlayerInput(r *codec.ByteReader, message *model.ClientMessage) {
+	shootPos := &model.Point{}
+	if err := shootPos.Decode(r); err != nil {
+		shootPos = nil
 	}
 
-	// decode shoot position
+	controls := model.Controls{
+		Shoot: shootPos,
+	}
+
 	message.Body = controls
 }

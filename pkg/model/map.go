@@ -178,6 +178,7 @@ func (c *Collider) Decode(r codec.Reader) (err error) {
 	}
 
 	c.Type = ColliderType(cType)
+	return
 }
 
 // polygon returns the polygon represented by the Collider.

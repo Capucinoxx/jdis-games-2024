@@ -44,13 +44,15 @@ func (b BinaryProtocol) Encode(id uint8, currentTime uint32, message *model.Clie
 // représentation du message :
 // [0:1 messageType] [1:fin messageData]
 func (b BinaryProtocol) Decode(data []byte) model.ClientMessage {
-	// TODO: validate data length
+	reader := codec.NewByteReader(data, binary.LittleEndian)
+
 	msg := model.ClientMessage{
 		MessageType: model.MessageType(data[0]),
 	}
 
 	if handler, ok := b.DecodeHandlers[msg.MessageType]; ok {
-		handler(data[1:], &msg)
+		// handler(data[1:], &msg)
+		handler(reader, &msg)
 	}
 
 	return msg
