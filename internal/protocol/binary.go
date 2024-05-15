@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"math"
 
+	"github.com/capucinoxx/forlorn/pkg/codec"
 	"github.com/capucinoxx/forlorn/pkg/model"
 	p "github.com/capucinoxx/forlorn/pkg/protocol"
 )
@@ -23,8 +24,8 @@ type BinaryProtocol struct{}
 // en un tableau d'octets.
 func NewBinaryProtocol() *p.BinaryProtocol {
 	protocol := &p.BinaryProtocol{
-		EncodeHandlers: make(map[model.MessageType]func(message *model.ClientMessage) []byte),
-		DecodeHandlers: make(map[model.MessageType]func(data []byte, message *model.ClientMessage)),
+		EncodeHandlers: make(map[model.MessageType]func(w *codec.ByteWriter, message *model.ClientMessage)),
+		DecodeHandlers: make(map[model.MessageType]func(r *codec.ByteReader, message *model.ClientMessage)),
 	}
 
 	bp := BinaryProtocol{}
@@ -60,15 +61,13 @@ func (b BinaryProtocol) encodePlayerState(message *model.ClientMessage) []byte {
 // encodeMapState permet d'encoder l'état de la map.
 // L'état de la map est composé de tous les colliders présents
 // dans la map.
-func (b BinaryProtocol) encodeMapState(message *model.ClientMessage) []byte {
+func (b BinaryProtocol) encodeMapState(w *codec.ByteWriter, message *model.ClientMessage) {
 	p := message.Body.([]*model.Collider)
-	buf := make([]byte, 0)
 
 	for _, c := range p {
-		buf = append(buf, b.encodeCollider(c)...)
+		// buf = append(buf, b.encodeCollider(c)...)
+		c.Encode(w)
 	}
-
-	return buf
 }
 
 // encodeCollider permet d'encoder un collider.

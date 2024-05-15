@@ -1,11 +1,11 @@
-package protocol_test
+package codec_test
 
 import (
 	"encoding/binary"
 	"math"
 	"testing"
 
-	"github.com/capucinoxx/forlorn/pkg/protocol"
+	"github.com/capucinoxx/forlorn/pkg/codec"
 )
 
 func floatEqual[T float32 | float64](a, b T) bool {
@@ -26,7 +26,7 @@ type FakeStruct struct {
 	}
 }
 
-func (f *FakeStruct) Encode(w protocol.Writer) (err error) {
+func (f *FakeStruct) Encode(w codec.Writer) (err error) {
 	if err = w.WriteString(f.name); err != nil {
 		return
 	}
@@ -64,7 +64,7 @@ func (f *FakeStruct) Encode(w protocol.Writer) (err error) {
 	return
 }
 
-func (f *FakeStruct) Decode(r protocol.Reader) (err error) {
+func (f *FakeStruct) Decode(r codec.Reader) (err error) {
 	if f.name, err = r.ReadString(); err != nil {
 		return
 	}
@@ -132,8 +132,8 @@ func (f *FakeStruct) Equals(oth *FakeStruct) bool {
 
 func TestByteReader(t *testing.T) {
 	data := []byte{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08}
-	readerLittle := protocol.NewByteReader(data, binary.LittleEndian)
-	readerBig := protocol.NewByteReader(data, binary.BigEndian)
+	readerLittle := codec.NewByteReader(data, binary.LittleEndian)
+	readerBig := codec.NewByteReader(data, binary.BigEndian)
 
 	tests := []struct {
 		name     string
@@ -180,7 +180,7 @@ func TestEncodeDecode(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			writer := protocol.NewByteWriter(binary.LittleEndian)
+			writer := codec.NewByteWriter(binary.LittleEndian)
 
 			if err := tt.data.Encode(writer); err != nil {
 				t.Errorf("Unexpected error %v\n", err)
@@ -191,7 +191,7 @@ func TestEncodeDecode(t *testing.T) {
 				bytes = bytes[:len(bytes)-16]
 			}
 
-			reader := protocol.NewByteReader(bytes, binary.LittleEndian)
+			reader := codec.NewByteReader(bytes, binary.LittleEndian)
 			var res FakeStruct
 			if err := res.Decode(reader); !tt.shouldFail && err != nil {
 				t.Errorf("Unexpected error %v\n", err)
