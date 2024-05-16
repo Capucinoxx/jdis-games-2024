@@ -138,16 +138,24 @@ func (gm *GameManager) gameLoop() {
 		gm.tickStart = time.Now()
 		players := gm.state.Players()
 
+		gm.rm.Tick()
+
 		for _, p := range players {
 			gm.process(p, players, timestep)
 			// handle respawn
 		}
 
 		gm.nm.BroadcastGameState(gm.state)
+
+		if gm.rm.HasEnded() {
+			break
+		}
 	}
 	ticker.Stop()
 
 	gm.nm.BroadcastGameEnd()
+
+	gm.rm.Restart()
 	time.Sleep(10 * time.Second)
 	gm.Start()
 }
