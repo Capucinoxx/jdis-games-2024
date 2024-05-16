@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"sync/atomic"
 	"time"
 )
 
@@ -52,7 +53,7 @@ type Player struct {
 	ID               uint8
 	Token            string
 	Nickname         string
-	Health           int
+	Health           atomic.Int32
 	Score            float64
 	respawnCountdown float32
 	Client           *Client
@@ -66,7 +67,7 @@ func NewPlayer(id uint8, x float32, y float32, conn Connection) *Player {
 	p := &Player{
 		ID:       id,
 		Collider: NewRectCollider(x, y, playerSize),
-		Health:   defaultHealth,
+		Health:   atomic.Int32{},
 		Client: &Client{
 			Out:        make(chan []byte, 10),
 			In:         make(chan ClientMessage, 10),
@@ -74,6 +75,7 @@ func NewPlayer(id uint8, x float32, y float32, conn Connection) *Player {
 		},
 	}
 
+	p.Health.Add(defaultHealth)
 	p.cannon = NewCanon(p)
 	return p
 }
@@ -85,7 +87,7 @@ func (p *Player) String() string {
 
 // IsAlive returns true if the player's health is above zero, indicating they are alive.
 func (p *Player) IsAlive() bool {
-	return p.Health > 0
+	return p.Health.Load() > 0
 }
 
 // Update updates the player's state based on the current game state.
@@ -120,6 +122,10 @@ func (p *Player) HandleCannon(players []*Player, m *Map, dt float32) {
 	if p.Controls.Shoot != nil {
 		p.cannon.ShootAt(*p.Controls.Shoot)
 	}
+}
+
+func (p *Player) TakeDmg(dmg int32) {
+	p.Health.Add(-dmg)
 }
 
 // checkCollisionWithPlayers checks if there is a collision with any other player.

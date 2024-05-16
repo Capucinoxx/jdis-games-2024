@@ -1,5 +1,7 @@
 package model
 
+const PROJECTILE_DMG = 30
+
 // Projectile represents a moving projectile in the game.
 type Projectile struct {
 	Position  *Point
@@ -67,11 +69,13 @@ func (c *Cannon) Update(players []*Player, m *Map, dt float32) {
 			}
 
 			if p.IsCollidingWithPlayer(enemy) {
-				// TODO
+				enemy.TakeDmg(PROJECTILE_DMG)
+				p.Remove()
+				continue
 			}
 
 			if p.IsCollidingWithEnvironment(m) {
-				// TODO
+				p.Remove()
 			}
 		}
 	}
