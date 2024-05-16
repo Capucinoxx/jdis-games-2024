@@ -19,8 +19,20 @@ class MainScene extends Phaser.Scene {
       loop: true
     });
 
-    this.cameras.main.setBounds(0, 0, 800, 600);
-    this.physics.world.setBounds(0, 0, 800, 600);
+    this.cameras.main.setBounds(0, 0, 8000, 6000);
+    this.physics.world.setBounds(0, 0, 8000, 6000);
+
+    this.input.on('wheel', (pointer: Phaser.Input.Pointer): void => {
+      const dy = pointer.deltaY;
+      
+      let new_zoom = this.cameras.main.zoom + (dy > 0 ? -.1 : .1);
+      if (new_zoom > 0.3 && new_zoom <= 1)
+        this.cameras.main.zoom = new_zoom;
+    });
+
+    this.input.on('pointerdown', (pointer: Phaser.Input.Pointer): void => {
+      this.cameras.main.pan(pointer.x, pointer.y, 500);
+    });
   }
 
   /**
@@ -28,8 +40,8 @@ class MainScene extends Phaser.Scene {
    */
   draw_grid() {
     const grid_size = 100;
-    const rows = 6;
-    const cols = 8;
+    const rows = 60;
+    const cols = 80;
     this.grid_graphics = this.add.graphics({ lineStyle: { width: 2, color: 0x0000ff } });
 
     for (let i = 0; i <= cols; i++)
@@ -75,7 +87,6 @@ class MainScene extends Phaser.Scene {
    */
   test_player_movement() {
     const calculate_next_position = (curr_x: number, curr_y: number): [number, number] => {
-      console.log(curr_x, curr_y);
       let x_options = [0, 100, -100].filter(opt => (curr_x + opt >= 0) && (curr_x + opt <= 200));
       let y_options = [0, 100, -100].filter(opt => (curr_y + opt >= 0) && (curr_y + opt <= 200));
     
