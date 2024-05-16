@@ -21,6 +21,14 @@ class MainScene extends Phaser.Scene {
 
     this.cameras.main.setBounds(0, 0, 800, 600);
     this.physics.world.setBounds(0, 0, 800, 600);
+
+    this.input.on('wheel', (pointer: Phaser.Input.Pointer): void => {
+      const dy = pointer.deltaY;
+      
+      let new_zoom = this.cameras.main.zoom + (dy > 0 ? -.1 : .1);
+      if (new_zoom > 0.3 && new_zoom <= 1)
+        this.cameras.main.zoom = new_zoom;
+    });
   }
 
   /**
@@ -75,7 +83,6 @@ class MainScene extends Phaser.Scene {
    */
   test_player_movement() {
     const calculate_next_position = (curr_x: number, curr_y: number): [number, number] => {
-      console.log(curr_x, curr_y);
       let x_options = [0, 100, -100].filter(opt => (curr_x + opt >= 0) && (curr_x + opt <= 200));
       let y_options = [0, 100, -100].filter(opt => (curr_y + opt >= 0) && (curr_y + opt <= 200));
     
