@@ -10,6 +10,7 @@ class MainScene extends Phaser.Scene {
   create() {
     this.manager = new GameManager(this, this.cameras.main.centerX);
     this.draw_iso_grid();
+    this.draw_grid();
 
     this.time.addEvent({
       delay: 1000,
