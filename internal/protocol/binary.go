@@ -1,9 +1,7 @@
 package protocol
 
 import (
-	"encoding/binary"
-	"math"
-
+	"github.com/capucinoxx/forlorn/pkg/codec"
 	"github.com/capucinoxx/forlorn/pkg/model"
 	p "github.com/capucinoxx/forlorn/pkg/protocol"
 )
@@ -23,8 +21,8 @@ type BinaryProtocol struct{}
 // en un tableau d'octets.
 func NewBinaryProtocol() *p.BinaryProtocol {
 	protocol := &p.BinaryProtocol{
-		EncodeHandlers: make(map[model.MessageType]func(message *model.ClientMessage) []byte),
-		DecodeHandlers: make(map[model.MessageType]func(data []byte, message *model.ClientMessage)),
+		EncodeHandlers: make(map[model.MessageType]func(w *codec.ByteWriter, message *model.ClientMessage)),
+		DecodeHandlers: make(map[model.MessageType]func(r *codec.ByteReader, message *model.ClientMessage)),
 	}
 
 	bp := BinaryProtocol{}
@@ -42,71 +40,33 @@ func NewBinaryProtocol() *p.BinaryProtocol {
 // de son état de tir et de sa vie.
 // représentation de l'état d'un joueur :
 // [0:4 x] [4:8 y] [8:12 rotation] [12:13 shooting] [13:14 health]
-func (b BinaryProtocol) encodePlayerState(message *model.ClientMessage) []byte {
+func (b BinaryProtocol) encodePlayerState(w *codec.ByteWriter, message *model.ClientMessage) {
 	p := message.Body.(*model.Player)
-	buf := make([]byte, PlayerPacketSize)
 
-	binary.LittleEndian.PutUint32(buf[0:4], math.Float32bits(p.Collider.Pivot.X))
-	binary.LittleEndian.PutUint32(buf[4:8], math.Float32bits(p.Collider.Pivot.Y))
-	binary.LittleEndian.PutUint32(buf[8:12], uint32(p.Collider.Rotation))
-
-	// TODO: shooting statement
-
-	buf[13] = byte(p.Health)
-
-	return buf
+	_ = p.Collider.Pivot.Encode(w)
+	_ = w.WriteByte(byte(p.Health))
 }
 
 // encodeMapState permet d'encoder l'état de la map.
 // L'état de la map est composé de tous les colliders présents
 // dans la map.
-func (b BinaryProtocol) encodeMapState(message *model.ClientMessage) []byte {
+func (b BinaryProtocol) encodeMapState(w *codec.ByteWriter, message *model.ClientMessage) {
 	p := message.Body.([]*model.Collider)
-	buf := make([]byte, 0)
 
 	for _, c := range p {
-		buf = append(buf, b.encodeCollider(c)...)
+		c.Encode(w)
 	}
-
-	return buf
 }
 
-// encodeCollider permet d'encoder un collider.
-// Voici la représentation d'un collider :
-// [0:1 type] [1:2 taille] [[p:p+4 x] [p+4:p+8 y] ...]
-func (b BinaryProtocol) encodeCollider(c *model.Collider) []byte {
-	buf := make([]byte, 0)
-
-	buf = append(buf, byte(c.Type))
-	buf = append(buf, byte(len(c.Points)))
-
-	for _, p := range c.Points {
-		binary.LittleEndian.PutUint32(buf, uint32(p.X))
-		binary.LittleEndian.PutUint32(buf, uint32(p.Y))
+func decodePlayerInput(r *codec.ByteReader, message *model.ClientMessage) {
+	shootPos := &model.Point{}
+	if err := shootPos.Decode(r); err != nil {
+		shootPos = nil
 	}
 
-	return buf
-}
-
-func decodePoint(data []byte) *model.Point {
-	p := &model.Point{
-		X: math.Float32frombits(binary.LittleEndian.Uint32(data[4:])),
-		Y: math.Float32frombits(binary.LittleEndian.Uint32(data[4:8])),
-	}
-
-	if math.IsNaN(float64(p.X)) || math.IsNaN(float64(p.Y)) {
-		return nil
-	}
-
-	return p
-}
-
-func decodePlayerInput(data []byte, message *model.ClientMessage) {
 	controls := model.Controls{
-		Rotation: binary.LittleEndian.Uint32(data),
-		Shoot:    decodePoint(data[4:12]),
+		Shoot: shootPos,
 	}
 
-	// decode shoot position
 	message.Body = controls
 }

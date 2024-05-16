@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+
+	"github.com/capucinoxx/forlorn/pkg/codec"
 )
 
 // Point represents a continuous point in 2D space.
@@ -15,6 +17,30 @@ type Point struct {
 // String returns the string representation of the Point in the format "(X, Y)".
 func (p Point) String() string {
 	return fmt.Sprintf("(%f, %f)", p.X, p.Y)
+}
+
+func (p *Point) Encode(w codec.Writer) (err error) {
+	if err = w.WriteFloat32(p.X); err != nil {
+		return
+	}
+
+	if err = w.WriteFloat32(p.Y); err != nil {
+		return
+	}
+
+	return
+}
+
+func (p *Point) Decode(r codec.Reader) (err error) {
+	if p.X, err = r.ReadFloat32(); err != nil {
+		return
+	}
+
+	if p.Y, err = r.ReadFloat32(); err != nil {
+		return
+	}
+
+	return
 }
 
 // NullPoint returns a new Point with both coordinates set to zero.
@@ -112,6 +138,47 @@ const (
 type Collider struct {
 	Points []*Point     `json:"points"`
 	Type   ColliderType `json:"type"`
+}
+
+func (c *Collider) Encode(w codec.Writer) (err error) {
+	if err = w.WriteInt32(int32(len(c.Points))); err != nil {
+		return
+	}
+
+	for _, p := range c.Points {
+		if err = p.Encode(w); err != nil {
+			return
+		}
+	}
+
+	if err = w.WriteUint8(uint8(c.Type)); err != nil {
+		return
+	}
+
+	return
+}
+
+func (c *Collider) Decode(r codec.Reader) (err error) {
+	var size int32
+	if size, err = r.ReadInt32(); err != nil {
+		return
+	}
+
+	for i := int32(0); i < size; i++ {
+		var p Point
+		if err = p.Decode(r); err != nil {
+			return
+		}
+		c.Points = append(c.Points, &p)
+	}
+
+	var cType uint8
+	if cType, err = r.ReadUint8(); err != nil {
+		return
+	}
+
+	c.Type = ColliderType(cType)
+	return
 }
 
 // polygon returns the polygon represented by the Collider.
