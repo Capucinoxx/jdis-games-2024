@@ -7,6 +7,7 @@ import (
 	"syscall"
 
 	"github.com/capucinoxx/forlorn/internal/handler"
+	im "github.com/capucinoxx/forlorn/internal/manager"
 	"github.com/capucinoxx/forlorn/internal/protocol"
 	"github.com/capucinoxx/forlorn/pkg/config"
 	"github.com/capucinoxx/forlorn/pkg/connector"
@@ -30,7 +31,7 @@ func main() {
 
 	am := manager.NewAuthManager(mongo)
 	nm := manager.NewNetworkManager(transport, protocol.NewBinaryProtocol())
-	gm := manager.NewGameManager(am, nm)
+	gm := manager.NewGameManager(am, nm, &im.RoundManager{})
 
 	transport.SetRegisterFunc(gm.RegisterPlayer)
 	transport.SetUnregisterFunc(gm.UnregisterPlayer)
