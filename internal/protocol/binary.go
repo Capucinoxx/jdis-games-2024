@@ -1,9 +1,6 @@
 package protocol
 
 import (
-	"encoding/binary"
-	"math"
-
 	"github.com/capucinoxx/forlorn/pkg/codec"
 	"github.com/capucinoxx/forlorn/pkg/model"
 	p "github.com/capucinoxx/forlorn/pkg/protocol"
@@ -59,36 +56,6 @@ func (b BinaryProtocol) encodeMapState(w *codec.ByteWriter, message *model.Clien
 	for _, c := range p {
 		c.Encode(w)
 	}
-}
-
-// encodeCollider permet d'encoder un collider.
-// Voici la représentation d'un collider :
-// [0:1 type] [1:2 taille] [[p:p+4 x] [p+4:p+8 y] ...]
-func (b BinaryProtocol) encodeCollider(c *model.Collider) []byte {
-	buf := make([]byte, 0)
-
-	buf = append(buf, byte(c.Type))
-	buf = append(buf, byte(len(c.Points)))
-
-	for _, p := range c.Points {
-		binary.LittleEndian.PutUint32(buf, uint32(p.X))
-		binary.LittleEndian.PutUint32(buf, uint32(p.Y))
-	}
-
-	return buf
-}
-
-func decodePoint(data []byte) *model.Point {
-	p := &model.Point{
-		X: math.Float32frombits(binary.LittleEndian.Uint32(data[4:])),
-		Y: math.Float32frombits(binary.LittleEndian.Uint32(data[4:8])),
-	}
-
-	if math.IsNaN(float64(p.X)) || math.IsNaN(float64(p.Y)) {
-		return nil
-	}
-
-	return p
 }
 
 func decodePlayerInput(r *codec.ByteReader, message *model.ClientMessage) {
