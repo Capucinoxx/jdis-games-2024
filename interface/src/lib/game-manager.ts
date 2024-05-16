@@ -4,10 +4,12 @@ import { Player } from '.';
 class GameManager {
   private scene: Phaser.Scene;
   private players: Map<string, Player>;
+  private base_x: number;
 
-  constructor(scene: Phaser.Scene) {
+  constructor(scene: Phaser.Scene, base_x: number) {
     this.scene = scene;
     this.players = new Map<string, Player>;
+    this.base_x = base_x;
   }
   
   public update_from_payload(payload: any) {
@@ -15,12 +17,12 @@ class GameManager {
       let player = this.players.get(data.uuid);
 
       if (!player) {
-        player = new Player(this.scene, data.x, data.y, data.uuid);
+        player = new Player(this.scene, {'x': data.x, 'y': data.y}, data.uuid);
         this.scene.add.existing(player);
         this.scene.physics.add.existing(player);
         this.players.set(data.uuid, player);
       } else {
-        player.update_position(data.x, data.y);
+        player.update_position({'x': data.x, 'y': data.y});
       }
     });
   }
