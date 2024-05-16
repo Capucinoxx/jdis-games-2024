@@ -12,6 +12,12 @@ import (
 // tickrate est le nombre de mises à jour du jeu par seconde.
 const tickrate = 3
 
+type RoundManager interface {
+	Restart()
+	Tick()
+	HasEnded() bool
+}
+
 // GameManager est responsable de la gestion de l'état du jeu, des joueurs et
 // de la boucle de jeu. Il est également responsable de la gestion des messages
 // entrants des joueurs et de la synchronisation des mises à jour du jeu.
@@ -19,17 +25,19 @@ type GameManager struct {
 	tickStart time.Time
 	am        *AuthManager
 	nm        *NetworkManager
+	rm        RoundManager
 	state     *model.GameState
 	mu        sync.Mutex
 }
 
 // NewGameManager crée un nouveau gestionnaire de jeu avec le serveur de jeu et
 // le gestionnaire de réseau spécifiés.
-func NewGameManager(am *AuthManager, nm *NetworkManager) *GameManager {
+func NewGameManager(am *AuthManager, nm *NetworkManager, rm RoundManager) *GameManager {
 	return &GameManager{
 		state: model.NewGameState(),
 		am:    am,
 		nm:    nm,
+		rm:    rm,
 	}
 }
 
