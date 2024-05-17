@@ -44,7 +44,7 @@ func (b BinaryProtocol) encodePlayerState(w *codec.ByteWriter, message *model.Cl
 	p := message.Body.(*model.Player)
 
 	_ = p.Collider.Pivot.Encode(w)
-	_ = w.WriteByte(byte(p.Health))
+	_ = w.WriteByte(byte(p.Health.Load()))
 }
 
 // encodeMapState permet d'encoder l'état de la map.
