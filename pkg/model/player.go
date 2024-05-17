@@ -82,7 +82,7 @@ func NewPlayer(id uint8, x float32, y float32, conn Connection) *Player {
 
 // String returns a string representation of the player.
 func (p *Player) String() string {
-	return fmt.Sprintf("[%d: { pos: (%f, %f), v: %f, rot: %d, health: %d }]", p.ID, p.Collider.Pivot.X, p.Collider.Pivot.Y, p.Collider.velocity, p.Collider.Rotation, p.Health)
+	return fmt.Sprintf("[%d: { pos: (%f, %f), v: %f, rot: %d, health: %d }]", p.ID, p.Collider.Pivot.X, p.Collider.Pivot.Y, p.Collider.velocity, p.Collider.Rotation, p.Health.Load())
 }
 
 // IsAlive returns true if the player's health is above zero, indicating they are alive.
