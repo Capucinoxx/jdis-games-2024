@@ -201,10 +201,10 @@ func (nm *NetworkManager) BroadcastGameEnd() {
 func (nm *NetworkManager) BroadcastGameStart(state *model.GameState) {
 	utils.Log("network", "broadcast", "game start")
 
-	// nm.broadcast <- nm.protocol.Encode(0, 0, &model.ClientMessage{
-	// 	MessageType: model.GameStart,
-	// 	Body:        state.Map.Colliders,
-	// })
+	nm.broadcast <- nm.protocol.Encode(0, 0, &model.ClientMessage{
+		MessageType: model.GameStart,
+		Body:        state.Map.Colliders(),
+	})
 }
 
 // writer writes outgoing messages to the WebSocket network. If a message cannot be written,

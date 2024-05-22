@@ -1,15 +1,19 @@
 import Phaser from 'phaser';
 import { Player } from '.';
+import { WS_URL, MESSAGE_TYPE } from './config';
 
 class GameManager {
   private scene: Phaser.Scene;
   private players: Map<string, Player>;
-  private base_x: number;
+  private ws: WebSocket;
 
-  constructor(scene: Phaser.Scene, base_x: number) {
+  constructor(scene: Phaser.Scene) {
     this.scene = scene;
     this.players = new Map<string, Player>;
-    this.base_x = base_x;
+    this.ws = new WebSocket(WS_URL);
+    this.ws.binaryType = 'arraybuffer';
+
+    this.handle_ws_messages();
   }
   
   public update_from_payload(payload: any) {
@@ -33,6 +37,28 @@ class GameManager {
 
   public get_player(uuid: string): Player | undefined {
     return this.players.get(uuid);
+  }
+
+  private handle_ws_messages(): void {
+    this.ws.onopen = (event: Event) => {
+      console.log('Connected to the server');
+    }
+
+    this.ws.onmessage = (event: MessageEvent<ArrayBuffer>) => {
+      const dataArray = new Uint8Array(event.data);
+      console.log({
+        type: MESSAGE_TYPE[dataArray[1]],
+        data: dataArray
+      });
+    }
+
+    this.ws.onclose = (event: CloseEvent) => {
+      console.log('Disconnected from the server', event);
+    };
+
+    this.ws.onerror = (event: Event) => {
+      console.error('WebSocket error:', event);
+    };
   }
 };
 
