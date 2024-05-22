@@ -15,19 +15,19 @@ type GameState struct {
 	lastPlayerID int64
 	playerCount  int
 	players      map[uint8]*Player
-	Map          *Map
+	Map          Map
 	mu           *sync.RWMutex
 }
 
 // NewGameState crée un nouvel état de jeu.
-func NewGameState() *GameState {
+func NewGameState(m Map) *GameState {
 	return &GameState{
 		length:       gameLength * time.Minute,
 		inProgress:   false,
 		lastPlayerID: 0,
 		playerCount:  0,
 		players:      make(map[uint8]*Player),
-		Map:          &Map{},
+		Map:          m,
 		mu:           &sync.RWMutex{},
 	}
 }
@@ -87,7 +87,7 @@ func (gs *GameState) RemovePlayer(p *Player) int {
 // démarre le chronomètre et met un drapeau pour indiquer
 // que le jeu est en cours.
 func (gs *GameState) Start() {
-	gs.Map.Populate(GenerateGrid(10, 10))
+	gs.Map.Setup()
 
 	// players := gs.Players()
 

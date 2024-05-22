@@ -32,9 +32,9 @@ type GameManager struct {
 
 // NewGameManager crée un nouveau gestionnaire de jeu avec le serveur de jeu et
 // le gestionnaire de réseau spécifiés.
-func NewGameManager(am *AuthManager, nm *NetworkManager, rm RoundManager) *GameManager {
+func NewGameManager(am *AuthManager, nm *NetworkManager, rm RoundManager, m model.Map) *GameManager {
 	return &GameManager{
-		state: model.NewGameState(),
+		state: model.NewGameState(m),
 		am:    am,
 		nm:    nm,
 		rm:    rm,
@@ -86,7 +86,7 @@ func (gm *GameManager) State() (model.Map, int) {
 	defer gm.mu.Unlock()
 
 	state := gm.state
-	return *state.Map, 0
+	return state.Map, 0
 }
 
 // process traite les messages entrants des joueurs. Il met à jour l'état du jeu

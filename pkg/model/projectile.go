@@ -25,8 +25,8 @@ func (p *Projectile) IsCollidingWithPlayer(player *Player) bool {
 }
 
 // IsCollidingWithEnvironment checks if the projectile is colliding with any non-projectile colliders in the map.
-func (p *Projectile) IsCollidingWithEnvironment(m *Map) bool {
-	for _, collider := range m.Colliders {
+func (p *Projectile) IsCollidingWithEnvironment(m Map) bool {
+	for _, collider := range m.Colliders() {
 		if collider.Type == ColliderProjectile {
 			continue
 		}
@@ -59,7 +59,7 @@ func NewCanon(owner *Player) *Cannon {
 }
 
 // Update processes all projectiles for movement and collision detection.
-func (c *Cannon) Update(players []*Player, m *Map, dt float32) {
+func (c *Cannon) Update(players []*Player, m Map, dt float32) {
 	for _, p := range c.Projectiles {
 		p.ApplyMovement(dt)
 

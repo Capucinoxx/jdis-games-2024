@@ -3,7 +3,6 @@ package model
 import (
 	"fmt"
 	"math"
-	"math/rand"
 
 	"github.com/capucinoxx/forlorn/pkg/codec"
 )
@@ -186,113 +185,9 @@ func (c *Collider) polygon() Polygon {
 	return Polygon{points: c.Points}
 }
 
-// Grid represents a 2D grid structure in a game environment.
-type Grid struct {
-	height, width int
-	cells         map[Point]map[Point]bool
-}
-
-// isInBounds returns true if the point is within the grid's boundaries, otherwise false.
-func (g *Grid) isInBounds(pos *Point) bool {
-	return pos.X >= 0 && pos.X < float32(g.width) && pos.Y >= 0 && pos.Y < float32(g.height)
-}
-
-// GenerateGrid creates and returns a new Grid of the specified dimensions.
-func GenerateGrid(width, height int) *Grid {
-	grid := &Grid{
-		height: height,
-		width:  width,
-		cells:  make(map[Point]map[Point]bool),
-	}
-
-	for y := 0; y < height; y++ {
-		for x := 0; x < width; x++ {
-			grid.cells[Point{X: float32(x), Y: float32(y)}] = make(map[Point]bool)
-		}
-	}
-
-	visited := make(map[Point]bool)
-
-	var dfs func(Point)
-	dfs = func(pos Point) {
-		visited[pos] = true
-
-		dirs := make([]Point, len(Directions))
-		copy(dirs, Directions)
-		rand.Shuffle(len(dirs), func(i, j int) {
-			dirs[i], dirs[j] = dirs[j], dirs[i]
-		})
-
-		for _, dir := range dirs {
-			v := dir.Add(&pos)
-			if grid.isInBounds(v) && !visited[*v] {
-				dfs(*v)
-				grid.cells[pos][dir] = true
-				grid.cells[*v][*dir.Reflect(NullPoint())] = true
-			}
-		}
-	}
-
-	dfs(Point{X: 0, Y: 0})
-	random_pos := Point{X: float32(rand.Intn(width)), Y: float32(rand.Intn(height))}
-	dfs(random_pos)
-
-	return grid
-}
-
 // Map represents a game map, containing information about collisions and spawn points.
-type Map struct {
-	Colliders []*Collider
-	Spawns    []*Point
-	cellSize  float32
-}
-
-// Populate fills the map with colliders using the specified grid.
-func (m *Map) Populate(grid *Grid) {
-	// TODO: Fix It
-	if m.cellSize == 0 {
-		m.cellSize = 1
-	}
-
-	m.Colliders = append(m.Colliders, &Collider{
-		Points: []*Point{{X: 0, Y: 0}, {X: 0, Y: float32(grid.height) * m.cellSize}},
-	})
-
-	m.Colliders = append(m.Colliders, &Collider{
-		Points: []*Point{{X: 0, Y: 0}, {X: float32(grid.height) * m.cellSize, Y: 0}},
-	})
-
-	m.Colliders = append(m.Colliders, &Collider{
-		Points: []*Point{{X: float32(grid.width) * m.cellSize, Y: 0}, {X: float32(grid.width) * m.cellSize, Y: float32(grid.height) * m.cellSize}},
-	})
-
-	m.Colliders = append(m.Colliders, &Collider{
-		Points: []*Point{{X: 0, Y: float32(grid.height) * m.cellSize}, {X: float32(grid.width) * m.cellSize, Y: float32(grid.height) * m.cellSize}},
-	})
-
-	for y := 0; y < grid.height; y++ {
-		for x := 0; x < grid.width; x++ {
-			cell := grid.cells[Point{X: float32(x), Y: float32(y)}]
-			x1, y1 := float32(x)*m.cellSize, float32(y)*m.cellSize
-			x2, y2 := x1+m.cellSize, y1+m.cellSize
-
-			if _, exist := cell[RIGHT]; exist {
-				m.Colliders = append(m.Colliders, &Collider{
-					Points: []*Point{{X: x2, Y: y1}, {X: x2, Y: y2}},
-				})
-			}
-
-			if _, exist := cell[DOWN]; exist {
-				m.Colliders = append(m.Colliders, &Collider{
-					Points: []*Point{{X: x1, Y: y2}, {X: x2, Y: y2}},
-				})
-			}
-		}
-	}
-}
-
-// Clear removes all colliders and spawn points from the map.
-func (m *Map) Clear() {
-	m.Colliders = nil
-	m.Spawns = nil
+type Map interface {
+	Setup()
+	Colliders() []*Collider
+	Spawns() []*Point
 }
