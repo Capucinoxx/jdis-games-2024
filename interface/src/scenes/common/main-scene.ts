@@ -8,7 +8,7 @@ class MainScene extends Phaser.Scene {
   constructor() { super({ key: 'MainScene' }); }
 
   create() {
-    this.manager = new GameManager(this, this.cameras.main.centerX);
+    this.manager = new GameManager(this);
     this.draw_iso_grid();
     this.draw_grid();
 
