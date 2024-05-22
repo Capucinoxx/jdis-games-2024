@@ -103,7 +103,7 @@ func (p *Player) Update(players []*Player, game *GameState, dt float32) {
 }
 
 // HandleMovement manages the player's movement based on their controls.
-func (p *Player) HandleMovement(players []*Player, m *Map, dt float32) {
+func (p *Player) HandleMovement(players []*Player, m Map, dt float32) {
 	r := p.Collider
 
 	hasCollision := p.checkCollisionWithPlayers(players) || p.checkCollisionWithMap(m)
@@ -118,7 +118,7 @@ func (p *Player) HandleMovement(players []*Player, m *Map, dt float32) {
 }
 
 // HandleCannon handles the player's cannon actions.
-func (p *Player) HandleCannon(players []*Player, m *Map, dt float32) {
+func (p *Player) HandleCannon(players []*Player, m Map, dt float32) {
 	if p.Controls.Shoot != nil {
 		p.cannon.ShootAt(*p.Controls.Shoot)
 	}
@@ -144,8 +144,8 @@ func (p *Player) checkCollisionWithPlayers(players []*Player) bool {
 }
 
 // checkCollisionWithMap checks if the player collides with the map.
-func (p *Player) checkCollisionWithMap(m *Map) bool {
-	for _, collider := range m.Colliders {
+func (p *Player) checkCollisionWithMap(m Map) bool {
+	for _, collider := range m.Colliders() {
 		if p.Collider.Collisions(collider.polygon()) {
 			return true
 		}
