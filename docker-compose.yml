@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.server
     ports:
       - '8087:8087'
     volumes:
@@ -14,6 +16,13 @@ services:
       MONGO_HOST: mongodb
       MONGO_PORT: 27017
       MONGO_DB: db
+
+  interface:
+    build:
+      context: .
+      dockerfile: Dockerfile.interface
+    ports:
+      - '8086:80'
 
   influxdb:
     image: influxdb:2.0.7
