@@ -2,11 +2,9 @@
   "name": "forlorn-interface",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "start": "parcel index.html --open",
-    "build": "parcel build index.html",
-    "load-wasm": ""
+    "build": "parcel build index.html"
   },
   "author": "Capucinoxx",
   "license": "MIT",
