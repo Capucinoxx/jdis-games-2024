@@ -7,3 +7,5 @@ node_modules
 # parcel bundler cache
 interface/.cache
 interface/dist
+interface/.parcel-cache
+interface/src/wasm/wasm_exec.js

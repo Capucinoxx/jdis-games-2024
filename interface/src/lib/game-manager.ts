@@ -45,11 +45,15 @@ class GameManager {
     }
 
     this.ws.onmessage = (event: MessageEvent<ArrayBuffer>) => {
-      const dataArray = new Uint8Array(event.data);
-      console.log({
-        type: MESSAGE_TYPE[dataArray[1]],
-        data: dataArray
-      });
+      // const dataArray = new Uint8Array(event.data);]
+
+      console.log('toto');
+
+      console.log(window.getInformations(event.data));
+      // console.log({
+      //   type: MESSAGE_TYPE[dataArray[1]],
+      //   data: dataArray
+      // });
     }
 
     this.ws.onclose = (event: CloseEvent) => {

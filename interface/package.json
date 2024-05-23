@@ -5,13 +5,19 @@
   "main": "index.js",
   "scripts": {
     "start": "parcel index.html --open",
-    "build": "parcel build index.html"
+    "build": "parcel build index.html",
+    "load-wasm": ""
   },
   "author": "Capucinoxx",
   "license": "MIT",
   "dependencies": {
-    "parcel-bundler": "^1.12.5",
+    "@assemblyscript/loader": "^0.27.27",
+    "parcel": "^2.12.0",
     "phaser": "^3.80.1",
     "typescript": "^5.4.5"
+  },
+  "devDependencies": {
+    "assemblyscript": "^0.27.27",
+    "process": "^0.11.10"
   }
 }
