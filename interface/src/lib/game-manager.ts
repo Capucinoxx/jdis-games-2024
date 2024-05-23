@@ -40,24 +40,12 @@ class GameManager {
   }
 
   private handle_ws_messages(): void {
-    this.ws.onopen = (event: Event) => {
-      console.log('Connected to the server');
-    }
-
     this.ws.onmessage = (event: MessageEvent<ArrayBuffer>) => {
-      const dataArray = new Uint8Array(event.data);
-      console.log({
-        type: MESSAGE_TYPE[dataArray[1]],
-        data: dataArray
-      });
+      console.log(window.getInformations(event.data));
     }
 
     this.ws.onclose = (event: CloseEvent) => {
       console.log('Disconnected from the server', event);
-    };
-
-    this.ws.onerror = (event: Event) => {
-      console.error('WebSocket error:', event);
     };
   }
 };
