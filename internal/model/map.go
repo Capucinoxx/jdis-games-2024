@@ -3,6 +3,7 @@ package model
 import (
 	"math/rand"
 
+	"github.com/capucinoxx/forlorn/pkg/codec"
 	"github.com/capucinoxx/forlorn/pkg/model"
 )
 
@@ -79,7 +80,7 @@ type Map struct {
 	colliders  []*model.Collider
 	spawns     []*model.Point
 	cellSize   float32
-	tilesWalls [][]int
+	tilesWalls [][]uint8
 
 	r *rand.Rand
 }
@@ -92,6 +93,14 @@ func (m *Map) Colliders() []*model.Collider {
 // Spawns returns the list of spawn model.Points in the map.
 func (m *Map) Spawns() []*model.Point {
 	return m.spawns
+}
+
+func (m *Map) Size() int {
+	return mapWidth
+}
+
+func (m *Map) DiscreteMap() [][]uint8 {
+	return m.tilesWalls
 }
 
 // Setup initializes the map by setting up the grid and generating spawns.
@@ -136,7 +145,7 @@ func (m *Map) populate(grid *Grid) {
 
 // generateSpawns generates spawn model.Points for the map based on the grid.
 func (m *Map) generateSpawns(grid *Grid) {
-	m.tilesWalls = make([][]int, mapHeight)
+	m.tilesWalls = make([][]uint8, mapHeight)
 
 	const (
 		minValue  = 0.1
@@ -145,10 +154,10 @@ func (m *Map) generateSpawns(grid *Grid) {
 	)
 
 	for i := 0; i < mapHeight; i++ {
-		m.tilesWalls[i] = make([]int, mapWidth)
+		m.tilesWalls[i] = make([]uint8, mapWidth)
 		for j := 0; j < mapWidth; j++ {
 			wallCount := grid.wallCount(model.Point{X: float32(i), Y: float32(j)})
-			m.tilesWalls[i][j] = wallCount
+			m.tilesWalls[i][j] = uint8(wallCount)
 
 			if wallCount != 4 {
 				for k := 0; k < 3; k++ {
@@ -160,4 +169,56 @@ func (m *Map) generateSpawns(grid *Grid) {
 			}
 		}
 	}
+}
+
+func (m *Map) Encode(w *codec.ByteWriter) error {
+	w.WriteInt8(mapWidth)
+
+	for i := 0; i < mapWidth; i++ {
+		for j := 0; j < mapWidth; j++ {
+			w.WriteInt8(int8(m.tilesWalls[i][j]))
+		}
+	}
+
+	w.WriteInt32(int32(len(m.colliders)))
+	for _, c := range m.colliders {
+		c.Encode(w)
+	}
+
+	return nil
+}
+
+func (m *Map) Decode(r *codec.ByteReader) error {
+	width, err := r.ReadInt8()
+	if err != nil {
+		return err
+	}
+
+	m.tilesWalls = make([][]uint8, width)
+
+	for i := 0; i < int(width); i++ {
+		m.tilesWalls[i] = make([]uint8, width)
+		for j := 0; j < int(width); j++ {
+			m.tilesWalls[i][j], err = r.ReadUint8()
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	collidersLen, err := r.ReadInt32()
+	if err != nil {
+		return err
+	}
+
+	m.colliders = make([]*model.Collider, collidersLen)
+
+	for i := 0; i < int(collidersLen); i++ {
+		m.colliders[i] = &model.Collider{}
+		if err := m.colliders[i].Decode(r); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
