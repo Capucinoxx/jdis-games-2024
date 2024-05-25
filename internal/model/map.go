@@ -180,11 +180,6 @@ func (m *Map) Encode(w *codec.ByteWriter) error {
 		}
 	}
 
-	w.WriteInt32(int32(len(m.colliders)))
-	for _, c := range m.colliders {
-		c.Encode(w)
-	}
-
 	return nil
 }
 
@@ -203,20 +198,6 @@ func (m *Map) Decode(r *codec.ByteReader) error {
 			if err != nil {
 				return err
 			}
-		}
-	}
-
-	collidersLen, err := r.ReadInt32()
-	if err != nil {
-		return err
-	}
-
-	m.colliders = make([]*model.Collider, collidersLen)
-
-	for i := 0; i < int(collidersLen); i++ {
-		m.colliders[i] = &model.Collider{}
-		if err := m.colliders[i].Decode(r); err != nil {
-			return err
 		}
 	}
 
