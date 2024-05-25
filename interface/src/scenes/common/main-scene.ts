@@ -1,16 +1,31 @@
 import Phaser from 'phaser';
 import { GameManager } from '../../lib';
+import { GridManager } from '../../lib/grid-manager';
+
+function generateGrid(rows: number, cols: number, maxVal: number): number[][] {
+  const grid: number[][] = [];
+  for (let i = 0; i < rows; i++) {
+      const row: number[] = [];
+      for (let j = 0; j < cols; j++) {
+          row.push(Math.floor(Math.random() * (maxVal + 1)));
+      }
+      grid.push(row);
+  }
+  return grid;
+}
 
 class MainScene extends Phaser.Scene {
   private manager: GameManager;
   private grid_graphics: Phaser.GameObjects.Graphics;
+  private grid_manager: GridManager;
 
   constructor() { super({ key: 'MainScene' }); }
 
   create() {
     this.manager = new GameManager(this);
-    this.draw_iso_grid();
-    this.draw_grid();
+    this.grid_manager = new GridManager(this);
+    // this.draw_iso_grid();
+    // this.draw_grid();
 
     this.time.addEvent({
       delay: 1000,
@@ -18,6 +33,8 @@ class MainScene extends Phaser.Scene {
       callbackScope: this,
       loop: true
     });
+
+    this.grid_manager.tiles = generateGrid(10, 10, 4);
 
     this.cameras.main.setBounds(0, 0, 8000, 6000);
     this.physics.world.setBounds(0, 0, 8000, 6000);
@@ -33,6 +50,8 @@ class MainScene extends Phaser.Scene {
     this.input.on('pointerdown', (pointer: Phaser.Input.Pointer): void => {
       this.cameras.main.pan(pointer.x, pointer.y, 500);
     });
+
+    window.addEventListener('resize', () => this.scale.resize(window.innerWidth, window.innerHeight));
   }
 
   /**
