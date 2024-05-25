@@ -1,8 +1,6 @@
 package protocol
 
 import (
-	"fmt"
-
 	imodel "github.com/capucinoxx/forlorn/internal/model"
 	"github.com/capucinoxx/forlorn/pkg/codec"
 	"github.com/capucinoxx/forlorn/pkg/model"

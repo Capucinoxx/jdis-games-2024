@@ -51,6 +51,7 @@ func getInformations(this js.Value, args []js.Value) interface{} {
 			board.Call("push", row)
 		}
 
+		obj.Set("Type", msg.MessageType)
 		obj.Set("map", board)
 		return obj
 	}
