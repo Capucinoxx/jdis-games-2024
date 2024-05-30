@@ -15,9 +15,9 @@ function generateGrid(rows: number, cols: number, maxVal: number): number[][] {
 }
 
 class MainScene extends Phaser.Scene {
-  private manager: GameManager;
-  private grid_graphics: Phaser.GameObjects.Graphics;
-  private grid_manager: GridManager;
+  private manager: GameManager | undefined;
+  private grid_graphics: Phaser.GameObjects.Graphics | undefined;
+  private grid_manager: GridManager | undefined;
 
   constructor() { super({ key: 'MainScene' }); }
 
@@ -116,7 +116,7 @@ class MainScene extends Phaser.Scene {
     };
   
     const players = ['1234', '5678'].map(uuid => {
-      const player = this.manager.get_player(uuid);
+      const player = this.manager!.get_player(uuid);
       let new_x = this.cameras.main.centerX - (2 * 200) / 2 + 100, new_y = this.cameras.main.centerY - (2 * 100) / 2;
       
 

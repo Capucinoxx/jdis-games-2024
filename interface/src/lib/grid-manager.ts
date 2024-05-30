@@ -11,9 +11,6 @@ const TILE_COLORS = [
 const GRID_COLOR = 0x151515;
 
 const TILE_WIDTH = 200;
-const TILE_HEIGHT = 100;
-const HALF_TILE_WIDTH = TILE_WIDTH / 2;
-const HALF_TILE_HEIGHT = TILE_HEIGHT / 2;
 
 class GridManager {
   private scene: Phaser.Scene;
@@ -38,33 +35,20 @@ class GridManager {
     const rows = this.grid_values.length;
     const cols = this.grid_values[0].length;
 
-    const base_x = this.scene.cameras.main.centerX - cols * HALF_TILE_WIDTH;
-    const base_y = this.scene.cameras.main.centerY - rows * HALF_TILE_HEIGHT;
 
     this.grid_graphics.clear();
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < cols; x++) {
-        const ix = base_x + (x - y) * HALF_TILE_WIDTH;
-        const iy = base_y + (x + y) * HALF_TILE_HEIGHT;
 
         const color = TILE_COLORS[this.grid_values[y][x]] || 0xff0000;
         this.grid_graphics.fillStyle(color, 1.0);
         this.grid_graphics.fillPoints([
-          { x: ix, y: iy + HALF_TILE_HEIGHT },
-          { x: ix + HALF_TILE_WIDTH, y: iy },
-          { x: ix + TILE_WIDTH, y: iy + HALF_TILE_HEIGHT },
-          { x: ix + HALF_TILE_WIDTH, y: iy + TILE_HEIGHT },
-          { x: ix, y: iy + HALF_TILE_HEIGHT },
+          { x: x * TILE_WIDTH, y: y * TILE_WIDTH },
+          { x: (x + 1) * TILE_WIDTH, y: y * TILE_WIDTH },
+          { x: (x + 1) * TILE_WIDTH, y: (y + 1) * TILE_WIDTH },
+          { x: x * TILE_WIDTH, y: (y + 1) * TILE_WIDTH },
+          { x: x * TILE_WIDTH, y: y * TILE_WIDTH },
         ], true);
-
-        this.grid_graphics.lineStyle(1, GRID_COLOR, 1);
-        this.grid_graphics.strokePoints([
-          { x: ix, y: iy + HALF_TILE_HEIGHT },
-          { x: ix + HALF_TILE_WIDTH, y: iy },
-          { x: ix + TILE_WIDTH, y: iy + HALF_TILE_HEIGHT },
-          { x: ix + HALF_TILE_WIDTH, y: iy + TILE_HEIGHT },
-          { x: ix, y: iy + HALF_TILE_HEIGHT },
-        ]);
       }
     }
   }
