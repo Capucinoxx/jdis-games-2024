@@ -22,4 +22,4 @@ const config: Phaser.Types.Core.GameConfig = {
 
 load_wasm();
 
-const game = new Phaser.Game(config);
+new Phaser.Game(config);

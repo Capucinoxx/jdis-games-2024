@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { Player } from '.';
-import { WS_URL, MESSAGE_TYPE } from './config';
+import { WS_URL } from './config';
 import { GridManager } from './grid-manager'; 
 
 class GameManager {
@@ -53,7 +53,6 @@ class GameManager {
         case 4:
          this.grid.tiles = data.map;    
       }
-      //console.log(window.getInformations(event.data));
     }
 
     this.ws.onclose = (event: CloseEvent) => {
