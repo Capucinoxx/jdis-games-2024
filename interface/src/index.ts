@@ -4,17 +4,22 @@ import { load_wasm } from './wasm/loader';
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
-  width: 800,
-  height: 600,
+  width: window.innerWidth,
+  height: window.innerHeight,
+  backgroundColor: '#F0F0F0',
   physics: {
     default: 'arcade',
     arcade: {
       debug: false
     }
   },
-  scene: [MainScene]
+  scene: [MainScene],
+  scale: {
+    mode: Phaser.Scale.RESIZE,
+    autoCenter: Phaser.Scale.CENTER_BOTH
+  }
 };
 
 load_wasm();
 
-const game = new Phaser.Game(config);
+new Phaser.Game(config);

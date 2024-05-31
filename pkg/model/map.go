@@ -140,7 +140,7 @@ type Collider struct {
 }
 
 func (c *Collider) Encode(w codec.Writer) (err error) {
-	if err = w.WriteInt32(int32(len(c.Points))); err != nil {
+	if err = w.WriteUint8((uint8(len(c.Points)))); err != nil {
 		return
 	}
 
@@ -158,12 +158,13 @@ func (c *Collider) Encode(w codec.Writer) (err error) {
 }
 
 func (c *Collider) Decode(r codec.Reader) (err error) {
-	var size int32
-	if size, err = r.ReadInt32(); err != nil {
+	var size uint8
+	if size, err = r.ReadUint8(); err != nil {
 		return
 	}
 
-	for i := int32(0); i < size; i++ {
+	c.Points = make([]*Point, size)
+	for i := uint8(0); i < size; i++ {
 		var p Point
 		if err = p.Decode(r); err != nil {
 			return
@@ -190,4 +191,6 @@ type Map interface {
 	Setup()
 	Colliders() []*Collider
 	Spawns() []*Point
+	Size() int
+	DiscreteMap() [][]uint8
 }

@@ -7,12 +7,6 @@ import (
 	"github.com/capucinoxx/forlorn/pkg/model"
 )
 
-const (
-	// PlayerPacketSize représente la taille en octets
-	// nécessaire pour stocker un paquet de données d'un joueur
-	PlayerPacketSize = 14
-)
-
 // BinaryProtocol est une structure qui permet de gérer les paquets de données
 // envoyés par les joueurs. Cela défini la fonction à appeler pour traiter
 // l'encodage et le décodage des données selon le type de message.
@@ -28,9 +22,9 @@ type BinaryProtocol struct {
 func (b BinaryProtocol) Encode(id uint8, currentTime uint32, message *model.ClientMessage) []byte {
 	writer := codec.NewByteWriter(binary.LittleEndian)
 
-	_ = writer.WriteUint8(id)
+	// _ = writer.WriteUint8(id)
 	_ = writer.WriteUint8(uint8(message.MessageType))
-	_ = writer.WriteUint32(currentTime)
+	// _ = writer.WriteUint32(currentTime)
 
 	if handler, ok := b.EncodeHandlers[message.MessageType]; ok {
 		handler(writer, message)
@@ -44,7 +38,7 @@ func (b BinaryProtocol) Encode(id uint8, currentTime uint32, message *model.Clie
 // représentation du message :
 // [0:1 messageType] [1:fin messageData]
 func (b BinaryProtocol) Decode(data []byte) model.ClientMessage {
-	reader := codec.NewByteReader(data, binary.LittleEndian)
+	reader := codec.NewByteReader(data[1:], binary.LittleEndian)
 
 	msg := model.ClientMessage{
 		MessageType: model.MessageType(data[0]),

@@ -1,15 +1,10 @@
 package protocol
 
 import (
+	imodel "github.com/capucinoxx/forlorn/internal/model"
 	"github.com/capucinoxx/forlorn/pkg/codec"
 	"github.com/capucinoxx/forlorn/pkg/model"
 	p "github.com/capucinoxx/forlorn/pkg/protocol"
-)
-
-const (
-	// PlayerPacketSize représente la taille en octets
-	// nécessaire pour stocker un paquet de données d'un joueur
-	PlayerPacketSize = 14
 )
 
 // BinaryProtocol est une structure vide encapsulant les différentes
@@ -30,6 +25,8 @@ func NewBinaryProtocol() *p.BinaryProtocol {
 	protocol.EncodeHandlers[model.GameStart] = bp.encodeMapState
 	protocol.EncodeHandlers[model.Position] = bp.encodePlayerState
 
+	protocol.DecodeHandlers[model.Spawn] = bp.decodeMapState
+	protocol.DecodeHandlers[model.GameStart] = bp.decodeMapState
 	protocol.DecodeHandlers[model.Position] = decodePlayerInput
 
 	return protocol
@@ -51,10 +48,17 @@ func (b BinaryProtocol) encodePlayerState(w *codec.ByteWriter, message *model.Cl
 // L'état de la map est composé de tous les colliders présents
 // dans la map.
 func (b BinaryProtocol) encodeMapState(w *codec.ByteWriter, message *model.ClientMessage) {
-	p := message.Body.([]*model.Collider)
+	p := message.Body.(*imodel.Map)
 
-	for _, c := range p {
-		c.Encode(w)
+	_ = p.Encode(w)
+}
+
+func (b BinaryProtocol) decodeMapState(r *codec.ByteReader, message *model.ClientMessage) {
+	mapState := &imodel.Map{}
+	if err := mapState.Decode(r); err != nil {
+		message.Body = nil
+	} else {
+		message.Body = *mapState
 	}
 }
 
