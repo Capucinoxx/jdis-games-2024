@@ -1,31 +1,14 @@
 import Phaser from 'phaser';
 import { GameManager } from '../../lib';
-import { GridManager } from '../../lib/grid-manager';
 
-function generateGrid(rows: number, cols: number, maxVal: number): number[][] {
-  const grid: number[][] = [];
-  for (let i = 0; i < rows; i++) {
-      const row: number[] = [];
-      for (let j = 0; j < cols; j++) {
-          row.push(Math.floor(Math.random() * (maxVal + 1)));
-      }
-      grid.push(row);
-  }
-  return grid;
-}
 
 class MainScene extends Phaser.Scene {
   private manager: GameManager | undefined;
-  private grid_graphics: Phaser.GameObjects.Graphics | undefined;
-  private grid_manager: GridManager | undefined;
 
   constructor() { super({ key: 'MainScene' }); }
 
   create() {
     this.manager = new GameManager(this);
-    this.grid_manager = new GridManager(this);
-    // this.draw_iso_grid();
-    // this.draw_grid();
 
     this.time.addEvent({
       delay: 1000,
@@ -33,8 +16,6 @@ class MainScene extends Phaser.Scene {
       callbackScope: this,
       loop: true
     });
-
-    this.grid_manager.tiles = generateGrid(10, 10, 4);
 
     this.cameras.main.setBounds(0, 0, 8000, 6000);
     this.physics.world.setBounds(0, 0, 8000, 6000);
@@ -54,52 +35,6 @@ class MainScene extends Phaser.Scene {
     window.addEventListener('resize', () => this.scale.resize(window.innerWidth, window.innerHeight));
   }
 
-  /**
-   * TODO: to be removed when the tiles are implemented.
-   */
-  draw_grid() {
-    const grid_size = 100;
-    const rows = 60;
-    const cols = 80;
-    this.grid_graphics = this.add.graphics({ lineStyle: { width: 2, color: 0x0000ff } });
-
-    for (let i = 0; i <= cols; i++)
-      this.grid_graphics.lineBetween(i * grid_size, 0, i * grid_size, 600);
-    for (let j = 0; j <= rows; j++)
-      this.grid_graphics.lineBetween(0, j * grid_size, 800, j * grid_size);
-  }
-
-  /**
-   * TODO: to be removed when the tiles are implemented.
-   */
-  draw_iso_grid() {
-    const tile_width = 200;
-    const tile_height = 100;
-
-    const rows = 2;
-    const cols = 2;
-
-    this.grid_graphics = this.add.graphics();
-    this.grid_graphics.lineStyle(1, 0x0000ff, 0.5);
-
-    for (let y = 0; y < rows; y++) {
-      for (let x = 0; x < cols; x++) {
-        const base_x = this.cameras.main.centerX - (cols * tile_width) / 2;
-        const base_y = this.cameras.main.centerY - (rows * tile_height) / 2;
-
-        let ix = base_x + (x - y) * tile_width / 2;
-        let iy = base_y + (x + y) * tile_height / 2;
-
-        this.grid_graphics.strokePoints([
-          { x: ix, y: iy + tile_height / 2 },
-          { x: ix + tile_width / 2, y: iy },
-          { x: ix + tile_width, y: iy + tile_height / 2 },
-          { x: ix + tile_width / 2, y: iy + tile_height },
-          { x: ix, y: iy + tile_height / 2 }
-      ], true);
-      }
-    }
-  }
 
   /**
    * TODO: to be removed when testing connectivity with the server.
@@ -124,17 +59,16 @@ class MainScene extends Phaser.Scene {
         const { x, y } = player.target_pos;
         [new_x, new_y] = calculate_next_position(x, y);
       }
-        
-        
+                
     
       return { 'uuid': uuid, 'x': new_x, 'y': new_y };
     }).filter(player => player !== null);
   
-    this.manager.update_from_payload({ 'players': players });
+    this.manager!.update_from_payload({ 'players': players });
   }
 
   update(_: number, delta: number) {
-    this.manager.update_players_movement(delta);
+    this.manager!.update_players_movement(delta);
   }
 };
 

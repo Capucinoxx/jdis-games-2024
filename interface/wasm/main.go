@@ -30,17 +30,15 @@ func toBytes(v js.Value) []byte {
 }
 
 func getInformations(this js.Value, args []js.Value) interface{} {
-	println(args[0].Length())
 	bytes := arrayBufferToBytes(args[0])
 
+  obj := js.Global().Get("Object").New()
 	msg := proto.Decode(bytes)
 
 	if msg.MessageType == 4 {
 		body := msg.Body.(imodel.Map)
 
 		discreteBoard := body.DiscreteMap()
-
-		obj := js.Global().Get("Object").New()
 
 		board := js.Global().Get("Array").New()
 		for i := 0; i < body.Size(); i++ {
@@ -51,12 +49,11 @@ func getInformations(this js.Value, args []js.Value) interface{} {
 			board.Call("push", row)
 		}
 
-		obj.Set("Type", msg.MessageType)
-		obj.Set("map", board)
-		return obj
-	}
+		obj.Set("type", int(msg.MessageType))
+	  obj.Set("map", board)
+  }
 
-	return js.ValueOf(nil)
+	return obj
 }
 
 func registerCallbacks() {

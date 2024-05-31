@@ -1,15 +1,19 @@
 import Phaser from 'phaser';
 import { Player } from '.';
 import { WS_URL, MESSAGE_TYPE } from './config';
+import { GridManager } from './grid-manager'; 
 
 class GameManager {
   private scene: Phaser.Scene;
   private players: Map<string, Player>;
   private ws: WebSocket;
+  private grid: GridManager;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
+    this.grid = new GridManager(scene);
     this.players = new Map<string, Player>;
+
     this.ws = new WebSocket(WS_URL);
     this.ws.binaryType = 'arraybuffer';
 
@@ -41,7 +45,15 @@ class GameManager {
 
   private handle_ws_messages(): void {
     this.ws.onmessage = (event: MessageEvent<ArrayBuffer>) => {
-      console.log(window.getInformations(event.data));
+      const data = window.getInformations(event.data);
+      if (!('type' in data))
+        return;
+
+      switch (data.type) {
+        case 4:
+         this.grid.tiles = data.map;    
+      }
+      //console.log(window.getInformations(event.data));
     }
 
     this.ws.onclose = (event: CloseEvent) => {
