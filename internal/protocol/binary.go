@@ -23,20 +23,15 @@ func NewBinaryProtocol() *p.BinaryProtocol {
 	bp := BinaryProtocol{}
 	protocol.EncodeHandlers[model.Spawn] = bp.encodeMapState
 	protocol.EncodeHandlers[model.GameStart] = bp.encodeMapState
-	protocol.EncodeHandlers[model.Position] = bp.encodePlayerState
+	protocol.EncodeHandlers[model.Position] = bp.encodeGameState
 
 	protocol.DecodeHandlers[model.Spawn] = bp.decodeMapState
 	protocol.DecodeHandlers[model.GameStart] = bp.decodeMapState
-	protocol.DecodeHandlers[model.Position] = decodePlayerInput
+	protocol.DecodeHandlers[model.Position] = bp.decodeGameState
 
 	return protocol
 }
 
-// encodePlayerState permet d'encoder l'état d'un joueur.
-// L'état d'un joueur est composé de sa position, de son orientation,
-// de son état de tir et de sa vie.
-// représentation de l'état d'un joueur :
-// [0:4 x] [4:8 y] [8:12 rotation] [12:13 shooting] [13:14 health]
 func (b BinaryProtocol) encodePlayerState(w *codec.ByteWriter, message *model.ClientMessage) {
 	p := message.Body.(*model.Player)
 
@@ -44,9 +39,6 @@ func (b BinaryProtocol) encodePlayerState(w *codec.ByteWriter, message *model.Cl
 	_ = w.WriteByte(byte(p.Health.Load()))
 }
 
-// encodeMapState permet d'encoder l'état de la map.
-// L'état de la map est composé de tous les colliders présents
-// dans la map.
 func (b BinaryProtocol) encodeMapState(w *codec.ByteWriter, message *model.ClientMessage) {
 	p := message.Body.(*imodel.Map)
 
@@ -57,7 +49,7 @@ func (b BinaryProtocol) encodeGameState(w *codec.ByteWriter, message *model.Clie
   players := message.Body.([]*model.Player)
 
   for _, player := range players {
-    player.   
+    player.Encode(w) 
   }
 }
 
@@ -70,15 +62,20 @@ func (b BinaryProtocol) decodeMapState(r *codec.ByteReader, message *model.Clien
 	}
 }
 
-func decodePlayerInput(r *codec.ByteReader, message *model.ClientMessage) {
-	shootPos := &model.Point{}
-	if err := shootPos.Decode(r); err != nil {
-		shootPos = nil
-	}
+func (b BinaryProtocol) decodeGameState(r *codec.ByteReader, message *model.ClientMessage) {
+  players := make([]model.PlayerInfo, 0)
 
-	controls := model.Controls{
-		Shoot: shootPos,
-	}
+  var err error
+  for err == nil {
+    player := model.PlayerInfo{}
+    err = player.Decode(r)
+    if err == nil {
+      players = append(players, player)
+    }
+  }
 
-	message.Body = controls
+  message.Body = players
 }
+
+
+

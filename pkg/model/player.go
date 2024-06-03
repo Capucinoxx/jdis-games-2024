@@ -188,6 +188,16 @@ func (p *Player) applyMovement() {
 	}
 }
 
+type PlayerInfo struct {
+  Nickname string
+  Health int32
+  Pos Point
+  Projectiles []struct {
+    Pos Point
+    Dest Point
+  }
+}
+
 func (p *Player) Encode(w codec.Writer) (err error) {
   if err = w.WriteString(p.Nickname); err != nil {
     return
@@ -218,41 +228,33 @@ func (p *Player) Encode(w codec.Writer) (err error) {
   return
 }
 
-func (p *Player) Decode(r codec.Reader) (err error) {
+func (p *PlayerInfo) Decode(r codec.Reader) (err error) {
   if p.Nickname, err = r.ReadString(); err != nil {
     return
   }
 
-  var health int32
-  if health, err = r.ReadInt32(); err != nil {
+  if p.Health, err = r.ReadInt32(); err != nil {
     return
   }
-  p.Health.Store(health)
 
-  p.Collider = &RectCollider{Pivot: &Point{}}
-  if err = p.Collider.Pivot.Decode(r); err != nil {
+  
+  if err = p.Pos.Decode(r); err != nil {
     return
   }
   
-  var bullets_length int32
-  if bullets_length, err = r.ReadInt32(); err != nil {
+  var length int32
+  if length, err = r.ReadInt32(); err != nil {
     return
   }
-
-  p.cannon = &Cannon{Projectiles: make([]*Projectile, bullets_length)}
-  for i := 0; i < int(bullets_length); i++ {
-    pos := &Point{}
-    if err = pos.Decode(r); err != nil {
-      return
-    }
-    direction := &Point{}
-    if err = pos.Decode(r); err != nil {
+  
+  p.Projectiles = make([]struct{Pos Point; Dest Point}, length)
+  for i := 0; i < int(length); i++ {
+    if err = p.Projectiles[i].Pos.Decode(r); err != nil {
       return
     }
 
-    p.cannon.Projectiles[i] = &Projectile{
-      Position: pos,
-      Direction: direction,
+    if err = p.Projectiles[i].Dest.Decode(r); err != nil {
+      return
     }
   }
 
