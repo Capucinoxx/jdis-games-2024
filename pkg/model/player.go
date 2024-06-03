@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"sync/atomic"
 	"time"
+
+	"github.com/capucinoxx/forlorn/pkg/codec"
 )
 
 // Connection represents a network connection. It can be used for reading and writing data over the network
@@ -184,4 +186,75 @@ func (p *Player) applyMovement() {
 		point.X += r.dir.X * r.velocity
 		point.Y += r.dir.Y * r.velocity
 	}
+}
+
+func (p *Player) Encode(w codec.Writer) (err error) {
+  if err = w.WriteString(p.Nickname); err != nil {
+    return
+  }
+
+  if err = w.WriteInt32(p.Health.Load()); err != nil {
+    return
+  }
+
+  if err = p.Collider.Pivot.Encode(w); err != nil {
+    return
+  }
+
+  bullets := p.cannon.Projectiles
+  if err = w.WriteInt32(int32(len(bullets))); err != nil {
+    return
+  }
+
+  for _, bullet := range bullets {
+    if err = bullet.Position.Encode(w); err != nil {
+      return
+    }
+    if err = bullet.Direction.Encode(w); err != nil {
+      return
+    }
+  }
+
+  return
+}
+
+func (p *Player) Decode(r codec.Reader) (err error) {
+  if p.Nickname, err = r.ReadString(); err != nil {
+    return
+  }
+
+  var health int32
+  if health, err = r.ReadInt32(); err != nil {
+    return
+  }
+  p.Health.Store(health)
+
+  p.Collider = &RectCollider{Pivot: &Point{}}
+  if err = p.Collider.Pivot.Decode(r); err != nil {
+    return
+  }
+  
+  var bullets_length int32
+  if bullets_length, err = r.ReadInt32(); err != nil {
+    return
+  }
+
+  p.cannon = &Cannon{Projectiles: make([]*Projectile, bullets_length)}
+  for i := 0; i < int(bullets_length); i++ {
+    pos := &Point{}
+    if err = pos.Decode(r); err != nil {
+      return
+    }
+    direction := &Point{}
+    if err = pos.Decode(r); err != nil {
+      return
+    }
+
+    p.cannon.Projectiles[i] = &Projectile{
+      Position: pos,
+      Direction: direction,
+    }
+  }
+
+  return
 }

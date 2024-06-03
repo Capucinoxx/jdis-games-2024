@@ -35,7 +35,7 @@ func getInformations(this js.Value, args []js.Value) interface{} {
   obj := js.Global().Get("Object").New()
 	msg := proto.Decode(bytes)
 
-	if msg.MessageType == 4 {
+	if msg.MessageType == model.GameStart {
 		body := msg.Body.(imodel.Map)
 
 		discreteBoard := body.DiscreteMap()
@@ -51,6 +51,10 @@ func getInformations(this js.Value, args []js.Value) interface{} {
 
 		obj.Set("type", int(msg.MessageType))
 	  obj.Set("map", board)
+  }
+
+  if msg.MessageType == model.Position {
+    
   }
 
 	return obj

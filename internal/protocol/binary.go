@@ -53,6 +53,14 @@ func (b BinaryProtocol) encodeMapState(w *codec.ByteWriter, message *model.Clien
 	_ = p.Encode(w)
 }
 
+func (b BinaryProtocol) encodeGameState(w *codec.ByteWriter, message *model.ClientMessage) {
+  players := message.Body.([]*model.Player)
+
+  for _, player := range players {
+    player.   
+  }
+}
+
 func (b BinaryProtocol) decodeMapState(r *codec.ByteReader, message *model.ClientMessage) {
 	mapState := &imodel.Map{}
 	if err := mapState.Decode(r); err != nil {
