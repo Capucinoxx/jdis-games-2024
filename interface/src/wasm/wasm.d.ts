@@ -1,14 +1,4 @@
-
-
-type ServerMapState = {
-  Type: 4;
-  map: Array<Array<number>>;
-};
-
-type Empty = Record<string, never>;
-
-
-type ServerMessage = ServerMapState | Empty;
+import '../types/index.d.ts';
 
 interface WasmFunc {
   getInformations: (buf: ArrayBuffer) => ServerMessage;

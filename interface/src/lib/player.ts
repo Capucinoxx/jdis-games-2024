@@ -1,72 +1,46 @@
 import Phaser from 'phaser';
 
-import { IsometricCoordinates, CartesianCoordinates, cartesian_to_isometric, isometric_to_cartesian } from '.';
+const PLAYER_SPEED = 100;
+const PLAYER_SIZE = 10;
 
-export class Player extends Phaser.GameObjects.Container {
-    public uuid: string;
-    public speed: number;
-    private target_iso: IsometricCoordinates;
-    private zero: CartesianCoordinates;
-    private graphics: Phaser.GameObjects.Graphics;
-    private body_sprite: Phaser.Physics.Arcade.Sprite;
-    
-    constructor(scene: Phaser.Scene, cart: CartesianCoordinates, uuid: string) {
-        super(scene);
 
-        this.uuid = uuid;
-        this.speed = 100;
-        this.target_iso = cart;
-        this.zero = cart;
+class Player extends Phaser.GameObjects.Container {
+  private dest: Phaser.Math.Vector2;
+  private name_graphics: Phaser.GameObjects.Text;
+  private rect_graphics: Phaser.GameObjects.Rectangle;
+  private username: string;
 
-        this.body_sprite = this.scene.physics.add.sprite(cart.x, cart.y, uuid);
-        this.body_sprite.setVisible(false);
+  constructor(scene: Phaser.Scene, x: number, y: number, name: string, color: number) {
+    const rect_el = scene.add.rectangle(0, 0, PLAYER_SIZE, PLAYER_SIZE, color);
+    const name_el = scene.add.text(0, -PLAYER_SIZE / 2 - 10, name, { fontSize: '16px', color: 'red' }).setOrigin(0.5);
 
-        this.graphics = new Phaser.GameObjects.Graphics(this.scene);
-        this.graphics.fillStyle(0xff0000);
-        this.graphics.fillCircle(0, 0, 5);
-        this.add(this.graphics);
+    super(scene, x, y, [rect_el, name_el]);
+  
+    this.rect_graphics = rect_el;
+    this.name_graphics = name_el;
+    this.username = name;
+    this.dest = new Phaser.Math.Vector2(x, y);
+  }
 
-        this.scene.add.existing(this);
-        this.scene.physics.add.existing(this);
+  public get id(): string { return this.username };
 
-        this.body = this.body_sprite.body;
-        this.body!.setCircle(5);
-        this.body_sprite.setPosition(cart.x, cart.y);
+  public move(dt: number): void {
+    const distance = PLAYER_SPEED * (dt / 1000);
+    const direction = this.dest.clone().subtract(new Phaser.Math.Vector2(this.x, this.y)).normalize();
+    const movement = direction.scale(distance);
+
+    if (Phaser.Math.Distance.Between(this.x, this.y, this.dest.x, this.dest.y) > distance) {
+      this.x += movement.x;
+      this.y += movement.y;
+    } else {
+    this.setPosition(this.dest.x, this.dest.y);
     }
+  }
 
-    public update_position(cart: CartesianCoordinates): void {
-      let iso = cartesian_to_isometric(cart);
-      iso.x += this.zero.x;
-      iso.y += this.zero.y;
-      
-      this.body_sprite.setPosition(this.target_iso.x, this.target_iso.y);
-      this.target_iso = iso;
-    }
-
-    public move_to_target(delta: number): void {
-      if (!(this.body instanceof Phaser.Physics.Arcade.Body))
-        return;
-
-      const distance = Phaser.Math.Distance.Between(this.x, this.y, this.target_iso.x, this.target_iso.y);
-      if (distance < 2) {
-        this.body.setVelocity(0, 0);
-        this.body_sprite.setPosition(this.target_iso.x, this.target_iso.y);
-        return;
-      }
-
-      const angle = Phaser.Math.Angle.Between(this.x, this.y, this.target_iso.x, this.target_iso.y);
-      const move_distance = Math.min(distance, this.speed * delta / 1000 * 3.33);
-      this.body_sprite.x += Math.cos(angle) * move_distance;
-      this.body_sprite.y += Math.sin(angle) * move_distance;
-
-      this.body.setVelocityX(Math.cos(angle) * this.speed);
-      this.body.setVelocityY(Math.sin(angle) * this.speed);
-
-      this.x = this.body_sprite.x;
-      this.y = this.body_sprite.y;
-    }
-
-    public get target_pos(): CartesianCoordinates {
-      return isometric_to_cartesian({ 'x': this.target_iso.x - this.zero.x, 'y': this.target_iso.y - this.zero.y });
-    }
+  public set_movement(pos: Phaser.Math.Vector2, dest: Phaser.Math.Vector2): void {
+    this.dest = dest;
+    this.setPosition(pos.x, pos.y);
+  }
 }
+
+export { Player }; 
