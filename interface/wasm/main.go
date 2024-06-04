@@ -35,7 +35,7 @@ func getInformations(this js.Value, args []js.Value) interface{} {
   obj := js.Global().Get("Object").New()
 	msg := proto.Decode(bytes)
 
-	if msg.MessageType == 4 {
+	if msg.MessageType == model.GameStart {
 		body := msg.Body.(imodel.Map)
 
 		discreteBoard := body.DiscreteMap()
@@ -53,7 +53,40 @@ func getInformations(this js.Value, args []js.Value) interface{} {
 	  obj.Set("map", board)
   }
 
+  if msg.MessageType == model.Position {
+    body := msg.Body.([]model.PlayerInfo)
+
+    players := js.Global().Get("Array").New()
+    for i := 0; i < len(body); i++ {
+      data := body[i]
+      player := js.Global().Get("Object").New()
+      player.Set("name", data.Nickname)
+      player.Set("health", int(data.Health))
+      player.Set("pos", position(data.Pos))
+      projectiles := js.Global().Get("Array").New()
+      for _, projectile := range data.Projectiles {
+        p := js.Global().Get("Object").New()
+        p.Set("pos", position(projectile.Pos))
+        p.Set("dest", position(projectile.Dest))
+
+        projectiles.Call("push", p)
+      }
+      player.Set("projectiles", projectiles)
+      players.Call("push", player)
+    }
+
+    obj.Set("type", int(msg.MessageType))
+    obj.Set("players", players)
+  }
+
 	return obj
+}
+
+func position(pos model.Point) interface{} {
+  obj := js.Global().Get("Object").New()
+  obj.Set("x", pos.X)
+  obj.Set("y", pos.Y)
+  return obj
 }
 
 func registerCallbacks() {

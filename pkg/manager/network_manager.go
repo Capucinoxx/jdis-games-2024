@@ -172,19 +172,12 @@ func (nm *NetworkManager) Send(client *model.Client, message []byte) {
 // ID and player data, structured as:
 // [0:1 id][1:2 messageType][2:6 currentTime][6:end (position)]
 func (nm *NetworkManager) BroadcastGameState(state *model.GameState) {
-	players := state.Players()
-	buf := make([]byte, 0)
+  utils.Log("network", "broadcast", "game state")
 
-	for _, p := range players {
-		buf = append(buf, nm.protocol.Encode(p.ID, 0, &model.ClientMessage{
-			MessageType: model.Position,
-			Body:        p,
-		})...)
-	}
-
-	if len(buf) > 0 {
-		nm.broadcast <- buf
-	}
+  nm.broadcast <- nm.protocol.Encode(0, 0, &model.ClientMessage{
+    MessageType: model.Position,
+    Body: state.Players(),
+  })
 }
 
 // BroadcastGameEnd sends a game end message to all players.
