@@ -84,8 +84,8 @@ func getInformations(this js.Value, args []js.Value) interface{} {
 
 func position(pos model.Point) interface{} {
   obj := js.Global().Get("Object").New()
-  obj.set("x", pos.X)
-  obj.set("y", pos.Y)
+  obj.Set("x", pos.X)
+  obj.Set("y", pos.Y)
   return obj
 }
 

@@ -49,6 +49,7 @@ class GameManager {
       if (!('type' in data))
         return;
 
+      console.log(data);
       switch (data.type) {
         case 4:
          this.grid.tiles = data.map;    
