@@ -3,6 +3,7 @@ package codec
 import (
 	"bytes"
 	"encoding/binary"
+	"encoding/json"
 	"errors"
 	"io"
 	"math"
@@ -25,6 +26,7 @@ type Reader interface {
 	ReadBool() (bool, error)
 	ReadBytes(n int) ([]byte, error)
 	ReadString() (string, error)
+  ReadJSON(v interface{}) error
 }
 
 type Writer interface {
@@ -188,6 +190,16 @@ func (r *ByteReader) ReadString() (string, error) {
 		r.pos++
 	}
 	return "", io.EOF
+}
+
+func (r *ByteReader) ReadJSON(v interface{}) error {
+  if r.pos >= len(r.data) {
+    return io.EOF
+  }
+
+  err := json.Unmarshal(r.data[r.pos:], v)
+  r.pos = len(r.data)
+  return err
 }
 
 type ByteWriter struct {
