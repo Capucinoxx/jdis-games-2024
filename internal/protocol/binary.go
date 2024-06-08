@@ -79,7 +79,7 @@ func (b BinaryProtocol) decodeGameState(r *codec.ByteReader, message *model.Clie
 }
 
 func (b BinaryProtocol) decodePlayerAction(r *codec.ByteReader, message *model.ClientMessage) {
-  var action model.PlayerInput
+  var action model.Controls
 
   _ = r.ReadJSON(&action)
 
