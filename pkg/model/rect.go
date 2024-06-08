@@ -36,7 +36,7 @@ func (p Polygon) String() string {
 type RectCollider struct {
 	rect  *Rect
 	look  *Point
-	dir   *Point
+	Dir   *Point
 	Pivot *Point
 
 	Rotation     uint32
@@ -57,7 +57,7 @@ func NewRectCollider(x, y, size float32) *RectCollider {
 
 		Pivot: &Point{X: x, Y: y},
 		look:  &Point{X: x, Y: y + 2},
-		dir:   &Point{X: 0, Y: 0},
+		Dir:   &Point{X: 0, Y: 0},
 
 		Rotation:     0,
 		forwardSpeed: defaultForwardSpeed,
@@ -67,9 +67,9 @@ func NewRectCollider(x, y, size float32) *RectCollider {
 // CalculDirection calcule la direction du RectCollider et
 // la normalise.
 func (r *RectCollider) CalculDirection() {
-	r.dir.X = r.look.X - r.Pivot.X
-	r.dir.Y = r.look.Y - r.Pivot.Y
-	r.dir.normalize()
+	r.Dir.X = r.look.X - r.Pivot.X
+	r.Dir.Y = r.look.Y - r.Pivot.Y
+	r.Dir.normalize()
 }
 
 // Rotate tourne le RectCollider de l'angle spécifié.

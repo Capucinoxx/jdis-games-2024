@@ -109,15 +109,12 @@ func (gm *GameManager) process(p *model.Player, players []*model.Player, timeste
 				continue
 			}
 			log.Printf("Player %d spawned", p.ID)
-		case model.Position:
-			// Lorsqu'un joueur envoie un message de type Position, cela signifie
-			// qu'il a bougé ou tourné. Le message contient les nouvelles coordonnées
-			// du joueur. Ces coordonnées sont utilisées pour mettre à jour la position
-			// du joueur.
+		case model.Action:
 			p.Controls = message.Body.(model.Controls)
 
 			p.Update(players, gm.state, timestep)
-
+      utils.Log("game", "player", "Data %s", p.String())
+      break
 		}
 	}
 }

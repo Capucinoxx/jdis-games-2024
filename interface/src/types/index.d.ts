@@ -4,6 +4,7 @@ type PlayerData = {
   name: string;
   health: number;
   pos: Position;
+  dest: Position;
   projectiles: Array<{ pos: Position, dest: Position }>
 };
 

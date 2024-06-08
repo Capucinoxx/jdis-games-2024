@@ -63,6 +63,13 @@ func getInformations(this js.Value, args []js.Value) interface{} {
       player.Set("name", data.Nickname)
       player.Set("health", int(data.Health))
       player.Set("pos", position(data.Pos))
+      
+      if data.Dest == nil {
+        player.Set("dest", position(data.Pos))
+      } else {
+        player.Set("dest", position(*data.Dest))
+      }
+
       projectiles := js.Global().Get("Array").New()
       for _, projectile := range data.Projectiles {
         p := js.Global().Get("Object").New()

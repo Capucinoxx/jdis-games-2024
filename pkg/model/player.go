@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"math"
 	"sync/atomic"
 	"time"
 
@@ -39,15 +40,17 @@ const (
 
 	// defaultHealth is the starting health of a player.
 	defaultHealth = 100
+
+  defaultSpeed = 0.05
 )
 
 // Controls struct represents the player's controls.
 // When a control is activated, the player performs the corresponding action.
 type Controls struct {
-	Rotation uint32
+  Dest *Point `json:"dest,omitempty"`
 
 	// Shoot is the target point to shoot at, if any.
-	Shoot *Point
+  Shoot *Point `json:"shoot,omitempty"`
 }
 
 // Player represents a player in the game.
@@ -84,7 +87,7 @@ func NewPlayer(id uint8, x float32, y float32, conn Connection) *Player {
 
 // String returns a string representation of the player.
 func (p *Player) String() string {
-	return fmt.Sprintf("[%d: { pos: (%f, %f), v: %f, rot: %d, health: %d }]", p.ID, p.Collider.Pivot.X, p.Collider.Pivot.Y, p.Collider.velocity, p.Collider.Rotation, p.Health.Load())
+	return fmt.Sprintf("[%d: { pos: (%f, %f), v: %f, dest: (%f, %f), health: %d }]", p.ID, p.Collider.Pivot.X, p.Collider.Pivot.Y, p.Collider.velocity, p.Controls.Dest.X, p.Controls.Dest.Y, p.Health.Load())
 }
 
 // IsAlive returns true if the player's health is above zero, indicating they are alive.
@@ -106,17 +109,44 @@ func (p *Player) Update(players []*Player, game *GameState, dt float32) {
 
 // HandleMovement manages the player's movement based on their controls.
 func (p *Player) HandleMovement(players []*Player, m Map, dt float32) {
-	r := p.Collider
+  if p.Controls.Dest != nil {
+    p.moveToDestination(players, m, dt)
+  }
+}
 
-	hasCollision := p.checkCollisionWithPlayers(players) || p.checkCollisionWithMap(m)
+func (p *Player) moveToDestination(players []*Player, m Map, dt float32) {
+  r := p.Collider
+  dest := p.Controls.Dest
 
-	p.updateVelocity(dt, hasCollision)
-	p.updateRotation()
-	if !hasCollision {
-		p.applyMovement()
-	}
+  dx := dest.X - r.Pivot.X
+  dy := dest.Y - r.Pivot.Y
+  dist := float32(math.Sqrt(float64(dx*dx + dy*dy)))
 
-	r.Rotation = (r.Rotation + p.Controls.Rotation) % 360
+  if dist > defaultSpeed*dt {
+    nextX := r.Pivot.X + dx/dist * defaultSpeed * dt
+    nextY := r.Pivot.Y + dy/dist * defaultSpeed * dt
+
+    if !p.checkCollisionAt(nextX, nextY, players, m) {
+      r.Pivot.X = nextX
+      r.Pivot.Y = nextY
+    }
+  } else {
+    if !p.checkCollisionAt(dest.X, dest.Y, players, m) {
+      r.Pivot.X = dest.X
+      r.Pivot.Y = dest.Y
+    }
+    p.Controls.Dest = nil
+  }
+}
+
+func (p *Player) checkCollisionAt(x, y float32, players []*Player, m Map) bool {
+  originalX, originalY := p.Collider.Pivot.X, p.Collider.Pivot.Y
+  p.Collider.Pivot.X, p.Collider.Pivot.Y = x, y
+
+  collides := p.checkCollisionWithPlayers(players) || p.checkCollisionWithMap(m)
+
+  p.Collider.Pivot.X, p.Collider.Pivot.Y = originalX, originalY
+  return collides
 }
 
 // HandleCannon handles the player's cannon actions.
@@ -163,10 +193,6 @@ func (p *Player) updateVelocity(dt float32, hasCollision bool) {
 	r.velocity = defaultForwardSpeed
 }
 
-// updateRotation updates the player's rotation based on their controls.
-func (p *Player) updateRotation() {
-	p.applyRotation(p.Controls.Rotation)
-}
 
 // applyRotation applies the specified rotation to the player.
 func (p *Player) applyRotation(rd uint32) {
@@ -183,8 +209,8 @@ func (p *Player) applyMovement() {
 	r := p.Collider
 	points := []*Point{r.rect.a, r.rect.b, r.rect.c, r.rect.d, r.look, r.Pivot}
 	for _, point := range points {
-		point.X += r.dir.X * r.velocity
-		point.Y += r.dir.Y * r.velocity
+		point.X += r.Dir.X * r.velocity
+		point.Y += r.Dir.Y * r.velocity
 	}
 }
 
@@ -192,6 +218,7 @@ type PlayerInfo struct {
   Nickname string
   Health int32
   Pos Point
+  Dest *Point
   Projectiles []struct {
     Pos Point
     Dest Point
@@ -209,6 +236,20 @@ func (p *Player) Encode(w codec.Writer) (err error) {
 
   if err = p.Collider.Pivot.Encode(w); err != nil {
     return
+  }
+
+  if p.Controls.Dest != nil {
+    if err = w.WriteBool(true); err != nil {
+      return
+    }
+
+    if err = p.Controls.Dest.Encode(w); err != nil {
+      return
+    }
+  } else {
+    if err = w.WriteBool(false); err != nil {
+      return
+    }
   }
 
   bullets := p.cannon.Projectiles
@@ -241,6 +282,18 @@ func (p *PlayerInfo) Decode(r codec.Reader) (err error) {
   if err = p.Pos.Decode(r); err != nil {
     return
   }
+
+  var hasDest bool
+  if hasDest, err = r.ReadBool(); err != nil {
+    return
+  }
+
+  if hasDest {
+    p.Dest = &Point{}
+    if err = p.Dest.Decode(r); err != nil {
+      return
+    }
+  }
   
   var length int32
   if length, err = r.ReadInt32(); err != nil {
@@ -260,3 +313,4 @@ func (p *PlayerInfo) Decode(r codec.Reader) (err error) {
 
   return
 }
+

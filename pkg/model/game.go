@@ -3,6 +3,7 @@ package model
 import (
 	"sync"
 	"time"
+
 )
 
 const gameLength = 10
@@ -46,8 +47,10 @@ func (gd *GameState) Players() []*Player {
 	defer gd.mu.RUnlock()
 
 	players := make([]*Player, 0, len(gd.players))
-	for _, p := range gd.players {
-		players = append(players, p)
+	for _, p := range gd.players { 
+    if p.Client.Connection.Identifier() != "" {
+		  players = append(players, p)
+    }
 	}
 	return players
 }

@@ -123,7 +123,7 @@ func (nm *NetworkManager) run() {
 			nm.clients[c] = true
 			go nm.writer(c)
 			if c.Connection.Identifier() != "" {
-				go nm.reader(c)
+        go nm.reader(c)
 			}
 
 		case c := <-nm.unregister:

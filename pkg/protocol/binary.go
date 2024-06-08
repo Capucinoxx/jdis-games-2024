@@ -51,3 +51,4 @@ func (b BinaryProtocol) Decode(data []byte) model.ClientMessage {
 
 	return msg
 }
+

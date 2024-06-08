@@ -28,11 +28,11 @@ class GameManager {
       if (player) {
         player.set_movement(
           new Phaser.Math.Vector2(data.pos.x * 30, data.pos.y * 30),
-          new Phaser.Math.Vector2(data.pos.x, data.pos.y));
+          new Phaser.Math.Vector2(data.dest.x * 30, data.dest.y * 30));
         return;
       }
 
-      player = new Player(this.scene, data.pos.x, data.pos.y, data.name, 0x7f7287);
+      player = new Player(this.scene, data.pos.x * 30, data.pos.y * 30, data.name, 0x7f7287);
       this.scene.add.existing(player);
       this.scene.physics.add.existing(player);
       this.players.set(data.name, player);
