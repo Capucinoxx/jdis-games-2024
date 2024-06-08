@@ -118,6 +118,8 @@ func (gm *GameManager) process(p *model.Player, players []*model.Player, timeste
 
 			p.Update(players, gm.state, timestep)
 
+    case model.Action:
+      utils.Log("game", "action", "Action: %+v\n", message.Body)
 		}
 	}
 }

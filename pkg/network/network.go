@@ -112,7 +112,7 @@ func (n *Network) Init() {
 
 			n.connected.Store(token, true)
 		}
-
+  
 		ws, err := n.upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			http.Error(w, "failed to upgrade", http.StatusInternalServerError)

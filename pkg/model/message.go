@@ -16,8 +16,7 @@ const (
 	// Register est un message envoyé pour enregistrer un joueur à la partie.
 	Register
 
-	// Projectile est un
-	Fire
+	Action
 
 	// GameStart est un message envoyé pour informer les clients que la partie commence.
 	GameStart

@@ -260,3 +260,8 @@ func (p *PlayerInfo) Decode(r codec.Reader) (err error) {
 
   return
 }
+
+type PlayerInput struct {
+  Dest Point `json:"dest,omitempty"`
+  Fire Point `json:"fire,omitempty"`
+}

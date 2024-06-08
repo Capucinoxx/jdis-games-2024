@@ -28,6 +28,7 @@ func NewBinaryProtocol() *p.BinaryProtocol {
 	protocol.DecodeHandlers[model.Spawn] = bp.decodeMapState
 	protocol.DecodeHandlers[model.GameStart] = bp.decodeMapState
 	protocol.DecodeHandlers[model.Position] = bp.decodeGameState
+  protocol.DecodeHandlers[model.Action] = bp.decodePlayerAction
 
 	return protocol
 }
@@ -77,5 +78,11 @@ func (b BinaryProtocol) decodeGameState(r *codec.ByteReader, message *model.Clie
   message.Body = players
 }
 
+func (b BinaryProtocol) decodePlayerAction(r *codec.ByteReader, message *model.ClientMessage) {
+  var action model.PlayerInput
 
+  _ = r.ReadJSON(&action)
+
+  message.Body = action
+}
 
