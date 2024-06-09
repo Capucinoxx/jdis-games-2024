@@ -70,6 +70,11 @@ func (p *Point) DirectionTo(dest *Point) *Point {
 	return dir
 }
 
+func (p *Point) Equals(oth *Point, tolerance float32) bool {
+  return  math.Abs(float64(p.X - oth.X)) <= float64(tolerance) && 
+          math.Abs(float64(p.Y - oth.Y)) <= float64(tolerance)
+}
+
 // Add adds the specified vector to this vector and returns the result.
 func (p *Point) Add(other *Point) *Point {
 	return &Point{

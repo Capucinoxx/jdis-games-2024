@@ -1,7 +1,7 @@
 interface Position { x: number, y: number };
 
 type Projectile = {
-  uuid: string;
+  id: string;
   pos: Position;
   dest: Position;
 };

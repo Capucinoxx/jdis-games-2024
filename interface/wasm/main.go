@@ -73,6 +73,7 @@ func getInformations(this js.Value, args []js.Value) interface{} {
       projectiles := js.Global().Get("Array").New()
       for _, projectile := range data.Projectiles {
         p := js.Global().Get("Object").New()
+        p.Set("id", string(projectile.Uuid[:]))
         p.Set("pos", position(projectile.Pos))
         p.Set("dest", position(projectile.Dest))
 
