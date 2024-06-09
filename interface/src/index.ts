@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { MainScene } from './scenes';
 import { load_wasm } from './wasm/loader';
 
+
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   width: window.innerWidth,
@@ -20,6 +21,4 @@ const config: Phaser.Types.Core.GameConfig = {
   }
 };
 
-load_wasm();
-
-new Phaser.Game(config);
+load_wasm().then(() => new Phaser.Game(config));
