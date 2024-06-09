@@ -52,6 +52,10 @@ func (gm *GameManager) RegisterPlayer(conn model.Connection) {
 	gm.state.AddPlayer(player)
 	if gm.state.InProgess() {
 		// TODO: send game start to player
+    gm.nm.Send(player.Client, gm.nm.protocol.Encode(0, 0, &model.ClientMessage{
+      MessageType: model.GameStart,
+      Body: gm.state.Map,
+    }))
 	}
 }
 

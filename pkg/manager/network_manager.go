@@ -199,6 +199,7 @@ func (nm *NetworkManager) BroadcastGameStart(state *model.GameState) {
 	})
 }
 
+
 // writer writes outgoing messages to the WebSocket network. If a message cannot be written,
 // the connection is closed. The game loop closes the connection in case of an error to prevent
 // read and write goroutines from leaking. The game loop also closes the connection if the
