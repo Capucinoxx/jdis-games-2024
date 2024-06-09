@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/capucinoxx/forlorn/pkg/codec"
+	"github.com/capucinoxx/forlorn/pkg/utils"
 )
 
 // Connection represents a network connection. It can be used for reading and writing data over the network
@@ -98,6 +99,7 @@ func (p *Player) IsAlive() bool {
 // Update updates the player's state based on the current game state.
 func (p *Player) Update(players []*Player, game *GameState, dt float32) {
 	m := game.Map
+  utils.Log("player", "update", "%+v\n", p.Controls)
 	if !p.IsAlive() {
 		p.respawnCountdown += dt
 		return
@@ -118,13 +120,13 @@ func (p *Player) moveToDestination(players []*Player, m Map, dt float32) {
   r := p.Collider
   dest := p.Controls.Dest
 
-  dx := dest.X - r.Pivot.X
-  dy := dest.Y - r.Pivot.Y
-  dist := float32(math.Sqrt(float64(dx*dx + dy*dy)))
+  dx := float64(dest.X - r.Pivot.X)
+  dy := float64(dest.Y - r.Pivot.Y)
+  dist := math.Abs(dx) + math.Abs(dy)
 
-  if dist > defaultSpeed*dt {
-    nextX := r.Pivot.X + dx/dist * defaultSpeed * dt
-    nextY := r.Pivot.Y + dy/dist * defaultSpeed * dt
+  if dist > float64(defaultSpeed*dt) {
+    nextX := r.Pivot.X + float32(dx/dist) * defaultSpeed * dt
+    nextY := r.Pivot.Y + float32(dy/dist) * defaultSpeed * dt
 
     if !p.checkCollisionAt(nextX, nextY, players, m) {
       r.Pivot.X = nextX
@@ -152,8 +154,11 @@ func (p *Player) checkCollisionAt(x, y float32, players []*Player, m Map) bool {
 // HandleCannon handles the player's cannon actions.
 func (p *Player) HandleCannon(players []*Player, m Map, dt float32) {
 	if p.Controls.Shoot != nil {
+    utils.Log("shoot", "shoot", "shoot")
 		p.cannon.ShootAt(*p.Controls.Shoot)
 	}
+
+  p.cannon.Update(players, m, dt)
 }
 
 func (p *Player) TakeDmg(dmg int32) {
@@ -220,6 +225,7 @@ type PlayerInfo struct {
   Pos Point
   Dest *Point
   Projectiles []struct {
+    Uuid [16]byte
     Pos Point
     Dest Point
   }
@@ -258,10 +264,14 @@ func (p *Player) Encode(w codec.Writer) (err error) {
   }
 
   for _, bullet := range bullets {
+    if _, err = w.WriteBytes(bullet.uuid[:]); err != nil {
+      return
+    }
+
     if err = bullet.Position.Encode(w); err != nil {
       return
     }
-    if err = bullet.Direction.Encode(w); err != nil {
+    if err = bullet.Destination.Encode(w); err != nil {
       return
     }
   }
@@ -300,8 +310,14 @@ func (p *PlayerInfo) Decode(r codec.Reader) (err error) {
     return
   }
   
-  p.Projectiles = make([]struct{Pos Point; Dest Point}, length)
+  p.Projectiles = make([]struct{Uuid [16]byte; Pos Point; Dest Point}, length)
   for i := 0; i < int(length); i++ {
+    var id []byte
+    if id, err = r.ReadBytes(16); err != nil {
+      return
+    }
+    copy(p.Projectiles[i].Uuid[:], id)
+
     if err = p.Projectiles[i].Pos.Decode(r); err != nil {
       return
     }

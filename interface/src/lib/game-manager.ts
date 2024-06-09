@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
 import { Player } from '.';
 import { WS_URL } from './config';
-import { GridManager } from './grid-manager'; 
+import { GridManager } from './grid-manager';
+import { BulletManager } from './bullet-manager';
 import '../types/index.d.ts';
 
 class GameManager {
@@ -9,10 +10,12 @@ class GameManager {
   private players: Map<string, Player>;
   private ws: WebSocket;
   private grid: GridManager;
+  private bullets: BulletManager; 
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
     this.grid = new GridManager(scene);
+    this.bullets = new BulletManager(scene);
     this.players = new Map<string, Player>;
 
     this.ws = new WebSocket(WS_URL);
@@ -22,8 +25,11 @@ class GameManager {
   }
 
   public handle_game_state(payload: ServerGameState): void {
+    const payload_bullets: Projectile[] = [];
+
     payload.players.forEach((data: PlayerData) => {
       let player = this.players.get(data.name);
+      payload_bullets.push(...data.projectiles);
 
       if (player) {
         player.set_movement(
@@ -37,6 +43,8 @@ class GameManager {
       this.scene.physics.add.existing(player);
       this.players.set(data.name, player);
     });
+
+    this.bullets.sync(payload_bullets); 
   }
 
   public update_players_movement(delta: number) {
