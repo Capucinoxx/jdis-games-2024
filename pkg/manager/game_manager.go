@@ -92,6 +92,7 @@ func (gm *GameManager) State() (model.Map, int) {
 	return state.Map, 0
 }
 
+
 // process traite les messages entrants des joueurs. Il met à jour l'état du jeu
 // en fonction des messages entrants. Il met également à jour les informations
 // des joueurs en fonction des messages entrants. La méthode prend en charge
