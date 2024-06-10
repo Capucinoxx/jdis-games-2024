@@ -3,46 +3,59 @@ package manager
 type Stage uint8
 
 const (
-  discoveryStage Stage = iota
-  pointRushStage
+  DiscoveryStage Stage = iota
+  PointRushStage
 )
 
 const (
 	ticksPerRound = 5 * 60 * 3
-  ticksPointRushStage = 4 * 60 * 3
+  TicksPointRushStage = 4 * 60 * 3
 )
 
+
 type ChangeStageHandler interface {
-  ChangeStage(s Stage)
+  ChangeStage()
+}
+
+type StageHandler struct {
+  F ChangeStageHandler
+  Stage Stage
 }
 
 type RoundManager struct {
-  currentStage Stage
 	ticks int
-  handler ChangeStageHandler
+  handlers map[int]StageHandler
 }
 
-func NewRoundManager(handler ChangeStageHandler) *RoundManager {
+func NewRoundManager() *RoundManager {
   return &RoundManager{
-    currentStage: discoveryStage,
     ticks: 0,
-    handler: handler,
+    handlers: make(map[int]StageHandler),
   }
 }
 
 func (r *RoundManager) Restart() {
 	r.ticks = 0
-  r.currentStage = discoveryStage
-  r.handler.ChangeStage(discoveryStage)
+  
+  if handler, ok := r.handlers[r.ticks]; ok {
+    handler.F.ChangeStage() 
+  }
 }
 
 func (r *RoundManager) Tick() {
 	r.ticks++
-  if r.ticks == ticksPointRushStage {
-    r.handler.ChangeStage(pointRushStage)
+
+  if handler, ok := r.handlers[r.ticks]; ok {
+    handler.F.ChangeStage()
   }
+}
+
+func (r *RoundManager) AddChangeStageHandler(tick int, stage Stage, cb ChangeStageHandler) {
+  r.handlers[tick] = StageHandler{ F: cb, Stage: stage  }
 }
 
 func (r *RoundManager) HasEnded() bool {
 	return r.ticks == ticksPerRound
 }
+
+

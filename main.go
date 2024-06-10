@@ -32,7 +32,16 @@ func main() {
 
 	am := manager.NewAuthManager(mongo)
 	nm := manager.NewNetworkManager(transport, protocol.NewBinaryProtocol())
-	gm := manager.NewGameManager(am, nm, &iManager.RoundManager{}, &iModel.Map{})
+  rm := &iManager.RoundManager{}
+	gm := manager.NewGameManager(am, nm, rm, &iModel.Map{})
+
+  // rien pour le moment
+  rm.AddChangeStageHandler(0, iManager.DiscoveryStage, nil)
+
+  // TODO: reset players avec nouvelle pos (full health, 0 bullets)
+  // TODO: effacer toute les pièces
+  // TODO: ajouter pièces au milieu
+  rm.AddChangeStageHandler(iManager.TicksPointRushStage, iManager.PointRushStage, nil)
 
 	transport.SetRegisterFunc(gm.RegisterPlayer)
 	transport.SetUnregisterFunc(gm.UnregisterPlayer)
