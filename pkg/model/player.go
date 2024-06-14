@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/capucinoxx/forlorn/pkg/codec"
+	"github.com/capucinoxx/forlorn/pkg/config"
 	"github.com/capucinoxx/forlorn/pkg/utils"
 )
 
@@ -35,15 +36,6 @@ type Connection interface {
 	Ping(time.Duration)
 }
 
-const (
-	// playerSize defines the default size of a player.
-	playerSize = 0.1
-
-	// defaultHealth is the starting health of a player.
-	defaultHealth = 100
-
-  defaultSpeed = 0.05
-)
 
 // Controls struct represents the player's controls.
 // When a control is activated, the player performs the corresponding action.
@@ -72,7 +64,7 @@ type Player struct {
 func NewPlayer(id uint8, x float32, y float32, conn Connection) *Player {
 	p := &Player{
 		ID:       id,
-		Collider: NewRectCollider(x, y, playerSize),
+		Collider: NewRectCollider(x, y, config.PlayerSize),
 		Health:   atomic.Int32{},
 		Client: &Client{
 			Out:        make(chan []byte, 10),
@@ -81,14 +73,14 @@ func NewPlayer(id uint8, x float32, y float32, conn Connection) *Player {
 		},
 	}
 
-	p.Health.Add(defaultHealth)
+	p.Health.Add(config.PlayerHealth)
 	p.cannon = NewCanon(p)
 	return p
 }
 
 // String returns a string representation of the player.
 func (p *Player) String() string {
-	return fmt.Sprintf("[%d: { pos: (%f, %f), v: %f, dest: (%f, %f), health: %d }]", p.ID, p.Collider.Pivot.X, p.Collider.Pivot.Y, p.Collider.velocity, p.Controls.Dest.X, p.Controls.Dest.Y, p.Health.Load())
+	return fmt.Sprintf("[%d: { pos: (%f, %f), v: %f, dest: $+v, health: %d }]", p.ID, p.Collider.Pivot.X, p.Collider.Pivot.Y, p.Collider.velocity, p.Controls, p.Health.Load())
 }
 
 // IsAlive returns true if the player's health is above zero, indicating they are alive.
@@ -123,10 +115,12 @@ func (p *Player) moveToDestination(players []*Player, m Map, dt float32) {
   dx := float64(dest.X - r.Pivot.X)
   dy := float64(dest.Y - r.Pivot.Y)
   dist := math.Abs(dx) + math.Abs(dy)
+  
+  speed := config.PlayerSpeed
 
-  if dist > float64(defaultSpeed*dt) {
-    nextX := r.Pivot.X + float32(dx/dist) * defaultSpeed * dt
-    nextY := r.Pivot.Y + float32(dy/dist) * defaultSpeed * dt
+  if dist > float64(speed*dt) {
+    nextX := r.Pivot.X + float32(dx/dist) * speed * dt
+    nextY := r.Pivot.Y + float32(dy/dist) * speed * dt
 
     if !p.checkCollisionAt(nextX, nextY, players, m) {
       r.Pivot.X = nextX
