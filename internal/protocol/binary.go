@@ -1,6 +1,8 @@
 package protocol
 
 import (
+  "fmt"
+
 	imodel "github.com/capucinoxx/forlorn/internal/model"
 	"github.com/capucinoxx/forlorn/pkg/codec"
 	"github.com/capucinoxx/forlorn/pkg/model"
@@ -50,6 +52,7 @@ func (b BinaryProtocol) encodeGameState(w *codec.ByteWriter, message *model.Clie
   players := message.Body.([]*model.Player)
 
   for _, player := range players {
+    fmt.Println("player encoded")
     player.Encode(w) 
   }
 }

@@ -1,7 +1,5 @@
 import Phaser from 'phaser';
-
-const BULLET_RADIUS = 10;
-const BULLET_SPEED = 10;
+import { PROJECTILE_SIZE, PROJECTILE_SPEED } from './config';
 
 class Bullet extends Phaser.GameObjects.Graphics {
   private destination: Phaser.Math.Vector2;
@@ -14,16 +12,16 @@ class Bullet extends Phaser.GameObjects.Graphics {
     this.setPosition(x, y);
     this.fillStyle(0x00ff00, 1);
 
-    this.fillCircle(0, 0, BULLET_RADIUS);
+    this.fillCircle(0, 0, PROJECTILE_SIZE);
     this.scene.add.existing(this);
     scene.physics.world.enable(this);
   }
 
   update(time: number, delta: number): void {
     const angle = Phaser.Math.Angle.Between(this.x, this.y, this.destination.x, this.destination.y);
-    (this.body as Phaser.Physics.Arcade.Body).setVelocity(Math.cos(angle) * BULLET_SPEED, Math.sin(angle) * BULLET_SPEED);
+    (this.body as Phaser.Physics.Arcade.Body).setVelocity(Math.cos(angle) * PROJECTILE_SPEED, Math.sin(angle) * PROJECTILE_SPEED);
 
-    if (Phaser.Math.Distance.Between(this.x, this.y, this.destination.x, this.destination.y) < BULLET_RADIUS)
+    if (Phaser.Math.Distance.Between(this.x, this.y, this.destination.x, this.destination.y) < PROJECTILE_SIZE)
       this.destroy_bullet();
   }
 

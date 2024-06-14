@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { CELL_WIDTH as TILE_WIDTH } from './config';
 
 const TILE_COLORS = [
   0x5D5D5D,
@@ -10,7 +11,6 @@ const TILE_COLORS = [
 
 const GRID_COLOR = 0x151515;
 
-const TILE_WIDTH = 200;
 
 class GridManager {
   private scene: Phaser.Scene;
