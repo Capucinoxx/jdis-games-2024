@@ -48,6 +48,8 @@ func main() {
   rm.AddChangeStageHandler(0, &iManager.DiscoveryStage{})
   rm.AddChangeStageHandler(iManager.TicksPointRushStage, &iManager.PointRushStage{})
 
+  sm := manager.NewScoreManager(redis, mongo)
+
 	transport.SetRegisterFunc(gm.RegisterPlayer)
 	transport.SetUnregisterFunc(gm.UnregisterPlayer)
 
