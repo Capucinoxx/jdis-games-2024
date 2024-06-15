@@ -24,20 +24,6 @@ services:
     ports:
       - '8086:80'
 
-  influxdb:
-    image: influxdb:2.0.7
-    environment:
-      DOCKER_INFLUXDB_INIT_MODE: setup
-      DOCKER_INFLUXDB_INIT_USERNAME: admin
-      DOCKER_INFLUXDB_INIT_PASSWORD: super_long_password
-      DOCKER_INFLUXDB_INIT_ORG: iot
-      DOCKER_INFLUXDB_INIT_BUCKET: forlorn
-      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: super_duper_token
-    ports:
-      - '8056:8086'
-    volumes:
-      - data_influx:/var/lib/influxdb2
-
   mongodb:
     image: mongo
     ports:
@@ -48,8 +34,18 @@ services:
     volumes:
       - data_mongo:/data/db
 
+  redis:
+    image: redis:latest
+    environment:
+      - REDIS_PASSWORD=long_password
+    command: redis-server --requirepass long_password --databases 16
+    ports:
+      - '6379:6379'
+    volumes:
+      - data_redis:/data
+
 volumes:
   data_influx:
     driver: local
-  data_mongo:
+  data_redis:
     driver: local
