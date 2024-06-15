@@ -64,3 +64,4 @@ func (sm *ScoreManager) Rank() ([]PlayerScore, error) {
 
   return players, err  
 }
+
