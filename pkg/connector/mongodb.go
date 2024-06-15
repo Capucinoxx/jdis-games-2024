@@ -88,3 +88,12 @@ func (m *MongoService) FindKeep(collection string, filter bson.M, fields *bson.M
 
 	return results, nil
 }
+
+func (m *MongoService) Push(collection string, uuid string, arrayField string, element interface{}) error {
+  filter := bson.M{ "_id": uuid }
+  update := bson.M{ "$push": bson.M{ arrayField: element } }
+
+
+  _, err := m.db.Collection(collection).UpdateOne(context.TODO(), filter, update)
+  return err
+}
