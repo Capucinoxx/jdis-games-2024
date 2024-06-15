@@ -11,13 +11,15 @@ import (
 type HttpHandler struct {
 	gm *manager.GameManager
 	am *manager.AuthManager
+  sm *manager.ScoreManager
 }
 
 // NewHttpHandler crée un nouveau gestionnaire HTTP.
-func NewHttpHandler(gm *manager.GameManager, am *manager.AuthManager) *HttpHandler {
+func NewHttpHandler(gm *manager.GameManager, am *manager.AuthManager, sm *manager.ScoreManager) *HttpHandler {
 	return &HttpHandler{
 		gm: gm,
 		am: am,
+    sm: sm,
 	}
 }
 
@@ -26,6 +28,7 @@ func (h *HttpHandler) Handle() {
 	network.HandleFunc("/start", h.startGame)
 	network.HandleFunc("/create", h.register)
 	network.HandleFunc("/map", h.getMap)
+  network.HandleFunc("/leaderboard", h.leaderboard)
 }
 
 // register crée un compte utilisateur et retourne un jeton d'authentification.
@@ -61,4 +64,15 @@ func (h *HttpHandler) getMap(w http.ResponseWriter, r *http.Request) {
 		"map": state,
 		"ttl": ttl,
 	})
+}
+
+func (h *HttpHandler) leaderboard(w http.ResponseWriter, r *http.Request) {
+  l, err := h.sm.Rank()
+  if err != nil {
+    http.Error(w, "error", http.StatusInternalServerError)
+    return
+  }
+
+  w.Header().Set("Content-Type", "application/json")
+  json.NewEncoder(w).Encode(l)
 }

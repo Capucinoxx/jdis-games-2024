@@ -10,9 +10,12 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+type PlayerScores = map[string]PlayerScore 
+
 type PlayerScore struct {
-  uuid string
-  score float64
+  Position int `json:"pos"`
+  UUID string `json:"uuid"`
+  Score float64 `json:"score"`
 }
 
 type ScoreManager struct {
@@ -39,7 +42,7 @@ func (sm *ScoreManager) Persist() error {
 
   var errs utils.Errors 
   for _, s := range scores {
-    if err = sm.mongo.Push("users", s.uuid, "scores", bson.M{ "score": s.score, "time": now }); err != nil {
+    if err = sm.mongo.Push("users", s.UUID, "scores", bson.M{ "score": s.Score, "time": now }); err != nil {
       errs.Append(err)
     }
   }
@@ -50,16 +53,20 @@ func (sm *ScoreManager) Add(uuid string, score float64) error {
   return sm.redis.ZIncrBy(context.Background(), "leaderboard", score, uuid).Err()
 }
 
-func (sm *ScoreManager) Rank() ([]PlayerScore, error) {
+func (sm *ScoreManager) Rank() (PlayerScores, error) {
   val, err := sm.redis.ZRevRangeWithScores(context.Background(), "leaderboard", 0, -1).Result()
   if err != nil {
-    return []PlayerScore{}, err 
+    return PlayerScores{}, err 
   }
 
-  players := make([]PlayerScore, len(val))
+  players := make(PlayerScores)
   for i, v := range val {
-    players[i].uuid = v.Member.(string)
-    players[i].score = v.Score
+    uuid := v.Member.(string)
+    players[uuid] = PlayerScore{
+      Position: i,
+      UUID: uuid,
+      Score: v.Score,
+    }
   }
 
   return players, err  

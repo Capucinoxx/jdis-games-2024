@@ -54,7 +54,7 @@ func main() {
 	transport.SetUnregisterFunc(gm.UnregisterPlayer)
 
 	go func() {
-		handler.NewHttpHandler(gm, am).Handle()
+		handler.NewHttpHandler(gm, am, sm).Handle()
 		log.Fatal(gm.Init())
 	}()
 
