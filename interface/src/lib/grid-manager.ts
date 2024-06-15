@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { CELL_WIDTH as TILE_WIDTH } from './config';
+import { CELL_WIDTH as TILE_WIDTH } from '../config';
 
 const TILE_COLORS = [
   0x5D5D5D,

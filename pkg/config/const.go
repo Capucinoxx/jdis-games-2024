@@ -26,4 +26,14 @@ const (
 
   // ProjectileSpeed defines
   ProjectileSpeed = 1.75
+
+
+  // --- SCORER CONSTANTS
+  // ================================
+  
+  // CoinSize defines the size of coin.
+  CoinSize (float32) = 0.5
+
+  // CoinValue defines the value when player take a coin.
+  CoinValue (int) = 50
 )

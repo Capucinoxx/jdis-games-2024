@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { PLAYER_SIZE, PLAYER_SPEED } from './config';
+import { PLAYER_SIZE, PLAYER_SPEED } from '../config';
 
 
 class Player extends Phaser.GameObjects.Container {

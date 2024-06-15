@@ -4,28 +4,19 @@ import (
 	"math"
 
 	"github.com/capucinoxx/forlorn/pkg/config"
-	"github.com/capucinoxx/forlorn/pkg/utils"
-	"github.com/google/uuid"
 )
 
 // Projectile represents a moving projectile in the game.
 type Projectile struct {
-  uuid [16]byte
-	Position  *Point
-	Destination *Point
-  collider *RectCollider
-	// // cleanup indicates whether the projectile should be removed from the game.
-	cleanup bool
+  Object
+  Destination *Point
 }
 
 func NewProjectile(pos *Point, dest *Point) *Projectile {
-  return &Projectile{
-    uuid: uuid.New(),
-    Position: pos,
-    Destination: dest,
-    collider: NewRectCollider(pos.X, pos.Y, config.ProjectileSize),
-    cleanup: false,
-  }
+  p := &Projectile{Destination: dest}
+  p.setup(pos, config.ProjectileSize)
+
+  return p
 } 
 
 // ApplyMovement updates the projectile's position based on its direction and a delta time.
@@ -49,11 +40,6 @@ func (p *Projectile) moveToDestination(dt float32) bool {
   } 
 }
 
-// IsCollidingWithPlayer checks if the projectile is colliding with a given player.
-func (p *Projectile) IsCollidingWithPlayer(player *Player) bool {
-  return p.collider.Collisions(player.Collider.polygon())
-}
-
 // IsCollidingWithEnvironment checks if the projectile is colliding with any non-projectile colliders in the map.
 func (p *Projectile) IsCollidingWithEnvironment(m Map) bool {
 	for _, collider := range m.Colliders() {
@@ -69,11 +55,6 @@ func (p *Projectile) IsCollidingWithEnvironment(m Map) bool {
 	return false
 }
 
-// Remove marks the projectile for cleanup.
-func (p *Projectile) Remove() { p.cleanup = true }
-
-// IsAlive indicating if the projectile is still active.
-func (p *Projectile) IsAlive() bool { return !p.cleanup }
 
 // Cannon represents a cannon that can shoot projectiles.
 type Cannon struct {
@@ -95,7 +76,6 @@ func (c *Cannon) Update(players []*Player, m Map, dt float32) {
       continue
     }
 
-    utils.Log("projectile", "projectile", "%+v - %+v", p.Position, p.Destination)
     if p.Position.Equals(p.Destination, 0.2) {
       p.Remove()
       continue
