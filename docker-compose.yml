@@ -17,6 +17,9 @@ services:
       MONGO_PORT: 27017
       MONGO_DB: db
 
+      REDIS_ADDR: redis:6379
+      REDIS_PASSWORD: long_password
+
   interface:
     build:
       context: .
@@ -45,7 +48,7 @@ services:
       - data_redis:/data
 
 volumes:
-  data_influx:
+  data_mongo:
     driver: local
   data_redis:
     driver: local
