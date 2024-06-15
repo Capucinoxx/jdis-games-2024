@@ -25,8 +25,18 @@ func init_mongo() *connector.MongoService {
 	return service
 }
 
+func init_redis() *connector.RedisService {
+  service, err := connector.NewRedisService(config.RedisAddr(), config.RedisPassword(), 1)
+  if err != nil {
+    panic(err)
+  }
+
+  return service
+}
+
 func main() {
 	mongo := init_mongo()
+  redis := init_redis()
 
 	transport := network.NewNetwork("0.0.0.0", 8087)
 

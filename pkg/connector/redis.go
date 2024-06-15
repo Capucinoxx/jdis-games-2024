@@ -6,11 +6,11 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-type redisService struct {
+type RedisService struct {
   *redis.Client
 }
 
-func NewRedisService(addr, password string, db int) (*redisService, error) {
+func NewRedisService(addr, password string, db int) (*RedisService, error) {
   options := &redis.Options{
     Addr: addr,
     Password: password,
@@ -23,7 +23,7 @@ func NewRedisService(addr, password string, db int) (*redisService, error) {
     return nil, err
   }
 
-  return &redisService{client}, nil
+  return &RedisService{client}, nil
 }
 
 
