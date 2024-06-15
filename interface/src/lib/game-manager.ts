@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
 import { Player } from '.';
-import { WS_URL } from './config';
+import { WS_URL, SCALE } from '../config';
 import { GridManager } from './grid-manager';
-import { BulletManager } from './bullet-manager';
+import { BulletManager, CoinManager } from '../objects';
 import '../types/index.d.ts';
 
 class GameManager {
@@ -10,12 +10,14 @@ class GameManager {
   private players: Map<string, Player>;
   private ws: WebSocket;
   private grid: GridManager;
-  private bullets: BulletManager; 
+  private bullets: BulletManager;
+  private coins: CoinManager;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
     this.grid = new GridManager(scene);
     this.bullets = new BulletManager(scene);
+    this.coins = new CoinManager(scene);
     this.players = new Map<string, Player>;
 
     this.ws = new WebSocket(WS_URL);
@@ -33,12 +35,12 @@ class GameManager {
 
       if (player) {
         player.set_movement(
-          new Phaser.Math.Vector2(data.pos.x * 30, data.pos.y * 30),
-          new Phaser.Math.Vector2(data.dest.x * 30, data.dest.y * 30));
+          new Phaser.Math.Vector2(data.pos.x, data.pos.y),
+          new Phaser.Math.Vector2(data.dest.x, data.dest.y));
         return;
       }
 
-      player = new Player(this.scene, data.pos.x * 30, data.pos.y * 30, data.name, 0x7f7287);
+      player = new Player(this.scene, data.pos.x, data.pos.y, data.name, 0x7f7287);
       this.scene.add.existing(player);
       this.scene.physics.add.existing(player);
       this.players.set(data.name, player);

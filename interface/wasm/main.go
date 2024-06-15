@@ -9,6 +9,8 @@ import (
 	"github.com/capucinoxx/forlorn/pkg/model"
 )
 
+const scale = 30.0
+
 var players = make([]*model.Player, 0)
 var proto = protocol.NewBinaryProtocol()
 
@@ -92,8 +94,8 @@ func getInformations(this js.Value, args []js.Value) interface{} {
 
 func position(pos model.Point) interface{} {
   obj := js.Global().Get("Object").New()
-  obj.Set("x", pos.X)
-  obj.Set("y", pos.Y)
+  obj.Set("x", pos.X * scale)
+  obj.Set("y", pos.Y * scale)
   return obj
 }
 
