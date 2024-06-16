@@ -49,7 +49,7 @@ func (h *HttpHandler) register(w http.ResponseWriter, r *http.Request) {
 
 	token, _ := h.am.Register(payload.Username)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"token": token})
+  json.NewEncoder(w).Encode(map[string]string{"token": token})
 }
 
 // startGame démarre le serveur de jeu.

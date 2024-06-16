@@ -41,14 +41,37 @@ func NewGameManager(am *AuthManager, nm *NetworkManager, rm RoundManager, m mode
 	}
 }
 
+
+func (gm *GameManager) Register(conn model.Connection) {
+  if (conn.Identifier() == "") {
+    gm.RegisterSpectator(conn)
+  } else {
+    gm.RegisterPlayer(conn)
+  }
+}
+
+func (gm *GameManager) RegisterSpectator(conn model.Connection) {
+  client := &model.Client{
+    Out: make(chan []byte, 10),
+    Connection: conn,
+  }
+  gm.nm.Register(client)
+  if gm.state.InProgess() {
+    gm.nm.Send(client, gm.nm.protocol.Encode(0, 0, &model.ClientMessage{
+      MessageType: model.GameStart,
+      Body: gm.state.Map,
+    }))
+  }
+}
+
 // RegisterPlayer ajoute un joueur à l'état du jeu et à la liste des clients.
 func (gm *GameManager) RegisterPlayer(conn model.Connection) {
-	// players := gm.state.Players()
-
 	spawn := []float32{3.5, 3.6} // TODO: Generate spawn position
 	player := model.NewPlayer(0, spawn[0], spawn[1], conn)
+  
+  utils.Log("game_manager", "register player", "players: %d", len(gm.state.Players()))
 
-	gm.nm.Register(player)
+	gm.nm.Register(player.Client)
 	gm.state.AddPlayer(player)
 	if gm.state.InProgess() {
     gm.nm.Send(player.Client, gm.nm.protocol.Encode(0, 0, &model.ClientMessage{
@@ -109,7 +132,7 @@ func (gm *GameManager) process(p *model.Player, players []*model.Player, timeste
 			// est autorisé à rejoindre la partie. Sinon, le joueur est déconnecté.
 			tkn := message.Body.(string)
 			if !gm.am.Authenticate(tkn) {
-				gm.nm.ForceDisconnect(p)
+				gm.nm.ForceDisconnect(p.Client)
 				continue
 			}
 			log.Printf("Player %d spawned", p.ID)

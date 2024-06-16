@@ -50,7 +50,7 @@ func main() {
 
   sm := manager.NewScoreManager(redis, mongo)
 
-	transport.SetRegisterFunc(gm.RegisterPlayer)
+	transport.SetRegisterFunc(gm.Register)
 	transport.SetUnregisterFunc(gm.UnregisterPlayer)
 
 	go func() {

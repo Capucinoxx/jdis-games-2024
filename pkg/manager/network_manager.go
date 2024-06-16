@@ -107,6 +107,7 @@ func (nm *NetworkManager) Address() string {
 
 // Start initializes the NetworkManager and starts the server.
 func (nm *NetworkManager) Start() error {
+  utils.Log("start", "start", "start")
 	nm.transport.Init()
 	go nm.run()
 	return nm.transport.Run()
@@ -119,8 +120,9 @@ func (nm *NetworkManager) run() {
 	for {
 		select {
 		case c := <-nm.register:
-			utils.Log("client", "register", "%s", c.Connection.Identifier())
+			utils.Log("client", "register", "%s - %d", c.Connection.Identifier(), len(nm.clients))
 			nm.clients[c] = true
+      utils.Log("client", "register", "after: %d", len(nm.clients))
 			go nm.writer(c)
 			if c.Connection.Identifier() != "" {
         go nm.reader(c)
@@ -149,17 +151,14 @@ func (nm *NetworkManager) run() {
 
 // Register adds a player to the game and also sends the current state of the game to the player.
 // This method is called by the game loop when a client connects.
-func (nm *NetworkManager) Register(player *model.Player) {
-	// TODO: Send the state of the map to the player.
-
-	nm.register <- player.Client
+func (nm *NetworkManager) Register(client *model.Client) {
+	nm.register <- client
 }
 
-// ForceDisconnect forcibly disconnects a player from the game.
-func (nm *NetworkManager) ForceDisconnect(player *model.Player) {
-	client := player.Client
+// ForceDisconnect forcibly disconnects a client from the game.
+func (nm *NetworkManager) ForceDisconnect(client *model.Client) {
 	client.Connection.Close(writeWait)
-	nm.unregister <- player.Client
+	nm.unregister <- client
 }
 
 // Send sends a message to a client.
@@ -172,7 +171,7 @@ func (nm *NetworkManager) Send(client *model.Client, message []byte) {
 // ID and player data, structured as:
 // [0:1 id][1:2 messageType][2:6 currentTime][6:end (position)]
 func (nm *NetworkManager) BroadcastGameState(state *model.GameState) {
-  utils.Log("network", "broadcast", "game state")
+  //utils.Log("network", "broadcast", "game state")
 
   nm.broadcast <- nm.protocol.Encode(0, 0, &model.ClientMessage{
     MessageType: model.Position,
