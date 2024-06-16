@@ -95,6 +95,7 @@ func (n *Network) Unregister(conn model.Connection) {
 		n.uregister(conn)
 	}
 
+
   n.connected.Delete(conn.Identifier())
 }
 
