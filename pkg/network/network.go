@@ -95,7 +95,8 @@ func (n *Network) Unregister(conn model.Connection) {
 		n.uregister(conn)
 	}
 
-	n.connected.Delete(conn.Identifier())
+
+  n.connected.Delete(conn.Identifier())
 }
 
 // Init initializes the network server by listening for HTTP requests and upgrading

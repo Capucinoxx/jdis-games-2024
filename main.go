@@ -50,8 +50,8 @@ func main() {
 
   sm := manager.NewScoreManager(redis, mongo)
 
-	transport.SetRegisterFunc(gm.RegisterPlayer)
-	transport.SetUnregisterFunc(gm.UnregisterPlayer)
+	transport.SetRegisterFunc(gm.Register)
+	transport.SetUnregisterFunc(gm.Unregister)
 
 	go func() {
 		handler.NewHttpHandler(gm, am, sm).Handle()

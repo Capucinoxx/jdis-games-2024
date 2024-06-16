@@ -1,12 +1,10 @@
 package manager
 
 import (
-	"log"
 	"sync"
 	"time"
 
 	"github.com/capucinoxx/forlorn/pkg/model"
-	"github.com/capucinoxx/forlorn/pkg/utils"
 )
 
 // tickrate est le nombre de mises à jour du jeu par seconde.
@@ -41,14 +39,35 @@ func NewGameManager(am *AuthManager, nm *NetworkManager, rm RoundManager, m mode
 	}
 }
 
+
+func (gm *GameManager) Register(conn model.Connection) {
+  if (conn.Identifier() == "") {
+    gm.RegisterSpectator(conn)
+  } else {
+    gm.RegisterPlayer(conn)
+  }
+}
+
+func (gm *GameManager) RegisterSpectator(conn model.Connection) {
+  client := &model.Client{
+    Out: make(chan []byte, 10),
+    Connection: conn,
+  }
+  gm.nm.Register(client)
+  if gm.state.InProgess() {
+    gm.nm.Send(client, gm.nm.protocol.Encode(0, 0, &model.ClientMessage{
+      MessageType: model.GameStart,
+      Body: gm.state.Map,
+    }))
+  }
+}
+
 // RegisterPlayer ajoute un joueur à l'état du jeu et à la liste des clients.
 func (gm *GameManager) RegisterPlayer(conn model.Connection) {
-	// players := gm.state.Players()
-
 	spawn := []float32{3.5, 3.6} // TODO: Generate spawn position
 	player := model.NewPlayer(0, spawn[0], spawn[1], conn)
-
-	gm.nm.Register(player)
+  
+	gm.nm.Register(player.Client)
 	gm.state.AddPlayer(player)
 	if gm.state.InProgess() {
     gm.nm.Send(player.Client, gm.nm.protocol.Encode(0, 0, &model.ClientMessage{
@@ -59,15 +78,17 @@ func (gm *GameManager) RegisterPlayer(conn model.Connection) {
 }
 
 // UnregisterPlayer supprime un joueur de l'état du jeu et de la liste des clients.
-func (gm *GameManager) UnregisterPlayer(conn model.Connection) {
-	players := gm.state.Players()
+func (gm *GameManager) Unregister(conn model.Connection) {
+  if conn.Identifier() != "" {
+	  players := gm.state.Players()
 
-	for _, p := range players {
-		if p.Client.Connection == conn {
-			gm.state.RemovePlayer(p)
-			break
-		}
-	}
+	  for _, p := range players {
+		  if p.Client.Connection == conn {
+			  gm.state.RemovePlayer(p)
+			  break
+		  }
+	  }
+  }
 }
 
 // Init initialise le gestionnaire de jeu. Il démarre le serveur de jeu et
@@ -100,7 +121,6 @@ func (gm *GameManager) State() (model.Map, int) {
 func (gm *GameManager) process(p *model.Player, players []*model.Player, timestep float32) {
 	for len(p.Client.In) != 0 {
 		message := <-p.Client.In
-		utils.Log("game", "process", "Player %d received message %v", p.ID, message)
 
 		switch msgType := message.MessageType; msgType {
 		case model.Spawn:
@@ -109,15 +129,14 @@ func (gm *GameManager) process(p *model.Player, players []*model.Player, timeste
 			// est autorisé à rejoindre la partie. Sinon, le joueur est déconnecté.
 			tkn := message.Body.(string)
 			if !gm.am.Authenticate(tkn) {
-				gm.nm.ForceDisconnect(p)
+				gm.nm.ForceDisconnect(p.Client.Connection)
 				continue
 			}
-			log.Printf("Player %d spawned", p.ID)
+
 		case model.Action:
 			p.Controls = message.Body.(model.Controls)
 
 			p.Update(players, gm.state, timestep)
-      utils.Log("game", "player", "Data %s", p.String())
       break
 		}
 	}

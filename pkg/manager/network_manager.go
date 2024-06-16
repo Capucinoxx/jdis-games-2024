@@ -71,7 +71,7 @@ type NetworkManager struct {
 	// clients is a map that tracks the active clients connected to the server.
 	// The keys are pointers to model.Client objects, and the values are booleans indicating
 	// whether the client is currently active (true) or inactive (false).
-	clients map[*model.Client]bool
+	clients map[model.Connection]*model.Client
 
 	// broadcast is a channel used to send messages to all connected clients.
 	// Messages sent here are broadcasted in the network manager's main loop.
@@ -84,7 +84,7 @@ type NetworkManager struct {
 	// unregister is a channel used for unregistering clients from the server.
 	// It allows for clean removal of clients from the network manager's client map
 	// and proper resource cleanup.
-	unregister chan *model.Client
+	unregister chan model.Connection
 }
 
 // NewNetworkManager creates a new NetworkManager with the specified network transport and
@@ -93,10 +93,10 @@ func NewNetworkManager(transport *network.Network, protocol Protocol) *NetworkMa
 	return &NetworkManager{
 		transport:  transport,
 		protocol:   protocol,
-		clients:    make(map[*model.Client]bool),
+		clients:    make(map[model.Connection]*model.Client), 
 		broadcast:  make(chan []byte),
 		register:   make(chan *model.Client),
-		unregister: make(chan *model.Client),
+		unregister: make(chan model.Connection),
 	}
 }
 
@@ -119,28 +119,25 @@ func (nm *NetworkManager) run() {
 	for {
 		select {
 		case c := <-nm.register:
-			utils.Log("client", "register", "%s", c.Connection.Identifier())
-			nm.clients[c] = true
+			nm.clients[c.Connection] = c
 			go nm.writer(c)
 			if c.Connection.Identifier() != "" {
         go nm.reader(c)
 			}
 
 		case c := <-nm.unregister:
-			if _, ok := nm.clients[c]; ok {
-				utils.Log("client", "unregister", "%s", c.Connection.Identifier())
-
-				// TODO: gracefully disconnect client
+      if _, ok := nm.clients[c]; ok {
 				delete(nm.clients, c)
-				nm.transport.Unregister(c.Connection)
+        
+				nm.transport.Unregister(c)
 			}
 
 		case message := <-nm.broadcast:
-			for client := range nm.clients {
+			for conn, client := range nm.clients {
 				select {
 				case client.Out <- message:
 				default:
-					nm.unregister <- client
+					nm.unregister <- conn
 				}
 			}
 		}
@@ -149,17 +146,14 @@ func (nm *NetworkManager) run() {
 
 // Register adds a player to the game and also sends the current state of the game to the player.
 // This method is called by the game loop when a client connects.
-func (nm *NetworkManager) Register(player *model.Player) {
-	// TODO: Send the state of the map to the player.
-
-	nm.register <- player.Client
+func (nm *NetworkManager) Register(client *model.Client) {
+	nm.register <- client
 }
 
-// ForceDisconnect forcibly disconnects a player from the game.
-func (nm *NetworkManager) ForceDisconnect(player *model.Player) {
-	client := player.Client
-	client.Connection.Close(writeWait)
-	nm.unregister <- player.Client
+// ForceDisconnect forcibly disconnects a client from the game.
+func (nm *NetworkManager) ForceDisconnect(conn model.Connection) {
+	conn.Close(writeWait)
+	nm.unregister <- conn
 }
 
 // Send sends a message to a client.
@@ -172,7 +166,7 @@ func (nm *NetworkManager) Send(client *model.Client, message []byte) {
 // ID and player data, structured as:
 // [0:1 id][1:2 messageType][2:6 currentTime][6:end (position)]
 func (nm *NetworkManager) BroadcastGameState(state *model.GameState) {
-  utils.Log("network", "broadcast", "game state")
+  //utils.Log("network", "broadcast", "game state")
 
   nm.broadcast <- nm.protocol.Encode(0, 0, &model.ClientMessage{
     MessageType: model.Position,
@@ -220,7 +214,9 @@ func (nm *NetworkManager) writer(client *model.Client) {
 				return
 			}
 
-			client.Connection.Write(msg)
+      if err := client.Connection.Write(msg); err != nil {
+        nm.unregister <- client.Connection
+      }
 
 		case <-ticker.C:
 			client.Connection.Ping(writeWait)
@@ -234,7 +230,7 @@ func (nm *NetworkManager) writer(client *model.Client) {
 func (nm *NetworkManager) reader(client *model.Client) {
 	defer func() {
 		client.Connection.Close(writeWait)
-		nm.unregister <- client
+		nm.unregister <- client.Connection
 	}()
 	client.Connection.PrepareRead(maxMessageSize, pongWait)
 
