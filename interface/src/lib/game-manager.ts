@@ -40,7 +40,7 @@ class GameManager {
         return;
       }
 
-      player = new Player(this.scene, data.pos.x, data.pos.y, "patate douce", 0x7f7287);
+      player = new Player(this.scene, data.pos.x, data.pos.y, data.name, 0x7f7287);
       this.scene.add.existing(player);
       this.scene.physics.add.existing(player);
       this.players.set(data.name, player);
