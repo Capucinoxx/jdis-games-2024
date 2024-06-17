@@ -82,7 +82,7 @@ func (c *Cannon) Update(players []*Player, m Map, dt float32) {
     } 
 
 		for _, enemy := range players {
-			if c.owner.ID == enemy.ID {
+			if c.owner.Nickname == enemy.Nickname {
 				continue
 			}
 
