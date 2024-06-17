@@ -15,7 +15,7 @@ type GameState struct {
 	inProgress   bool
 	lastPlayerID int64
 	playerCount  int
-	players      map[uint8]*Player
+	players      map[string]*Player
 	Map          Map
 	mu           *sync.RWMutex
 }
@@ -27,7 +27,7 @@ func NewGameState(m Map) *GameState {
 		inProgress:   false,
 		lastPlayerID: 0,
 		playerCount:  0,
-		players:      make(map[uint8]*Player),
+		players:      make(map[string]*Player),
 		Map:          m,
 		mu:           &sync.RWMutex{},
 	}
@@ -67,7 +67,7 @@ func (gs *GameState) AddPlayer(p *Player) int {
 	gs.mu.Lock()
 	defer gs.mu.Unlock()
 
-	gs.players[p.ID] = p
+	gs.players[p.Nickname] = p
 	gs.playerCount++
 	return gs.playerCount
 }
@@ -77,11 +77,11 @@ func (gs *GameState) RemovePlayer(p *Player) int {
 	gs.mu.Lock()
 	defer gs.mu.Unlock()
 
-	if _, ok := gs.players[p.ID]; !ok {
+	if _, ok := gs.players[p.Nickname]; !ok {
 		return gs.playerCount
 	}
 
-	delete(gs.players, p.ID)
+	delete(gs.players, p.Nickname)
 	gs.playerCount--
 	return gs.playerCount
 }

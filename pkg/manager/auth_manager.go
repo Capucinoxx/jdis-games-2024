@@ -8,10 +8,15 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+type TokenInfo struct {
+  Token string `bson:"token"`
+  Username string `bson:"username"`
+}
+
 // Auth est une interface pour l'authentification des utilisateurs.
 type Auth interface {
 	Register(username string) (string, error)
-	Authenticate(token string) bool
+	Authenticate(token string) (string, bool)
 }
 
 // AuthManager maintient une liste d'utilisateurs et de jetons d'authentification.
@@ -50,10 +55,19 @@ func (am *AuthManager) Register(username string) (string, error) {
 }
 
 // Authenticate retourne vrai si le jeton d'authentification existe. Sinon, retourne faux.
-func (am *AuthManager) Authenticate(token string) bool {
+func (am *AuthManager) Authenticate(token string) (string, bool) {
 	filter := bson.M{"token": token}
-	v, _ := am.service.FindOne(am.collection, filter)
-	return v != nil
+	v, err := am.service.FindOne(am.collection, filter)
+  if v == nil || err != nil {
+    return "", false
+  }
+ 
+  var result TokenInfo
+  if err = v.Decode(&result); err != nil {
+    return "", false
+  }
+
+  return result.Username, true
 }
 
 // uuid génère un nouvel identifiant unique universel.

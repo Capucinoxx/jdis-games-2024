@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"fmt"
 	"sync"
 	"time"
 
@@ -40,11 +41,12 @@ func NewGameManager(am *AuthManager, nm *NetworkManager, rm RoundManager, m mode
 }
 
 
-func (gm *GameManager) Register(conn model.Connection) {
+func (gm *GameManager) Register(conn model.Connection) error {
   if (conn.Identifier() == "") {
     gm.RegisterSpectator(conn)
+    return nil
   } else {
-    gm.RegisterPlayer(conn)
+     return gm.RegisterPlayer(conn)
   }
 }
 
@@ -63,18 +65,27 @@ func (gm *GameManager) RegisterSpectator(conn model.Connection) {
 }
 
 // RegisterPlayer ajoute un joueur à l'état du jeu et à la liste des clients.
-func (gm *GameManager) RegisterPlayer(conn model.Connection) {
-	spawn := []float32{3.5, 3.6} // TODO: Generate spawn position
-	player := model.NewPlayer(0, spawn[0], spawn[1], conn)
+func (gm *GameManager) RegisterPlayer(conn model.Connection) error {
+  username, ok := gm.am.Authenticate(conn.Identifier())
+  if !ok {
+    return fmt.Errorf("Unknown token")
+  }
+
+  spawn := []float32{3.5, 3.6} // TODO: Generate spawn position
+	player := model.NewPlayer(username, spawn[0], spawn[1], conn)
   
 	gm.nm.Register(player.Client)
 	gm.state.AddPlayer(player)
+
+
 	if gm.state.InProgess() {
     gm.nm.Send(player.Client, gm.nm.protocol.Encode(0, 0, &model.ClientMessage{
       MessageType: model.GameStart,
       Body: gm.state.Map,
     }))
 	}
+
+  return nil
 }
 
 // UnregisterPlayer supprime un joueur de l'état du jeu et de la liste des clients.
@@ -128,10 +139,12 @@ func (gm *GameManager) process(p *model.Player, players []*model.Player, timeste
 			// pour s'authentifier. Si le jeton d'authentification est valide, le joueur
 			// est autorisé à rejoindre la partie. Sinon, le joueur est déconnecté.
 			tkn := message.Body.(string)
-			if !gm.am.Authenticate(tkn) {
+      if user, ok := gm.am.Authenticate(tkn); !ok {
 				gm.nm.ForceDisconnect(p.Client.Connection)
 				continue
-			}
+			} else {
+        p.Nickname = user
+      }
 
 		case model.Action:
 			p.Controls = message.Body.(model.Controls)

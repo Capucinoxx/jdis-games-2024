@@ -48,7 +48,6 @@ type Controls struct {
 
 // Player represents a player in the game.
 type Player struct {
-	ID               uint8
 	Token            string
 	Nickname         string
 	Health           atomic.Int32
@@ -61,9 +60,9 @@ type Player struct {
 }
 
 // NewPlayer creates a new player with an initial position and a network connection.
-func NewPlayer(id uint8, x float32, y float32, conn Connection) *Player {
+func NewPlayer(name string, x float32, y float32, conn Connection) *Player {
 	p := &Player{
-		ID:       id,
+	  Nickname: name,
 		Collider: NewRectCollider(x, y, config.PlayerSize),
 		Health:   atomic.Int32{},
 		Client: &Client{
@@ -80,7 +79,7 @@ func NewPlayer(id uint8, x float32, y float32, conn Connection) *Player {
 
 // String returns a string representation of the player.
 func (p *Player) String() string {
-	return fmt.Sprintf("[%d: { pos: (%f, %f), v: %f, dest: %+v, health: %d }]", p.ID, p.Collider.Pivot.X, p.Collider.Pivot.Y, p.Collider.velocity, p.Controls, p.Health.Load())
+	return fmt.Sprintf("[%s: { pos: (%f, %f), v: %f, dest: %+v, health: %d }]", p.Nickname, p.Collider.Pivot.X, p.Collider.Pivot.Y, p.Collider.velocity, p.Controls, p.Health.Load())
 }
 
 // IsAlive returns true if the player's health is above zero, indicating they are alive.
@@ -162,7 +161,7 @@ func (p *Player) TakeDmg(dmg int32) {
 // checkCollisionWithPlayers checks if there is a collision with any other player.
 func (p *Player) checkCollisionWithPlayers(players []*Player) bool {
 	for _, ennemy := range players {
-		if ennemy.ID == p.ID || !ennemy.IsAlive() {
+    if ennemy.Nickname == p.Nickname || !ennemy.IsAlive() {
 			continue
 		}
 
