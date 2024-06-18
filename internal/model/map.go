@@ -1,10 +1,12 @@
 package model
 
 import (
+	"fmt"
 	"math/rand"
 
 	"github.com/capucinoxx/forlorn/pkg/codec"
 	"github.com/capucinoxx/forlorn/pkg/model"
+  "github.com/capucinoxx/forlorn/pkg/utils"
 )
 
 const (
@@ -180,6 +182,13 @@ func (m *Map) Encode(w *codec.ByteWriter) error {
 		}
 	}
 
+  w.WriteInt32(int32(len(m.Colliders())))
+
+  for _, collider := range m.colliders {
+    collider.Encode(w)
+    utils.Log("toto", "toot", "%+v\n", collider.Points)
+  }
+
 	return nil
 }
 
@@ -200,6 +209,20 @@ func (m *Map) Decode(r *codec.ByteReader) error {
 			}
 		}
 	}
+
+  collidersLen, err := r.ReadInt32()
+  fmt.Println(collidersLen)
+  if err != nil {
+    return err
+  }
+
+  m.colliders = make([]*model.Collider, collidersLen)
+  for i := 0; i < int(collidersLen); i++ {
+    m.colliders[i] = &model.Collider{}
+    if err = m.colliders[i].Decode(r); err != nil {
+      return err
+    }
+  }
 
 	return nil
 }

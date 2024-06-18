@@ -168,13 +168,13 @@ func (c *Collider) Decode(r codec.Reader) (err error) {
 		return
 	}
 
-	c.Points = make([]*Point, size)
+	c.Points = make([]*Point, 0, size)
 	for i := uint8(0); i < size; i++ {
-		var p Point
+    p := &Point{}
 		if err = p.Decode(r); err != nil {
 			return
 		}
-		c.Points = append(c.Points, &p)
+		c.Points = append(c.Points, p)
 	}
 
 	var cType uint8
