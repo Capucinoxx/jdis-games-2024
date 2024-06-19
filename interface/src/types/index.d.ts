@@ -17,6 +17,7 @@ type PlayerData = {
 type ServerMapState = {
   type: 4;
   map: Array<Array<number>>;
+  walls: Array<Array<Position>>;
 };
 
 type ServerGameState = {

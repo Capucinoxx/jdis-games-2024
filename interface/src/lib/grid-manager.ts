@@ -10,23 +10,29 @@ const TILE_COLORS = [
 ];
 
 const GRID_COLOR = 0x151515;
+const WALL_COLOR = 0x00ff00;
 
 
 class GridManager {
   private scene: Phaser.Scene;
   private grid_graphics: Phaser.GameObjects.Graphics;
   private grid_values: number[][] | null;
+  private walls: Array<Array<Position>> | null; 
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
     this.grid_values = null;
+    this.walls = null;
     this.grid_graphics = this.scene.add.graphics();
   }
 
-  public set tiles(values: number[][]) {
-    this.grid_values = values;
+  public set map(values: { cells: number[][], colliders: Array<Array<Position>>}) {
+    this.grid_values = values.cells;
+    this.walls = values.colliders;
     this.draw_grid();
+    this.draw_walls();
   }
+
 
   private draw_grid(): void {
     if (!this.grid_values)
@@ -51,6 +57,25 @@ class GridManager {
         ], true);
       }
     }
+  }
+
+  private draw_walls() {
+    if (!this.walls)
+      return;
+
+    console.log('walls', this.walls);
+
+    this.grid_graphics.lineStyle(1, 0x00ff00, 1);
+    this.walls.forEach((wall) => {
+      if (wall.length != 2)
+        return;
+
+      this.grid_graphics.beginPath();
+      this.grid_graphics.moveTo(wall[0].x, wall[0].y);
+      this.grid_graphics.lineTo(wall[1].x, wall[1].y);
+      this.grid_graphics.closePath();
+      this.grid_graphics.strokePath();
+    });
   }
 };
 

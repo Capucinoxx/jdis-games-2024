@@ -51,8 +51,19 @@ func getInformations(this js.Value, args []js.Value) interface{} {
 			board.Call("push", row)
 		}
 
+    colliders := js.Global().Get("Array").New()
+    for _, c := range body.Colliders() {
+      collider := js.Global().Get("Array").New()
+      for _, p := range c.Points {
+        collider.Call("push", position(*p))
+      }
+
+      colliders.Call("push", collider)
+    }
+
 		obj.Set("type", int(msg.MessageType))
 	  obj.Set("map", board)
+    obj.Set("walls", colliders)
   }
 
   if msg.MessageType == model.Position {
