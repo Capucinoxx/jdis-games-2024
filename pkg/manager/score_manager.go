@@ -23,6 +23,7 @@ type ScoreManager struct {
   mongo *connector.MongoService
   currentScore map[string]int
   mu sync.Mutex
+  visible bool
 }
 
 func NewScoreManager(redis *connector.RedisService, mongo *connector.MongoService) *ScoreManager {
@@ -30,7 +31,17 @@ func NewScoreManager(redis *connector.RedisService, mongo *connector.MongoServic
     redis: redis,
     mongo: mongo,
     currentScore: make(map[string]int),
+    visible: true,
   }
+}
+
+func (sm *ScoreManager) ToggleVisibility() bool {
+  sm.mu.Lock()
+  defer sm.mu.Unlock()
+
+  sm.visible = !sm.visible
+
+  return sm.visible
 }
 
 func (sm *ScoreManager) Persist() error {
