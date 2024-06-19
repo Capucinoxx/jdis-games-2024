@@ -10,7 +10,7 @@ type Object struct {
   cleanup bool
 }
 
-func (o *Object) setup(pos *Point, size float32) {
+func (o *Object) setup(pos *Point, size float64) {
   o.uuid = uuid.New()
   o.Position = pos
   o.collider = NewRectCollider(pos.X, pos.Y, size)

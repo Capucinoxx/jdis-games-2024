@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { Player } from '.';
-import { WS_URL, SCALE } from '../config';
+import { WS_URL } from '../config';
 import { GridManager } from './grid-manager';
 import { BulletManager, CoinManager } from '../objects';
 import '../types/index.d.ts';
@@ -51,6 +51,7 @@ class GameManager {
 
   public update_players_movement(delta: number) {
     this.players.forEach((player) => player.move(delta));
+    this.bullets.move(delta);
   }
 
   public get_player(uuid: string): Player | undefined {
@@ -68,7 +69,6 @@ class GameManager {
           this.grid.map = { cells: data.map, colliders: data.walls };
           break;
         case 1:
-          console.log(data);
           this.handle_game_state(data);
           break;
       }

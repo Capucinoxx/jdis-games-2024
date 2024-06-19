@@ -9,8 +9,8 @@ import (
 
 // Point represents a continuous point in 2D space.
 type Point struct {
-	X float32 `json:"x"`
-	Y float32 `json:"y"`
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
 }
 
 // String returns the string representation of the Point in the format "(X, Y)".
@@ -19,11 +19,11 @@ func (p Point) String() string {
 }
 
 func (p *Point) Encode(w codec.Writer) (err error) {
-	if err = w.WriteFloat32(p.X); err != nil {
+	if err = w.WriteFloat64(p.X); err != nil {
 		return
 	}
 
-	if err = w.WriteFloat32(p.Y); err != nil {
+	if err = w.WriteFloat64(p.Y); err != nil {
 		return
 	}
 
@@ -31,11 +31,11 @@ func (p *Point) Encode(w codec.Writer) (err error) {
 }
 
 func (p *Point) Decode(r codec.Reader) (err error) {
-	if p.X, err = r.ReadFloat32(); err != nil {
+	if p.X, err = r.ReadFloat64(); err != nil {
 		return
 	}
 
-	if p.Y, err = r.ReadFloat32(); err != nil {
+	if p.Y, err = r.ReadFloat64(); err != nil {
 		return
 	}
 
@@ -123,8 +123,13 @@ func (p *Point) IsInPolygon(poly []*Point) bool {
 // normalize normalizes the vector such that its length becomes 1.
 func (p *Point) normalize() {
 	length := math.Sqrt(float64(p.X*p.X + p.Y*p.Y))
-	p.X /= float32(length)
-	p.Y /= float32(length)
+	p.X /= length
+	p.Y /= length
+}
+
+func Normalize(p Point) Point {
+  length := math.Sqrt(float64(p.X * p.X) + float64(p.Y * p.Y))
+  return Point{X: p.X / length, Y: p.Y / length}
 }
 
 // ================================================================================================
@@ -188,7 +193,7 @@ func (c *Collider) Decode(r codec.Reader) (err error) {
 
 // polygon returns the polygon represented by the Collider.
 func (c *Collider) polygon() Polygon {
-	return Polygon{points: c.Points}
+	return Polygon{vertices: c.Points}
 }
 
 // Map represents a game map, containing information about collisions and spawn points.

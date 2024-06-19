@@ -14,13 +14,15 @@ type Projectile struct {
 
 func NewProjectile(pos *Point, dest *Point) *Projectile {
   p := &Projectile{Destination: dest}
+  p.restrictToSquare(pos)
   p.setup(pos, config.ProjectileSize)
 
   return p
 } 
 
+
 // ApplyMovement updates the projectile's position based on its direction and a delta time.
-func (p *Projectile) moveToDestination(dt float32) bool {
+func (p *Projectile) moveToDestination(dt float64) bool {
   dest := p.Destination
 
   dx := float64(dest.X - p.Position.X)
@@ -28,11 +30,13 @@ func (p *Projectile) moveToDestination(dt float32) bool {
   dist := math.Abs(dx) + math.Abs(dy)
 
   if dist > config.ProjectileSpeed * float64(dt) {
-    nextX := p.Position.X + float32(dx/dist * config.ProjectileSpeed) * dt
-    nextY := p.Position.Y + float32(dy/dist * config.ProjectileSpeed) * dt
+    nextX := p.Position.X + dx/dist * config.ProjectileSpeed * dt
+    nextY := p.Position.Y + dy/dist * config.ProjectileSpeed * dt
 
     p.Position.X = nextX
     p.Position.Y = nextY
+    p.collider.ChangePosition(nextX, nextY)
+
     return true
   } else {
     p.Remove()
@@ -40,16 +44,52 @@ func (p *Projectile) moveToDestination(dt float32) bool {
   } 
 }
 
+
+func (p *Projectile) restrictToSquare(pos *Point) {
+	squareSize := 10.0
+
+	left := math.Floor(pos.X/squareSize)*squareSize + (config.ProjectileSize / 2)
+	right := left + squareSize - config.ProjectileSize
+	top := math.Floor(pos.Y/squareSize)*squareSize + (config.ProjectileSize / 2)
+	bottom := top + squareSize - config.ProjectileSize
+
+	newX := p.Destination.X
+	newY := p.Destination.Y
+
+	originalDestX := p.Destination.X
+	originalDestY := p.Destination.Y
+
+	if originalDestX < left {
+		newX = left
+		newY = pos.Y + (left-pos.X)*(originalDestY-pos.Y)/(originalDestX-pos.X)
+	} else if originalDestX > right {
+		newX = right
+		newY = pos.Y + (right-pos.X)*(originalDestY-pos.Y)/(originalDestX-pos.X)
+	}
+
+	if newY < top {
+		newY = top
+		newX = pos.X + (top-pos.Y)*(originalDestX-pos.X)/(originalDestY-pos.Y)
+	} else if newY > bottom {
+		newY = bottom
+		newX = pos.X + (bottom-pos.Y)*(originalDestX-pos.X)/(originalDestY-pos.Y)
+	}
+
+	p.Destination.X = newX
+	p.Destination.Y = newY
+}
+
+
 // IsCollidingWithEnvironment checks if the projectile is colliding with any non-projectile colliders in the map.
 func (p *Projectile) IsCollidingWithEnvironment(m Map) bool {
-	for _, collider := range m.Colliders() {
-		if collider.Type == ColliderProjectile {
-			continue
+  for _, collider := range m.Colliders() {	
+    if collider.Type == ColliderProjectile {
+      continue
 		}
-
-		if p.Position.IsInPolygon(collider.Points) {
-			return true
-		}
+   
+    if PolygonsIntersect(p.collider.polygon(), collider.polygon()) {
+      return true
+    }
 	}
 
 	return false
@@ -70,16 +110,11 @@ func NewCanon(owner *Player) *Cannon {
 }
 
 // Update processes all projectiles for movement and collision detection.
-func (c *Cannon) Update(players []*Player, m Map, dt float32) {
+func (c *Cannon) Update(players []*Player, m Map, dt float64) {
 	for _, p := range c.Projectiles {
 		if !p.moveToDestination(dt) {
       continue
     }
-
-    if p.Position.Equals(p.Destination, 0.2) {
-      p.Remove()
-      continue
-    } 
 
 		for _, enemy := range players {
 			if c.owner.Nickname == enemy.Nickname {
@@ -91,10 +126,10 @@ func (c *Cannon) Update(players []*Player, m Map, dt float32) {
         p.Remove()
 				continue
 			}
+    }
 
-			if p.IsCollidingWithEnvironment(m) {
-				p.Remove()
-			}
+    if p.IsCollidingWithEnvironment(m) {
+			p.Remove()
 		}
 	}
 

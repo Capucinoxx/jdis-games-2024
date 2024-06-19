@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { Bullet, Coin, Payload } from './object';
+import { GameObject, Bullet, Coin, Payload } from './object';
 import '../types/index.d.ts';
 
 interface Constructor<T> {
@@ -9,10 +9,10 @@ interface Constructor<T> {
 const create_instance = <T>(ctor: Constructor<T>, ...args: any[]): T  => new ctor(...args);
 
 
-class Manager<T extends Phaser.GameObjects.Graphics> {
+class Manager<T extends GameObject> {
   private scene: Phaser.Scene;
   private objects: Phaser.Physics.Arcade.Group;
-  private cache: Map<string, T>;
+  protected cache: Map<string, T>;
   private ctor: Constructor<T>;
 
   constructor(scene: Phaser.Scene, ctor: Constructor<T>) {
@@ -27,13 +27,15 @@ class Manager<T extends Phaser.GameObjects.Graphics> {
     payloads.forEach((p) => current.set(p.id, p));
 
     this.cache.forEach((obj, uuid) => {
-      if (!current.has(uuid))
+      if (!current.has(uuid)) {
         obj.destroy();
+        this.cache.delete(uuid);
+      }
     });
 
     current.forEach((value: Payload, key: string) => {
       if (!this.cache.has(key)) {
-        const obj =  create_instance(this.ctor, this.scene, value);
+        const obj = create_instance(this.ctor, this.scene, value);
         this.objects.add(obj);
         this.cache.set(key, obj);
       }
@@ -44,6 +46,10 @@ class Manager<T extends Phaser.GameObjects.Graphics> {
 class BulletManager extends Manager<Bullet> {
   constructor(scene: Phaser.Scene) {
     super(scene, Bullet);
+  }
+
+  public move(dt: number) {
+    this.cache.forEach((b, _) => b.move(dt)); 
   }
 };
 

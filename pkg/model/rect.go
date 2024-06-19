@@ -1,8 +1,5 @@
 package model
 
-import (
-	"math"
-)
 
 const (
 	// defaultForwardSpeed est la vitesse de déplacement par défaut.
@@ -16,13 +13,13 @@ type Rect struct {
 
 // Polygon représente un polygone dans un espace 2D.
 type Polygon struct {
-	points []*Point
+	vertices []*Point
 }
 
 // String retourne une représentation en chaîne de caractères du polygone.
 func (p Polygon) String() string {
 	str := "["
-	for _, point := range p.points {
+	for _, point := range p.vertices {
 		str += point.String() + ", "
 	}
 
@@ -40,13 +37,13 @@ type RectCollider struct {
 	Pivot *Point
 
 	Rotation     uint32
-	forwardSpeed float32
+	forwardSpeed float64
 
-	velocity float32
+	velocity float64
 }
 
 // NewRectCollider crée un nouveau RectCollider.
-func NewRectCollider(x, y, size float32) *RectCollider {
+func NewRectCollider(x, y, size float64) *RectCollider {
 	return &RectCollider{
 		rect: &Rect{
 			a: &Point{X: x - size/2, Y: y + size/2},
@@ -72,34 +69,30 @@ func (r *RectCollider) CalculDirection() {
 	r.Dir.normalize()
 }
 
-// Rotate tourne le RectCollider de l'angle spécifié.
-func (r *RectCollider) Rotate(angle uint32) {
-	r.rotate(angle, r.look)
-	r.rotate(angle, r.rect.a)
-	r.rotate(angle, r.rect.b)
-	r.rotate(angle, r.rect.c)
-	r.rotate(angle, r.rect.d)
-}
+func (r *RectCollider) ChangePosition(px, py float64) {
+  dx := px - r.Pivot.X
+  dy := py - r.Pivot.Y
 
-// rotate tourne le point spécifié autour du pivot du RectCollider.
-func (r *RectCollider) rotate(theta uint32, p *Point) {
-	sint := float32(math.Sin(float64(theta)))
-	cost := float32(math.Cos(float64(theta)))
+  r.rect.a.X += dx
+  r.rect.a.Y += dy
 
-	p.X -= r.Pivot.X
-	p.Y -= r.Pivot.Y
+  r.rect.b.X += dx
+  r.rect.b.Y += dy
 
-	x := p.X*cost - p.Y*sint
-	y := p.X*sint + p.Y*cost
+  r.rect.c.X += dx
+  r.rect.c.Y += dy
 
-	p.X = x + r.Pivot.X
-	p.Y = y + r.Pivot.Y
+  r.rect.d.X += dx
+  r.rect.d.Y += dy
+
+  r.Pivot.X = px
+  r.Pivot.Y = py
 }
 
 // polygon retourne le polygone représenté par le RectCollider.
 func (r *RectCollider) polygon() Polygon {
 	return Polygon{
-		points: []*Point{r.rect.a, r.rect.b, r.rect.c, r.rect.d},
+		vertices: []*Point{r.rect.a, r.rect.b, r.rect.c, r.rect.d},
 	}
 }
 
@@ -109,44 +102,57 @@ func (r *RectCollider) Collisions(oth Polygon) bool {
 	return PolygonsIntersect(r.polygon(), oth)
 }
 
+func ProjectPolygon(axis Point, polygon Polygon) (float64, float64) {
+  min := (polygon.vertices[0].X * axis.X) + (polygon.vertices[0].Y * axis.Y)
+  max := min
+
+  for _, vertex := range polygon.vertices {
+    projection := (vertex.X * axis.X) + (vertex.Y * axis.Y)
+    if projection < min {
+      min = projection
+    }
+    if projection > max {
+      max = projection
+    }
+  }
+
+  return min, max
+}
+
 // PolygonsIntersect retourne vrai si les deux polygones spécifiés se chevauchent.
 // Sinon, retourne faux.
 func PolygonsIntersect(a, b Polygon) bool {
-	for _, poly := range [2]Polygon{a, b} {
-		for i := 0; i < len(poly.points); i++ {
-			j := (i + 1) % len(poly.points)
+  for i := 0; i < len(a.vertices); i++ {
+    j := (i + 1) % len(a.vertices)
+    edge := Point{
+      X: a.vertices[j].X - a.vertices[i].X,
+      Y: a.vertices[j].Y - a.vertices[i].Y,
+    }
+    axis := Normalize(Point{X: -edge.Y, Y: edge.X})
 
-			p1 := poly.points[i]
-			p2 := poly.points[j]
+    min1, max1 := ProjectPolygon(axis, a)
+    min2, max2 := ProjectPolygon(axis, b)
 
-			normal := &Point{X: p2.Y - p1.Y, Y: p1.X - p2.X}
+    if max1 < min2 || max2 < min1 {
+      return false
+    }
+  }
 
-			minA, maxA := float32(math.MaxFloat32), float32(-math.MaxFloat32)
-			for _, point := range a.points {
-				projected := normal.X*point.X + normal.Y*point.Y
-				if projected < minA {
-					minA = projected
-				}
-				if projected > maxA {
-					maxA = projected
-				}
-			}
+  for i := 0; i < len(b.vertices); i++ {
+    j := (i + 1) % len(b.vertices)
+    edge := Point{
+      X: b.vertices[j].X - b.vertices[i].X,
+      Y: b.vertices[j].Y - b.vertices[i].Y,
+    }
+    axis := Normalize(Point{X: -edge.Y, Y: edge.X})
 
-			minB, maxB := float32(math.MaxFloat32), float32(-math.MaxFloat32)
-			for _, point := range b.points {
-				projected := normal.X*point.X + normal.Y*point.Y
-				if projected < minB {
-					minB = projected
-				}
-				if projected > maxB {
-					maxB = projected
-				}
-			}
+    min1, max1 := ProjectPolygon(axis, a)
+    min2, max2 := ProjectPolygon(axis, b)
 
-			if maxA < minB || maxB < minA {
-				return false
-			}
-		}
-	}
-	return true
+    if max1 < min2 || max2 < min1 {
+      return false
+    }
+  }
+
+  return true
 }
