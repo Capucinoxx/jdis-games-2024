@@ -28,7 +28,8 @@ func (h *HttpHandler) Handle() {
 	network.HandleFunc("/start", h.startGame)
 	network.HandleFunc("/create", h.register)
 	network.HandleFunc("/map", h.getMap)
-  network.HandleFunc("/leaderboard", h.leaderboard)
+  network.HandleFunc("/leaderboard", h.leaderboard, h.checkLeaderboardAccess)
+  network.HandleFunc("/toggle_leaderboard", h.toggleLeaderboard)
 }
 
 // register crée un compte utilisateur et retourne un jeton d'authentification.
@@ -75,4 +76,16 @@ func (h *HttpHandler) leaderboard(w http.ResponseWriter, r *http.Request) {
 
   w.Header().Set("Content-Type", "application/json")
   json.NewEncoder(w).Encode(l)
+}
+
+func (h *HttpHandler) toggleLeaderboard(w http.ResponseWriter, r *http.Request) {
+  visible := h.sm.ToggleVisibility()
+
+  status := "disabled"
+  if visible {
+    status = "enabled"
+  }
+
+  w.Header().Set("Content-Type", "application/json")
+  json.NewEncoder(w).Encode(map[string]string{"message": "leaderboard access has been " + status})
 }
