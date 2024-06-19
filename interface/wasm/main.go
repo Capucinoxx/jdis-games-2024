@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"syscall/js"
 
 	imodel "github.com/capucinoxx/forlorn/internal/model"
@@ -86,7 +87,7 @@ func getInformations(this js.Value, args []js.Value) interface{} {
       projectiles := js.Global().Get("Array").New()
       for _, projectile := range data.Projectiles {
         p := js.Global().Get("Object").New()
-        p.Set("id", string(projectile.Uuid[:]))
+        p.Set("id", format_id(projectile.Uuid))
         p.Set("pos", position(projectile.Pos))
         p.Set("dest", position(projectile.Dest))
 
@@ -108,6 +109,16 @@ func position(pos model.Point) interface{} {
   obj.Set("x", pos.X * scale)
   obj.Set("y", pos.Y * scale)
   return obj
+}
+
+func format_id(uuid [16]byte) string {
+    return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x",
+        uuid[0:4],
+        uuid[4:6],
+        uuid[6:8],
+        uuid[8:10],
+        uuid[10:16],
+    )
 }
 
 func registerCallbacks() {

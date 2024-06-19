@@ -193,7 +193,7 @@ func (c *Collider) Decode(r codec.Reader) (err error) {
 
 // polygon returns the polygon represented by the Collider.
 func (c *Collider) polygon() Polygon {
-	return Polygon{points: c.Points}
+	return Polygon{vertices: c.Points}
 }
 
 // Map represents a game map, containing information about collisions and spawn points.

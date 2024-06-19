@@ -13,13 +13,13 @@ type Rect struct {
 
 // Polygon représente un polygone dans un espace 2D.
 type Polygon struct {
-	points []*Point
+	vertices []*Point
 }
 
 // String retourne une représentation en chaîne de caractères du polygone.
 func (p Polygon) String() string {
 	str := "["
-	for _, point := range p.points {
+	for _, point := range p.vertices {
 		str += point.String() + ", "
 	}
 
@@ -69,12 +69,30 @@ func (r *RectCollider) CalculDirection() {
 	r.Dir.normalize()
 }
 
+func (r *RectCollider) ChangePosition(px, py float64) {
+  dx := px - r.Pivot.X
+  dy := py - r.Pivot.Y
 
+  r.rect.a.X += dx
+  r.rect.a.Y += dy
+
+  r.rect.b.X += dx
+  r.rect.b.Y += dy
+
+  r.rect.c.X += dx
+  r.rect.c.Y += dy
+
+  r.rect.d.X += dx
+  r.rect.d.Y += dy
+
+  r.Pivot.X = px
+  r.Pivot.Y = py
+}
 
 // polygon retourne le polygone représenté par le RectCollider.
 func (r *RectCollider) polygon() Polygon {
 	return Polygon{
-		points: []*Point{r.rect.a, r.rect.b, r.rect.c, r.rect.d},
+		vertices: []*Point{r.rect.a, r.rect.b, r.rect.c, r.rect.d},
 	}
 }
 
@@ -85,10 +103,10 @@ func (r *RectCollider) Collisions(oth Polygon) bool {
 }
 
 func ProjectPolygon(axis Point, polygon Polygon) (float64, float64) {
-  min := (polygon.points[0].X * axis.X) + (polygon.points[0].Y * axis.Y)
+  min := (polygon.vertices[0].X * axis.X) + (polygon.vertices[0].Y * axis.Y)
   max := min
 
-  for _, vertex := range polygon.points {
+  for _, vertex := range polygon.vertices {
     projection := (vertex.X * axis.X) + (vertex.Y * axis.Y)
     if projection < min {
       min = projection
@@ -104,5 +122,37 @@ func ProjectPolygon(axis Point, polygon Polygon) (float64, float64) {
 // PolygonsIntersect retourne vrai si les deux polygones spécifiés se chevauchent.
 // Sinon, retourne faux.
 func PolygonsIntersect(a, b Polygon) bool {
-	return true
+  for i := 0; i < len(a.vertices); i++ {
+    j := (i + 1) % len(a.vertices)
+    edge := Point{
+      X: a.vertices[j].X - a.vertices[i].X,
+      Y: a.vertices[j].Y - a.vertices[i].Y,
+    }
+    axis := Normalize(Point{X: -edge.Y, Y: edge.X})
+
+    min1, max1 := ProjectPolygon(axis, a)
+    min2, max2 := ProjectPolygon(axis, b)
+
+    if max1 < min2 || max2 < min1 {
+      return false
+    }
+  }
+
+  for i := 0; i < len(b.vertices); i++ {
+    j := (i + 1) % len(b.vertices)
+    edge := Point{
+      X: b.vertices[j].X - b.vertices[i].X,
+      Y: b.vertices[j].Y - b.vertices[i].Y,
+    }
+    axis := Normalize(Point{X: -edge.Y, Y: edge.X})
+
+    min1, max1 := ProjectPolygon(axis, a)
+    min2, max2 := ProjectPolygon(axis, b)
+
+    if max1 < min2 || max2 < min1 {
+      return false
+    }
+  }
+
+  return true
 }

@@ -6,13 +6,12 @@ import (
 
 	"github.com/capucinoxx/forlorn/pkg/codec"
 	"github.com/capucinoxx/forlorn/pkg/model"
-  "github.com/capucinoxx/forlorn/pkg/utils"
 )
 
 const (
 	mapWidth  = 10
 	mapHeight = 10
-	cellSize  = 10.0
+	cellSize  (float64)= 10.0
 )
 
 // Grid represents a 2D grid structure in a game environment.
@@ -23,7 +22,7 @@ type Grid struct {
 
 // isInBounds returns true if the model.Point is within the grid's boundaries, otherwise false.
 func (g *Grid) isInBounds(pos *model.Point) bool {
-	return pos.X >= 0 && pos.X < float32(g.width) && pos.Y >= 0 && pos.Y < float32(g.height)
+	return pos.X >= 0 && pos.X < float64(g.width) && pos.Y >= 0 && pos.Y < float64(g.height)
 }
 
 // wallCount returns the number of walls surrounding a given model.Point.
@@ -44,7 +43,7 @@ func generateGrid(width, height int) *Grid {
 
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
-			grid.cells[model.Point{X: float32(x), Y: float32(y)}] = make(map[model.Point]bool)
+			grid.cells[model.Point{X: float64(x), Y: float64(y)}] = make(map[model.Point]bool)
 		}
 	}
 
@@ -71,7 +70,7 @@ func generateGrid(width, height int) *Grid {
 	}
 
 	dfs(model.Point{X: 0, Y: 0})
-	randomPos := model.Point{X: float32(rand.Intn(width)), Y: float32(rand.Intn(height))}
+	randomPos := model.Point{X: float64(rand.Intn(width)), Y: float64(rand.Intn(height))}
 	dfs(randomPos)
 
 	return grid
@@ -81,7 +80,7 @@ func generateGrid(width, height int) *Grid {
 type Map struct {
 	colliders  []*model.Collider
 	spawns     []*model.Point
-	cellSize   float32
+	cellSize   float64
 	tilesWalls [][]uint8
 
 	r *rand.Rand
@@ -118,16 +117,16 @@ func (m *Map) Setup() {
 // populate fills the map with colliders using the specified grid.
 func (m *Map) populate(grid *Grid) {
 	m.colliders = []*model.Collider{
-		{Points: []*model.Point{{X: 0, Y: 0}, {X: 0, Y: float32(grid.height) * m.cellSize}}},
-		{Points: []*model.Point{{X: 0, Y: 0}, {X: float32(grid.width) * m.cellSize, Y: 0}}},
-		{Points: []*model.Point{{X: float32(grid.width) * m.cellSize, Y: 0}, {X: float32(grid.width) * m.cellSize, Y: float32(grid.height) * m.cellSize}}},
-		{Points: []*model.Point{{X: 0, Y: float32(grid.height) * m.cellSize}, {X: float32(grid.width) * m.cellSize, Y: float32(grid.height) * m.cellSize}}},
+		{Points: []*model.Point{{X: 0, Y: 0}, {X: 0, Y: float64(grid.height) * m.cellSize}}},
+		{Points: []*model.Point{{X: 0, Y: 0}, {X: float64(grid.width) * m.cellSize, Y: 0}}},
+		{Points: []*model.Point{{X: float64(grid.width) * m.cellSize, Y: 0}, {X: float64(grid.width) * m.cellSize, Y: float64(grid.height) * m.cellSize}}},
+		{Points: []*model.Point{{X: 0, Y: float64(grid.height) * m.cellSize}, {X: float64(grid.width) * m.cellSize, Y: float64(grid.height) * m.cellSize}}},
 	}
 
 	for y := 0; y < grid.height; y++ {
 		for x := 0; x < grid.width; x++ {
-			cell := grid.cells[model.Point{X: float32(x), Y: float32(y)}]
-			x1, y1 := float32(x)*m.cellSize, float32(y)*m.cellSize
+			cell := grid.cells[model.Point{X: float64(x), Y: float64(y)}]
+			x1, y1 := float64(x)*m.cellSize, float64(y)*m.cellSize
 			x2, y2 := x1+m.cellSize, y1+m.cellSize
 
 			if _, exist := cell[model.RIGHT]; exist {
@@ -158,14 +157,14 @@ func (m *Map) generateSpawns(grid *Grid) {
 	for i := 0; i < mapHeight; i++ {
 		m.tilesWalls[i] = make([]uint8, mapWidth)
 		for j := 0; j < mapWidth; j++ {
-			wallCount := grid.wallCount(model.Point{X: float32(i), Y: float32(j)})
+			wallCount := grid.wallCount(model.Point{X: float64(i), Y: float64(j)})
 			m.tilesWalls[i][j] = uint8(wallCount)
 
 			if wallCount != 4 {
 				for k := 0; k < 3; k++ {
 					m.spawns = append(m.spawns, &model.Point{
-						X: float32(j) + (minValue+m.r.Float32()*diffValue)*m.cellSize,
-						Y: float32(i) + (minValue+m.r.Float32()*diffValue)*m.cellSize,
+						X: float64(j) + (minValue+m.r.Float64()*diffValue)*m.cellSize,
+						Y: float64(i) + (minValue+m.r.Float64()*diffValue)*m.cellSize,
 					})
 				}
 			}
@@ -186,7 +185,6 @@ func (m *Map) Encode(w *codec.ByteWriter) error {
 
   for _, collider := range m.colliders {
     collider.Encode(w)
-    utils.Log("toto", "toot", "%+v\n", collider.Points)
   }
 
 	return nil

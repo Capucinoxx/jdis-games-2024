@@ -9,7 +9,7 @@ import (
 )
 
 // tickrate est le nombre de mises à jour du jeu par seconde.
-const tickrate = 3
+const tickrate = 30
 
 type RoundManager interface {
 	Restart()
@@ -167,6 +167,7 @@ func (gm *GameManager) gameLoop() {
 	ticker := time.NewTicker(interval)
 	gm.nm.BroadcastGameStart(gm.state)
 
+  
 	for range ticker.C {
 		gm.tickStart = time.Now()
 		players := gm.state.Players()
@@ -177,7 +178,9 @@ func (gm *GameManager) gameLoop() {
 			gm.process(p, players, timestep)
 			// handle respawn
 		}
-
+    
+    
+    
 		gm.nm.BroadcastGameState(gm.state)
 
 		if gm.rm.HasEnded() {

@@ -8,7 +8,6 @@ import (
 
 	"github.com/capucinoxx/forlorn/pkg/codec"
 	"github.com/capucinoxx/forlorn/pkg/config"
-	"github.com/capucinoxx/forlorn/pkg/utils"
 )
 
 // Connection represents a network connection. It can be used for reading and writing data over the network
@@ -90,7 +89,6 @@ func (p *Player) IsAlive() bool {
 // Update updates the player's state based on the current game state.
 func (p *Player) Update(players []*Player, game *GameState, dt float64) {
 	m := game.Map
-  utils.Log("player", "update", "%+v\n", p.Controls)
 	if !p.IsAlive() {
 		p.respawnCountdown += dt
 		return
@@ -147,7 +145,6 @@ func (p *Player) checkCollisionAt(x, y float64, players []*Player, m Map) bool {
 // HandleCannon handles the player's cannon actions.
 func (p *Player) HandleCannon(players []*Player, m Map, dt float64) {
 	if p.Controls.Shoot != nil {
-    utils.Log("shoot", "shoot", "shoot")
 		p.cannon.ShootAt(*p.Controls.Shoot)
 	}
 

@@ -4,7 +4,6 @@ import (
 	"math"
 
 	"github.com/capucinoxx/forlorn/pkg/config"
-  "github.com/capucinoxx/forlorn/pkg/utils"
 )
 
 // Projectile represents a moving projectile in the game.
@@ -15,10 +14,12 @@ type Projectile struct {
 
 func NewProjectile(pos *Point, dest *Point) *Projectile {
   p := &Projectile{Destination: dest}
+  p.restrictToSquare(pos)
   p.setup(pos, config.ProjectileSize)
 
   return p
 } 
+
 
 // ApplyMovement updates the projectile's position based on its direction and a delta time.
 func (p *Projectile) moveToDestination(dt float64) bool {
@@ -34,12 +35,50 @@ func (p *Projectile) moveToDestination(dt float64) bool {
 
     p.Position.X = nextX
     p.Position.Y = nextY
+    p.collider.ChangePosition(nextX, nextY)
+
     return true
   } else {
     p.Remove()
     return false
   } 
 }
+
+
+func (p *Projectile) restrictToSquare(pos *Point) {
+	squareSize := 10.0
+
+	left := math.Floor(pos.X/squareSize)*squareSize + (config.ProjectileSize / 2)
+	right := left + squareSize - config.ProjectileSize
+	top := math.Floor(pos.Y/squareSize)*squareSize + (config.ProjectileSize / 2)
+	bottom := top + squareSize - config.ProjectileSize
+
+	newX := p.Destination.X
+	newY := p.Destination.Y
+
+	originalDestX := p.Destination.X
+	originalDestY := p.Destination.Y
+
+	if originalDestX < left {
+		newX = left
+		newY = pos.Y + (left-pos.X)*(originalDestY-pos.Y)/(originalDestX-pos.X)
+	} else if originalDestX > right {
+		newX = right
+		newY = pos.Y + (right-pos.X)*(originalDestY-pos.Y)/(originalDestX-pos.X)
+	}
+
+	if newY < top {
+		newY = top
+		newX = pos.X + (top-pos.Y)*(originalDestX-pos.X)/(originalDestY-pos.Y)
+	} else if newY > bottom {
+		newY = bottom
+		newX = pos.X + (bottom-pos.Y)*(originalDestX-pos.X)/(originalDestY-pos.Y)
+	}
+
+	p.Destination.X = newX
+	p.Destination.Y = newY
+}
+
 
 // IsCollidingWithEnvironment checks if the projectile is colliding with any non-projectile colliders in the map.
 func (p *Projectile) IsCollidingWithEnvironment(m Map) bool {
@@ -74,7 +113,6 @@ func NewCanon(owner *Player) *Cannon {
 func (c *Cannon) Update(players []*Player, m Map, dt float64) {
 	for _, p := range c.Projectiles {
 		if !p.moveToDestination(dt) {
-      utils.Log("nup", "nup", "nup")
       continue
     }
 
@@ -89,7 +127,7 @@ func (c *Cannon) Update(players []*Player, m Map, dt float64) {
 				continue
 			}
     }
-		
+
     if p.IsCollidingWithEnvironment(m) {
 			p.Remove()
 		}
