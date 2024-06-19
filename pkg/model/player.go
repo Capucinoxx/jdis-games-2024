@@ -52,7 +52,7 @@ type Player struct {
 	Nickname         string
 	Health           atomic.Int32
 	Score            float64
-	respawnCountdown float32
+	respawnCountdown float64
 	Client           *Client
 	Controls         Controls
 	Collider         *RectCollider
@@ -60,7 +60,7 @@ type Player struct {
 }
 
 // NewPlayer creates a new player with an initial position and a network connection.
-func NewPlayer(name string, x float32, y float32, conn Connection) *Player {
+func NewPlayer(name string, x float64, y float64, conn Connection) *Player {
 	p := &Player{
 	  Nickname: name,
 		Collider: NewRectCollider(x, y, config.PlayerSize),
@@ -88,7 +88,7 @@ func (p *Player) IsAlive() bool {
 }
 
 // Update updates the player's state based on the current game state.
-func (p *Player) Update(players []*Player, game *GameState, dt float32) {
+func (p *Player) Update(players []*Player, game *GameState, dt float64) {
 	m := game.Map
   utils.Log("player", "update", "%+v\n", p.Controls)
 	if !p.IsAlive() {
@@ -101,13 +101,13 @@ func (p *Player) Update(players []*Player, game *GameState, dt float32) {
 }
 
 // HandleMovement manages the player's movement based on their controls.
-func (p *Player) HandleMovement(players []*Player, m Map, dt float32) {
+func (p *Player) HandleMovement(players []*Player, m Map, dt float64) {
   if p.Controls.Dest != nil {
     p.moveToDestination(players, m, dt)
   }
 }
 
-func (p *Player) moveToDestination(players []*Player, m Map, dt float32) {
+func (p *Player) moveToDestination(players []*Player, m Map, dt float64) {
   r := p.Collider
   dest := p.Controls.Dest
 
@@ -118,8 +118,8 @@ func (p *Player) moveToDestination(players []*Player, m Map, dt float32) {
   speed := config.PlayerSpeed
 
   if dist > float64(speed*dt) {
-    nextX := r.Pivot.X + float32(dx/dist) * speed * dt
-    nextY := r.Pivot.Y + float32(dy/dist) * speed * dt
+    nextX := r.Pivot.X + dx/dist * speed * dt
+    nextY := r.Pivot.Y + dy/dist * speed * dt
 
     if !p.checkCollisionAt(nextX, nextY, players, m) {
       r.Pivot.X = nextX
@@ -134,7 +134,7 @@ func (p *Player) moveToDestination(players []*Player, m Map, dt float32) {
   }
 }
 
-func (p *Player) checkCollisionAt(x, y float32, players []*Player, m Map) bool {
+func (p *Player) checkCollisionAt(x, y float64, players []*Player, m Map) bool {
   originalX, originalY := p.Collider.Pivot.X, p.Collider.Pivot.Y
   p.Collider.Pivot.X, p.Collider.Pivot.Y = x, y
 
@@ -145,7 +145,7 @@ func (p *Player) checkCollisionAt(x, y float32, players []*Player, m Map) bool {
 }
 
 // HandleCannon handles the player's cannon actions.
-func (p *Player) HandleCannon(players []*Player, m Map, dt float32) {
+func (p *Player) HandleCannon(players []*Player, m Map, dt float64) {
 	if p.Controls.Shoot != nil {
     utils.Log("shoot", "shoot", "shoot")
 		p.cannon.ShootAt(*p.Controls.Shoot)
@@ -191,16 +191,6 @@ func (p *Player) updateVelocity(dt float32, hasCollision bool) {
 	r.velocity = defaultForwardSpeed
 }
 
-
-// applyRotation applies the specified rotation to the player.
-func (p *Player) applyRotation(rd uint32) {
-	r := p.Collider
-	points := []*Point{r.rect.a, r.rect.b, r.rect.c, r.rect.d, r.look}
-	for _, point := range points {
-		r.rotate(rd, point)
-	}
-	r.CalculDirection()
-}
 
 // applyMovement applies the movement to the player based on their current direction and velocity.
 func (p *Player) applyMovement() {

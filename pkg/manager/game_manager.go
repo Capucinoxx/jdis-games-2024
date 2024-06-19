@@ -71,7 +71,7 @@ func (gm *GameManager) RegisterPlayer(conn model.Connection) error {
     return fmt.Errorf("Unknown token")
   }
 
-  spawn := []float32{3.5, 3.6} // TODO: Generate spawn position
+  spawn := []float64{3.5, 3.6} // TODO: Generate spawn position
 	player := model.NewPlayer(username, spawn[0], spawn[1], conn)
   
 	gm.nm.Register(player.Client)
@@ -129,7 +129,7 @@ func (gm *GameManager) State() (model.Map, int) {
 // en fonction des messages entrants. Il met également à jour les informations
 // des joueurs en fonction des messages entrants. La méthode prend en charge
 // l'authentification des joueurs et la mise à jour des informations des joueurs.
-func (gm *GameManager) process(p *model.Player, players []*model.Player, timestep float32) {
+func (gm *GameManager) process(p *model.Player, players []*model.Player, timestep float64) {
 	for len(p.Client.In) != 0 {
 		message := <-p.Client.In
 
@@ -162,7 +162,7 @@ func (gm *GameManager) process(p *model.Player, players []*model.Player, timeste
 // responsable de la synchronisation des mises à jour du jeu.
 func (gm *GameManager) gameLoop() {
 	interval := time.Duration((int(1000 / tickrate))) * time.Millisecond
-	timestep := float32(interval/time.Millisecond) / 1000.0
+	timestep := float64(interval/time.Millisecond) / 1000.0
 
 	ticker := time.NewTicker(interval)
 	gm.nm.BroadcastGameStart(gm.state)
