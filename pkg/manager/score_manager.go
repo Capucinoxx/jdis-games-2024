@@ -44,6 +44,12 @@ func (sm *ScoreManager) ToggleVisibility() bool {
   return sm.visible
 }
 
+func (sm *ScoreManager) Visibility() bool {
+  sm.mu.Lock()
+  defer sm.mu.Unlock()
+  return sm.visible
+}
+
 func (sm *ScoreManager) Persist() error {
   scores, err := sm.Rank()
   if err != nil {

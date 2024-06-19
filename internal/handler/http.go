@@ -28,7 +28,7 @@ func (h *HttpHandler) Handle() {
 	network.HandleFunc("/start", h.startGame)
 	network.HandleFunc("/create", h.register)
 	network.HandleFunc("/map", h.getMap)
-  network.HandleFunc("/leaderboard", h.leaderboard)
+  network.HandleFunc("/leaderboard", h.leaderboard, h.checkLeaderboardAccess)
 }
 
 // register crée un compte utilisateur et retourne un jeton d'authentification.
