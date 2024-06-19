@@ -65,7 +65,7 @@ class GameManager {
 
       switch (data.type) {
         case 4:
-         this.grid.tiles = data.map;
+          this.grid.map = { cells: data.map, colliders: data.walls };
           break;
         case 1:
           console.log(data);

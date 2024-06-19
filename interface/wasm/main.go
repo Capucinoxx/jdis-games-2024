@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"syscall/js"
 
 	imodel "github.com/capucinoxx/forlorn/internal/model"
@@ -56,7 +55,6 @@ func getInformations(this js.Value, args []js.Value) interface{} {
     for _, c := range body.Colliders() {
       collider := js.Global().Get("Array").New()
       for _, p := range c.Points {
-        fmt.Printf(">> %+v\n", p)
         collider.Call("push", position(*p))
       }
 
