@@ -17,6 +17,7 @@ type GameState struct {
 	playerCount  int
 	players      map[string]*Player
 	Map          Map
+  lastSpawnIdx int
 	mu           *sync.RWMutex
 }
 
@@ -29,8 +30,15 @@ func NewGameState(m Map) *GameState {
 		playerCount:  0,
 		players:      make(map[string]*Player),
 		Map:          m,
+    lastSpawnIdx: 0,
 		mu:           &sync.RWMutex{},
 	}
+}
+
+func (gs *GameState) GetSpawnPoint() *Point {
+  spawn := gs.Map.Spawns()[gs.lastSpawnIdx]
+  gs.lastSpawnIdx = (gs.lastSpawnIdx + 1) % len(gs.Map.Spawns())
+  return spawn
 }
 
 // InProgess retourne vrai si le jeu est en cours.
