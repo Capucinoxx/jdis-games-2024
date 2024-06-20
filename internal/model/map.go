@@ -170,6 +170,8 @@ func (m *Map) generateSpawns(grid *Grid) {
 			}
 		}
 	}
+
+  rand.Shuffle(len(m.spawns), func(i, j int) { m.spawns[i], m.spawns[j] = m.spawns[j], m.spawns[i] })
 }
 
 func (m *Map) Encode(w *codec.ByteWriter) error {
