@@ -1,7 +1,10 @@
 import Phaser from 'phaser';
 import { MainScene } from './scenes';
 import { load_wasm } from './wasm/loader';
+import { handle_modal_interraction } from './modal';
 
+
+handle_modal_interraction();
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
