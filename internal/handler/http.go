@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/capucinoxx/forlorn/pkg/manager"
@@ -50,7 +51,7 @@ func (h *HttpHandler) register(w http.ResponseWriter, r *http.Request) {
 
 	token, _ := h.am.Register(payload.Username)
 	w.Header().Set("Content-Type", "application/json")
-  json.NewEncoder(w).Encode(map[string]string{"token": token})
+  json.NewEncoder(w).Encode(map[string]string{"type": "success", "message": fmt.Sprintf("Token: %s", token)})
 }
 
 // startGame démarre le serveur de jeu.
