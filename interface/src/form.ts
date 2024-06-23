@@ -29,7 +29,6 @@ class Toast extends HTMLElement {
   }
 
   connectedCallback() {
-    console.log(this.subject, this.getAttribute('subject'));
     this.subject = this.getAttribute('subject') ?? this.subject;
     this.type = this.getAttribute('type') ?? this.type;
 
@@ -41,6 +40,11 @@ class Toast extends HTMLElement {
       <div>${this.message || msg}</div>
       <button class='alert-close'>x</button>
     `;
+
+    this.querySelector('.alert-close')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.close();
+    });
   }
 
   private close() {
