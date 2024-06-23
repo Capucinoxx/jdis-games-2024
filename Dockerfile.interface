@@ -21,6 +21,7 @@ COPY interface/package.json .
 COPY interface/package-lock.json .
 COPY interface/tsconfig.json .
 COPY interface/index.html .
+COPY interface/style.css .
 COPY interface/src/ src/
 
 COPY --from=wasm /app/wasm_exec.js src/wasm/wasm_exec.js

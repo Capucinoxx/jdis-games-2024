@@ -1,0 +1,209 @@
+@import url("https://fonts.googleapis.com/css2?family=Krona+One&display=swap");
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  width: 100%;
+  height: 100vh;
+  background: #ebebeb;
+  position: relative;
+  overflow: hidden;
+}
+
+button {
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+button:focus {
+  outline: none;
+  border: none;
+}
+
+.nav-btn {
+  position: absolute;
+  left: 60px;
+  top: 60px;
+  transform: translate(-50%, -50%);
+  width: 50px;
+  height: 50px;
+  border-radius: 20px;
+  z-index: 10;
+}
+
+.nav-btn .nav-btn--icons {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.nav-btn .nav-btn--icons svg {
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  fill: #fff;
+}
+
+.nav-btn .nav-btn--icons svg.close {
+  opacity: 0;
+  transform: translate(-50%, -50%) translateY(125%);
+}
+
+.nav-btn .nav-btn--bg {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  background: #00A759b1;
+  border-radius: 25%;
+}
+
+nav {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #00A759b1;
+  clip-path: circle(0px at 60px 60px);
+  z-index: 10;
+}
+
+nav ul {
+  margin-left: 20vw;
+}
+
+nav ul li {
+  position: relative;
+  list-style: none;
+  padding: 10px 0;
+  opacity: 0;
+  cursor: pointer;
+  transform: translateX(-200px);
+  pointer-events: none;
+}
+
+nav ul li > input[type='checkbox'] {
+  display: none; 
+}
+
+nav ul li > input[type='checkbox']:checked + label + .hidden {
+  display: block;
+}
+
+nav ul li label {
+  font-size: 5rem;
+  font-family: "Krona One";
+  font-weight: bold;
+  opacity: 0.35;
+  transition: opacity 0.25s ease;
+  color: #fff;
+}
+
+nav ul li::before {
+  content: "";
+  position: absolute;
+  left: -20%;
+  top: 3.5rem;
+  transform: translate(-50%, -50%) translateX(-50%);
+  width: 25%;
+  height: 8px;
+  border-radius: 10px;
+  background: #fff;
+  opacity: 0;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+}
+
+nav ul li:hover::before {
+  opacity: 1;
+  transform: translate(-50%, -50%) translateX(0);
+}
+
+nav ul li:hover label, nav ul li > input[type='checkbox']:checked + label {
+  cursor: pointer;
+  opacity: 1;
+}
+
+.hidden { display: none; }
+
+nav .hidden {
+  padding-top: 2rem;
+  padding-left: 2rem;
+}
+
+
+.alert {
+  display: flex;
+  max-height: 25rem;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  max-width: 400px;
+  width: 400px;
+  flex-direction: column;
+  z-index: 3000;
+  animation: show-toast 1s ease; 
+}
+
+.alert h3 {
+  font-size: 1.35rem;
+  margin: 0;
+  line-height: 1.35rem;
+  font-weight: 300;
+}
+
+@keyframes show-toast {
+  0%, 50% { max-height: 0; opacity: 0; }
+  100% { max-height: 15rem; opacity: 1; }
+}
+
+.form-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(297px, 1fr));
+  grid-gap: 24px;
+  align-items: flex-end;
+}
+
+@media only screen and (max-width: 600px) {
+  .form-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-group {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-content: flex-start;
+  grid-template-rows: min-content;
+  grid-gap: 8px;
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  border: 1px solid #d2d6db;
+  border-radius: 6px;
+  font-size: 16px;
+  padding: 14px 16px;
+  background-color: #ffffff10;
+}
+
+.form-container .btn {
+  height: 53px;
+  background-color: white;
+}
