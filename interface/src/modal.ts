@@ -4,6 +4,9 @@ const handle_modal_interraction = () => {
   let active = false;
 
   const navbar = document.querySelector('nav');
+  if (!navbar)
+    return;
+
   const nav_els = navbar!.querySelectorAll('li');
   const btn = document.querySelector('.nav-btn');
   const btn_bg = btn!.querySelector('.nav-btn--bg');
@@ -17,9 +20,8 @@ const handle_modal_interraction = () => {
 
 
 
-  title_sections.forEach((s) => 
+  title_sections.forEach(s => 
     s.addEventListener('click', (e) => {
-      console.log(e.target);
       const cur = e.target as HTMLInputElement;
       if (cur.checked) {
         title_sections.forEach((ss) => (ss !== cur && (ss.checked = false)));
