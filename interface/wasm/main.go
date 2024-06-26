@@ -74,6 +74,7 @@ func getInformations(this js.Value, args []js.Value) interface{} {
       data := body[i]
       player := js.Global().Get("Object").New()
       player.Set("name", data.Nickname)
+      player.Set("color", int(data.Color))
       player.Set("health", int(data.Health))
       player.Set("pos", position(data.Pos))
       

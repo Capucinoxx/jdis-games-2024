@@ -8,6 +8,7 @@ type Projectile = {
 
 type PlayerData = {
   name: string;
+  color: number;
   health: number;
   pos: Position;
   dest: Position;

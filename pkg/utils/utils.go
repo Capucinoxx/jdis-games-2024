@@ -1,7 +1,8 @@
 package utils
 
 import (
-  "crypto/sha256"
+	"crypto/sha256"
+	"math"
 	"math/rand"
 )
 
@@ -19,62 +20,50 @@ func ToInt(b bool) int {
 }
 
 
-func hueToRGB(p, q, t float64) float64 {
-  if t < 0 {
-    t += 1
-  }
-  if t > 1 {
-    t -= 1
-  }
-  if t < 1/6 {
-    return p + (q - p) * 6 * t
-  }
-  if t < 1/2 {
-    return q
-  }
-  if t < 2/3 {
-    return p + (q - p) * (2/3 - t) * 6
-  }
-  return p
+func hashToColor(hash [32]byte) (int, int, int) {
+	r := int(hash[0])
+	g := int(hash[1])
+	b := int(hash[2])
+	return r, g, b
 }
 
 
-func HslToRGB(h, s, l float64) (int, int, int) {
-  var r, g, b float64
+func hslToRGB(h, s, l float64) (int, int, int) {
+  c := (1 - math.Abs(2*l-1)) * s
+	x := c * (1 - math.Abs(math.Mod(h/60.0, 2)-1))
+	m := l - c/2
 
-  if s == 0 {
-    r = l
-    g = l
-    b = l
-  } else {
-    var q float64
-    if l < 0.5 {
-      q = l * (1 + s)
-    } else {
-      q = l + s - l * s
-    }
-    p := 2 * l - q
-    r = hueToRGB(p, q, h + 1/3)
-    g = hueToRGB(p, q, h)
-    b = hueToRGB(p, q, h - 1/3)
-  }
+	var r, g, b float64
 
-  return int(r * 255), int(g * 255), int(b * 255)
+	if 0 <= h && h < 60 {
+		r, g, b = c, x, 0
+	} else if 60 <= h && h < 120 {
+		r, g, b = x, c, 0
+	} else if 120 <= h && h < 180 {
+		r, g, b = 0, c, x
+	} else if 180 <= h && h < 240 {
+		r, g, b = 0, x, c
+	} else if 240 <= h && h < 300 {
+		r, g, b = x, 0, c
+	} else if 300 <= h && h < 360 {
+		r, g, b = c, 0, x
+	}
+
+	return int((r + m) * 255), int((g + m) * 255), int((b + m) * 255)
 }
 
 
 func NameColor(name string) int32 {
-  hasher := sha256.New()
-  hasher.Write([]byte(name))
-  hash := hasher.Sum(nil)
+	hasher := sha256.New()
+	hasher.Write([]byte(name))
+	hash := hasher.Sum(nil)
 
-  var hashBytes [32]byte
-  copy(hashBytes[:], hash)
-  
-  hue := (int(hashBytes[0]) + (int(hashBytes[1]) * 0xff) + (int(hashBytes[2]) * 256 * 256)) % 360
-  s := 0.7
-  l := 0.5
+	var hashArray [32]byte
+	copy(hashArray[:], hash)
+	hue := (int(hashArray[0]) + int(hashArray[1])*256 + int(hashArray[2])*256*256) % 360
+	saturation := 0.7
+	lightness := 0.5
 
-  r, g, b := HslToRGB(float64(hue), s, l)
-  return int32(r << 16 + g << 8 + b)
+	r, g, b := hslToRGB(float64(hue), saturation, lightness)
+	return int32((r << 16) | (g << 8) | b)
 }
