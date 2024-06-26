@@ -49,18 +49,35 @@ func NullPoint() *Point {
 
 // Directions represents the possible movement directions in a 2D space.
 var Directions = []Point{
-	{X: 0, Y: -1}, // Up
-	{X: 1, Y: 0},  // Right
-	{X: 0, Y: 1},  // Down
-	{X: -1, Y: 0}, // Left
+	{-1, 0},
+  {1, 0},
+  {0, 1},
+  {0, -1},
 }
 
 var (
-	UP    = Directions[0]
-	RIGHT = Directions[1]
-	DOWN  = Directions[2]
-	LEFT  = Directions[3]
+	North = Directions[0]
+	South = Directions[1]
+	Est   = Directions[2]
+	West  = Directions[3]
 )
+
+var OppositeDirections = map[Point]Point{
+  North: South,
+  South: North,
+  Est: West,
+  West: Est,
+}
+
+func DirectionToIndex(p Point) int {
+  for i, d := range Directions {
+    if d.X == p.X && d.Y == p.Y {
+      return i
+    }
+  }
+
+  return -1
+}
 
 // DirectionTo returns a normalized vector pointing towards the destination from the
 // current point.

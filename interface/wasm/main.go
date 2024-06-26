@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+  "fmt"
 	"syscall/js"
 
 	imodel "github.com/capucinoxx/forlorn/internal/model"
@@ -42,7 +42,6 @@ func getInformations(this js.Value, args []js.Value) interface{} {
 		body := msg.Body.(imodel.Map)
 
 		discreteBoard := body.DiscreteMap()
-
 		board := js.Global().Get("Array").New()
 		for i := 0; i < body.Size(); i++ {
 			row := js.Global().Get("Array").New()

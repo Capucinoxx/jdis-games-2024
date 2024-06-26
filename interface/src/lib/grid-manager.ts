@@ -1,14 +1,6 @@
 import Phaser from 'phaser';
 import { CELL_WIDTH as TILE_WIDTH } from '../config';
 
-const TILE_COLORS = [
-  0x5D5D5D,
-  0x4C4C4C,
-  0x3C3C3C,
-  0x2E2E2E,
-  0x222222
-];
-
 const GRID_COLOR = 0x151515;
 const WALL_COLOR = 0x00ff00;
 
@@ -45,9 +37,8 @@ class GridManager {
     this.grid_graphics.clear();
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < cols; x++) {
-
-        const color = TILE_COLORS[this.grid_values[y][x]] || 0xff0000;
-        this.grid_graphics.fillStyle(color, 1.0);
+/**
+        this.grid_graphics.fillStyle(0x00a759, this.grid_values[y][x] * 0.05);
         this.grid_graphics.fillPoints([
           { x: x * TILE_WIDTH, y: y * TILE_WIDTH },
           { x: (x + 1) * TILE_WIDTH, y: y * TILE_WIDTH },
@@ -55,7 +46,9 @@ class GridManager {
           { x: x * TILE_WIDTH, y: (y + 1) * TILE_WIDTH },
           { x: x * TILE_WIDTH, y: y * TILE_WIDTH },
         ], true);
+        */
       }
+      
     }
   }
 
@@ -63,9 +56,7 @@ class GridManager {
     if (!this.walls)
       return;
 
-    console.log('walls', this.walls);
-
-    this.grid_graphics.lineStyle(1, 0x00ff00, 1);
+    this.grid_graphics.lineStyle(1, 0x050505, 1);
     this.walls.forEach((wall) => {
       if (wall.length != 2)
         return;
