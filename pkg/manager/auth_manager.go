@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/capucinoxx/forlorn/pkg/connector"
+	"github.com/capucinoxx/forlorn/pkg/utils"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -44,7 +45,7 @@ func (am *AuthManager) Register(username string) (string, error) {
 	}
 
 	token := am.uuid()
-	user := bson.M{"username": username, "token": token}
+  user := bson.M{"username": username, "token": token, "color": utils.NameColor(username)}
 
 	_, err := am.service.Insert(am.collection, user)
 	if err != nil {
