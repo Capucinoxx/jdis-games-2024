@@ -168,7 +168,7 @@ func (gm *GameManager) gameLoop() {
 	ticker := time.NewTicker(interval)
 	gm.nm.BroadcastGameStart(gm.state)
 
-  
+  count := 0 
 	for range ticker.C {
 		gm.tickStart = time.Now()
 		players := gm.state.Players()
@@ -179,11 +179,12 @@ func (gm *GameManager) gameLoop() {
 			gm.process(p, players, timestep)
 			// handle respawn
 		}
-    
-    
-    
-		gm.nm.BroadcastGameState(gm.state)
-
+     
+    if count == 10 {
+		  gm.nm.BroadcastGameState(gm.state)
+      count = 0
+    }
+    count++
 		if gm.rm.HasEnded() {
 			break
 		}
