@@ -1,228 +1,416 @@
 package model
 
 import (
-	"fmt"
+	"container/heap"
+	"math"
 	"math/rand"
 
 	"github.com/capucinoxx/forlorn/pkg/codec"
+	"github.com/capucinoxx/forlorn/pkg/config"
 	"github.com/capucinoxx/forlorn/pkg/model"
+	"github.com/capucinoxx/forlorn/pkg/utils"
 )
 
-const (
-	mapWidth  = 10
-	mapHeight = 10
-	cellSize  (float64)= 10.0
-)
-
-// Grid represents a 2D grid structure in a game environment.
-type Grid struct {
-	height, width int
-	cells         map[model.Point]map[model.Point]bool
+type point struct { 
+  x, y int 
 }
 
-// isInBounds returns true if the model.Point is within the grid's boundaries, otherwise false.
-func (g *Grid) isInBounds(pos *model.Point) bool {
-	return pos.X >= 0 && pos.X < float64(g.width) && pos.Y >= 0 && pos.Y < float64(g.height)
+var directions = []point{
+  {-1, 0},
+  {1, 0},
+  {0, 1},
+  {0, -1},
 }
 
-// wallCount returns the number of walls surrounding a given model.Point.
-func (g *Grid) wallCount(p model.Point) int {
-	if tile, ok := g.cells[p]; ok {
-		return len(tile)
-	}
-	return 0
+type cell struct {
+  n,s,e,w bool
 }
 
-// generateGrid creates and returns a new Grid of the specified dimensions.
-func generateGrid(width, height int) *Grid {
-	grid := &Grid{
-		height: height,
-		width:  width,
-		cells:  make(map[model.Point]map[model.Point]bool),
-	}
-
-	for y := 0; y < height; y++ {
-		for x := 0; x < width; x++ {
-			grid.cells[model.Point{X: float64(x), Y: float64(y)}] = make(map[model.Point]bool)
-		}
-	}
-
-	visited := make(map[model.Point]bool)
-
-	var dfs func(model.Point)
-	dfs = func(pos model.Point) {
-		visited[pos] = true
-
-		dirs := make([]model.Point, len(model.Directions))
-		copy(dirs, model.Directions)
-		rand.Shuffle(len(dirs), func(i, j int) {
-			dirs[i], dirs[j] = dirs[j], dirs[i]
-		})
-
-		for _, dir := range dirs {
-			v := dir.Add(&pos)
-			if grid.isInBounds(v) && !visited[*v] {
-				dfs(*v)
-				grid.cells[pos][dir] = true
-				grid.cells[*v][*dir.Reflect(model.NullPoint())] = true
-			}
-		}
-	}
-
-	dfs(model.Point{X: 0, Y: 0})
-	randomPos := model.Point{X: float64(rand.Intn(width)), Y: float64(rand.Intn(height))}
-	dfs(randomPos)
-
-	return grid
+func (c cell) isWall(pos int) bool {
+  switch pos {
+  case 0:
+    return c.n
+  case 1:
+    return c.s
+  case 2:
+    return c.e
+  case 3:
+    return c.w
 }
 
-// Map represents the game map containing colliders and spawn model.Points.
+  return false
+}
+
 type Map struct {
-	colliders  []*model.Collider
-	spawns     []*model.Point
-	cellSize   float64
-	tilesWalls [][]uint8
+  size int
+  grid [][]cell
+  discreteGrid [][]uint8
 
-	r *rand.Rand
+  spawns []*model.Point
+  walls []*model.Collider
 }
 
-// Colliders returns the list of colliders in the map.
+func NewMap() *Map {
+  grid := make([][]cell, config.MapWidth)
+  for i := range grid {
+    grid[i] = make([]cell, config.MapWidth)
+    for j := range grid[i] {
+      grid[i][j] = cell{true, true, true, true}
+    }
+  }
+
+  return &Map{config.CellWidth, grid, [][]uint8{}, []*model.Point{}, []*model.Collider{}}
+}
+
+func (m *Map) primGenerateMaze(start point) {
+  walls := [][5]int{}
+  visited := make(map[point]bool)
+  visited[start] = true
+
+  for i, dir := range directions {
+    dx, dy := dir.x, dir.y
+    walls = append(walls, [5]int{start.x + dx, start.y + dy, i, start.x, start.y})
+  }
+
+  for len(walls) > 0 {
+    idx := rand.Intn(len(walls))
+    wall := walls[idx]
+    walls = append(walls[:idx], walls[idx+1:]...)
+    nx, ny, direction, px, py := wall[0], wall[1], wall[2], wall[3], wall[4]
+
+    if nx >= 0 && nx < config.MapWidth && ny >= 0 && ny < config.MapWidth && !visited[point{nx, ny}] {
+      m.removeWall(point{px, py}, point{nx, ny}, direction)
+      visited[point{nx, ny}] = true
+
+      for i, dir := range directions {
+        dx, dy := dir.x, dir.y
+        walls = append(walls, [5]int{nx+dx, ny+dy, i, nx, ny})
+      }
+    }
+  }
+}
+
+func (m *Map) generateColliders() {
+  for i, row := range m.grid {
+    for j, c := range row {
+      if c.n {
+        m.walls = append(m.walls, &model.Collider{
+          Points: []*model.Point{
+            {X: float64(j*config.CellWidth), Y: float64(i*config.CellWidth)}, 
+            {X: float64((j+1)*config.CellWidth), Y: float64(i*config.CellWidth)},
+          },
+        })
+      }
+
+      if c.s {
+        m.walls = append(m.walls, &model.Collider{
+          Points: []*model.Point{
+            {X: float64(j*config.CellWidth), Y: float64((i+1)*config.CellWidth)}, 
+            {X: float64((j+1)*config.CellWidth), Y: float64((i+1)*config.CellWidth)},
+          },
+        })
+      }
+
+      if c.e {
+        m.walls = append(m.walls, &model.Collider{
+          Points: []*model.Point{
+            {X: float64((j+1)*config.CellWidth), Y: float64(i*config.CellWidth)}, 
+            {X: float64((j+1)*config.CellWidth), Y: float64((i+1)*config.CellWidth)},
+          },
+        })
+      }
+
+      if c.w {
+        m.walls = append(m.walls, &model.Collider{
+          Points: []*model.Point{
+            {X: float64(j*config.CellWidth), Y: float64(i*config.CellWidth)}, 
+            {X: float64(j*config.CellWidth), Y: float64((i+1)*config.CellWidth)},
+          },
+        })
+      }
+
+    }
+  }
+}
+
+
+func (m *Map) removeWall(p1, p2 point, direction int) {
+  utils.Log("walls", "remove", "%v %v %d", p1, p2, direction)
+  if direction == 0 {
+    m.grid[p1.x][p1.y].n = false
+    m.grid[p2.x][p2.y].s = false
+  } else if direction == 1 {
+    m.grid[p1.x][p1.y].s = false
+    m.grid[p2.x][p2.y].n = false
+  } else if direction == 2 {
+    m.grid[p1.x][p1.y].e = false
+    m.grid[p2.x][p2.y].w = false
+  } else if direction == 3 {
+    m.grid[p1.x][p1.y].w = false
+    m.grid[p2.x][p2.y].e = false
+  } else if direction == -1 {
+    m.grid[p1.x][p1.y].n = false
+    m.grid[p2.x][p2.y].s = false
+    m.grid[p1.x][p1.y].s = false
+    m.grid[p2.x][p2.y].n = false
+    m.grid[p1.x][p1.y].e = false
+    m.grid[p2.x][p2.y].w = false
+    m.grid[p1.x][p1.y].w = false
+    m.grid[p2.x][p2.y].e = false
+  }
+}
+
+
+func (m *Map) subdivise(n int) [][]cell {
+  nm := make([][]cell, config.MapWidth * n)
+  for i := range nm {
+    nm[i] = make([]cell, config.MapWidth * n)
+  }
+
+  for i, row := range m.grid {
+    for j, c := range row {
+      for k := 0; k < n; k++ {
+        for l := 0; l < n; l++ {
+          nm[i*n+k][j*n+l] = cell{
+            n: c.n && k == 0,
+            s: c.s && k == n-1,
+            e: c.e && l == n-1,
+            w: c.w && l == 0,
+          }
+        }
+      }
+    }
+  }
+
+  return nm
+}
+
+
+func (m *Map) countWallsInSubsquares(n int) {
+  m.discreteGrid = make([][]uint8, (config.MapWidth/n))
+  for i := 0; i < (config.MapWidth/n); i++ {
+    m.discreteGrid[i] = make([]uint8, (config.MapWidth/n))
+  }
+
+  for i := 0; i < config.MapWidth; i += n {
+    for j := 0; j < config.MapWidth; j += n {
+      count := uint8(0)
+      for k := i; k < n+i && k < config.MapWidth; k++ {
+        for l := j; l < n+j && l < config.MapWidth; l++ {
+          if m.grid[i][j].n {
+            count++
+          }
+          if m.grid[i][j].s {
+            count++
+          }
+          if m.grid[i][j].e {
+            count++
+          }
+          if m.grid[i][j].w {
+            count++
+          }
+        }
+      }
+      m.discreteGrid[i/n][j/n] = count
+    }
+  }
+}
+
+
+type item struct {
+  pos point
+  priority int
+  index int
+}
+
+type priorityQueue []*item
+
+func (pq priorityQueue) Len() int { return len(pq) }
+func (pq priorityQueue) Less(i, j int) bool { return pq[i].priority < pq[j].priority }
+func (pq priorityQueue) Swap(i, j int) {
+  pq[i], pq[j] = pq[j], pq[i]
+  pq[i].index = i
+  pq[j].index = j
+}
+
+func (pq *priorityQueue) Push(x interface{}) {
+  n := len(*pq)
+  item := x.(*item)
+  item.index = n
+  *pq = append(*pq, item)
+}
+
+func (pq *priorityQueue) Pop() interface{} {
+  old := *pq
+  n := len(old)
+  item := old[n-1]
+  item.index = -1
+  *pq = old[0:n-1]
+  return item
+}
+
+func (pq *priorityQueue) update(item *item, pos point, priority int) {
+  item.pos = pos
+  item.priority = priority
+  heap.Fix(pq, item.index)
+}
+
+func (m *Map) dijkstra(start point, grid [][]cell) [][]int {
+  height := len(grid)
+  width := len(grid[0])
+
+  dist := make([][]int, height)
+  for i := range dist {
+    dist[i] = make([]int, width)
+    for j := range dist[i] {
+      dist[i][j] = math.MaxInt32
+    }
+  }
+
+  dist[start.x][start.y] = 0
+
+  pq := make(priorityQueue, 0)
+  heap.Init(&pq)
+  heap.Push(&pq, &item{start, 0, 0})
+
+  for pq.Len() > 0 {
+    curr := heap.Pop(&pq).(*item)
+    pos := curr.pos
+    currentDist := curr.priority
+
+    if currentDist > dist[pos.x][pos.y] {
+      continue
+    }
+
+    for i, dir := range directions {
+      newPos := point{pos.x + dir.x, pos.y + dir.y}
+
+      if newPos.x < 0 || newPos.x >= height || newPos.y < 0 || newPos.y >= width {
+        continue
+      }
+
+      if !grid[pos.x][pos.y].isWall(i) {
+        newDist := currentDist + 1
+        if newDist < dist[newPos.x][newPos.y] {
+          dist[newPos.x][newPos.y] = newDist
+          heap.Push(&pq, &item{newPos, newDist, 0})
+        }
+      }
+    }
+  }
+
+  return dist
+}
+
+func (m *Map) getSpawnPoints(distances [][]int, min int) {
+  points := map[int][]*model.Point{}
+
+  for i, row := range distances {
+    for j, dist := range row {
+      if _, ok := points[dist]; !ok {
+        points[dist] = []*model.Point{}
+      }
+
+      points[dist] = append(points[dist], &model.Point{
+        X: float64(j*config.SubsquareWidth),
+        Y: float64(i*config.SubsquareWidth),
+      })
+    }
+  }
+
+  max := -1
+  for dist, pts := range points {
+    if dist > max && len(pts) > min {
+      max = dist
+    }
+  }
+
+  m.spawns = points[max]
+}
+
+func (m *Map) Setup() {
+  spawns := 0
+  m.size = config.MapWidth
+
+  for spawns < 40 {
+    start := point{rand.Intn(m.size), rand.Intn(m.size)}
+    m.primGenerateMaze(start)
+    m.generateColliders()
+    
+    m.countWallsInSubsquares(2)
+
+    
+    distances := m.dijkstra(point{x: start.x*10, y: start.y*10}, m.subdivise(10))
+    m.getSpawnPoints(distances, 40)
+    spawns = len(m.spawns)
+  }
+}
+
 func (m *Map) Colliders() []*model.Collider {
-	return m.colliders
+  return m.walls
 }
 
-// Spawns returns the list of spawn model.Points in the map.
 func (m *Map) Spawns() []*model.Point {
-	return m.spawns
+  return m.spawns
 }
 
 func (m *Map) Size() int {
-	return mapWidth
+  return m.size
 }
 
 func (m *Map) DiscreteMap() [][]uint8 {
-	return m.tilesWalls
+  return m.discreteGrid
 }
 
-// Setup initializes the map by setting up the grid and generating spawns.
-func (m *Map) Setup() {
-	m.cellSize = cellSize
-	m.r = rand.New(rand.NewSource(int64(rand.Uint64())))
+func (m *Map) Encode(w codec.Writer) error {
+  w.WriteInt8(int8(len(m.discreteGrid)))
+  
 
-	grid := generateGrid(mapWidth, mapHeight)
-	m.populate(grid)
-	m.generateSpawns(grid)
-}
-
-// populate fills the map with colliders using the specified grid.
-func (m *Map) populate(grid *Grid) {
-	m.colliders = []*model.Collider{
-		{Points: []*model.Point{{X: 0, Y: 0}, {X: 0, Y: float64(grid.height) * m.cellSize}}},
-		{Points: []*model.Point{{X: 0, Y: 0}, {X: float64(grid.width) * m.cellSize, Y: 0}}},
-		{Points: []*model.Point{{X: float64(grid.width) * m.cellSize, Y: 0}, {X: float64(grid.width) * m.cellSize, Y: float64(grid.height) * m.cellSize}}},
-		{Points: []*model.Point{{X: 0, Y: float64(grid.height) * m.cellSize}, {X: float64(grid.width) * m.cellSize, Y: float64(grid.height) * m.cellSize}}},
-	}
-
-	for y := 0; y < grid.height; y++ {
-		for x := 0; x < grid.width; x++ {
-			cell := grid.cells[model.Point{X: float64(x), Y: float64(y)}]
-			x1, y1 := float64(x)*m.cellSize, float64(y)*m.cellSize
-			x2, y2 := x1+m.cellSize, y1+m.cellSize
-
-			if _, exist := cell[model.RIGHT]; exist {
-				m.colliders = append(m.colliders, &model.Collider{
-					Points: []*model.Point{{X: x2, Y: y1}, {X: x2, Y: y2}},
-				})
-			}
-
-			if _, exist := cell[model.DOWN]; exist {
-				m.colliders = append(m.colliders, &model.Collider{
-					Points: []*model.Point{{X: x1, Y: y2}, {X: x2, Y: y2}},
-				})
-			}
-		}
-	}
-}
-
-// generateSpawns generates spawn model.Points for the map based on the grid.
-func (m *Map) generateSpawns(grid *Grid) {
-	m.tilesWalls = make([][]uint8, mapHeight)
-
-	const (
-		minValue  = 0.1
-		maxValue  = 0.9
-		diffValue = maxValue - minValue
-	)
-
-	for i := 0; i < mapHeight; i++ {
-		m.tilesWalls[i] = make([]uint8, mapWidth)
-		for j := 0; j < mapWidth; j++ {
-			wallCount := grid.wallCount(model.Point{X: float64(i), Y: float64(j)})
-			m.tilesWalls[i][j] = uint8(wallCount)
-
-			if wallCount != 4 {
-				for k := 0; k < 3; k++ {
-					m.spawns = append(m.spawns, &model.Point{
-						X: float64(j) + (minValue+m.r.Float64()*diffValue)*m.cellSize,
-						Y: float64(i) + (minValue+m.r.Float64()*diffValue)*m.cellSize,
-					})
-				}
-			}
-		}
-	}
-
-  rand.Shuffle(len(m.spawns), func(i, j int) { m.spawns[i], m.spawns[j] = m.spawns[j], m.spawns[i] })
-}
-
-func (m *Map) Encode(w *codec.ByteWriter) error {
-	w.WriteInt8(mapWidth)
-
-	for i := 0; i < mapWidth; i++ {
-		for j := 0; j < mapWidth; j++ {
-			w.WriteInt8(int8(m.tilesWalls[i][j]))
-		}
-	}
-
-  w.WriteInt32(int32(len(m.Colliders())))
-
-  for _, collider := range m.colliders {
-    collider.Encode(w)
+  for _, row := range m.discreteGrid {
+    for _, cell := range row {
+      w.WriteUint8(cell)
+    }
   }
 
-	return nil
+  w.WriteInt32(int32(len(m.walls)))
+
+  for _, wall := range m.walls {
+    wall.Encode(w)
+  }
+
+  return nil
 }
 
-func (m *Map) Decode(r *codec.ByteReader) error {
-	width, err := r.ReadInt8()
-	if err != nil {
-		return err
-	}
+func (m *Map) Decode(r codec.Reader) error {
+  size, err := r.ReadInt8()
+  if err != nil {
+    return err
+  }
+  m.size = int(size)
 
-	m.tilesWalls = make([][]uint8, width)
+  m.discreteGrid = make([][]uint8, m.size)
+  for i := 0; i < m.size; i++ {
+    m.discreteGrid[i] = make([]uint8, m.size)
+    for j := 0; j < m.size; j++ {
+      m.discreteGrid[i][j], err = r.ReadUint8()
+      if err != nil {
+        return err
+      }
+    }
+  }
 
-	for i := 0; i < int(width); i++ {
-		m.tilesWalls[i] = make([]uint8, width)
-		for j := 0; j < int(width); j++ {
-			m.tilesWalls[i][j], err = r.ReadUint8()
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-  collidersLen, err := r.ReadInt32()
-  fmt.Println(collidersLen)
+  wallsLen, err := r.ReadInt32()
   if err != nil {
     return err
   }
 
-  m.colliders = make([]*model.Collider, collidersLen)
-  for i := 0; i < int(collidersLen); i++ {
-    m.colliders[i] = &model.Collider{}
-    if err = m.colliders[i].Decode(r); err != nil {
+  m.walls = make([]*model.Collider, wallsLen)
+  for i := 0; i < int(wallsLen); i++ {
+    m.walls[i] = &model.Collider{}
+    if err = m.walls[i].Decode(r); err != nil { 
       return err
     }
   }
 
-	return nil
-}
+  return nil
+} 

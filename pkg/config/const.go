@@ -2,6 +2,21 @@ package config
 
 
 const (
+  // --- MAP CONSTANTS
+  // ================================
+  
+  // MapWidth defines CELLS in x and y.
+  MapWidth = 10
+
+  // CellWidth defines width of cell
+  CellWidth = 10
+
+  SubsquareRatio = 1/9
+
+  // SubsquareWidth defines width of sub square
+  SubsquareWidth  = CellWidth * SubsquareRatio
+
+
   // --- PLAYER CONSTANTS
   // ================================
 

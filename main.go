@@ -43,7 +43,7 @@ func main() {
 	am := manager.NewAuthManager(mongo)
 	nm := manager.NewNetworkManager(transport, protocol.NewBinaryProtocol())
   rm := iManager.NewRoundManager()
-	gm := manager.NewGameManager(am, nm, rm, &iModel.Map{})
+	gm := manager.NewGameManager(am, nm, rm, iModel.NewMap())
 
   rm.AddChangeStageHandler(0, &iManager.DiscoveryStage{})
   rm.AddChangeStageHandler(iManager.TicksPointRushStage, &iManager.PointRushStage{})
