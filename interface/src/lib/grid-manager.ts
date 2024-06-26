@@ -27,7 +27,6 @@ class GridManager {
 
 
   private draw_grid(): void {
-    console.error('draw_grid', this.grid_values);
     if (!this.grid_values)
       return;
 
@@ -54,11 +53,8 @@ class GridManager {
   }
 
   private draw_walls() {
-    console.error('draw_walls', this.walls);
     if (!this.walls)
       return;
-
-    console.log('walls', this.walls);
 
     this.grid_graphics.lineStyle(1, 0x050505, 1);
     this.walls.forEach((wall) => {
