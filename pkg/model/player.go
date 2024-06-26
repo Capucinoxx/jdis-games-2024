@@ -49,6 +49,7 @@ type Controls struct {
 type Player struct {
 	Token            string
 	Nickname         string
+  Color int
 	Health           atomic.Int32
 	Score            float64
 	respawnCountdown float64
@@ -59,9 +60,10 @@ type Player struct {
 }
 
 // NewPlayer creates a new player with an initial position and a network connection.
-func NewPlayer(name string, x float64, y float64, conn Connection) *Player {
+func NewPlayer(name string, color int, x float64, y float64, conn Connection) *Player {
 	p := &Player{
 	  Nickname: name,
+    Color: color,
 		Collider: NewRectCollider(x, y, config.PlayerSize),
 		Health:   atomic.Int32{},
 		Client: &Client{
@@ -201,6 +203,7 @@ func (p *Player) applyMovement() {
 
 type PlayerInfo struct {
   Nickname string
+  Color int32
   Health int32
   Pos Point
   Dest *Point
@@ -213,6 +216,10 @@ type PlayerInfo struct {
 
 func (p *Player) Encode(w codec.Writer) (err error) {
   if err = w.WriteString(p.Nickname); err != nil {
+    return
+  }
+
+  if err = w.WriteInt32(int32(p.Color)); err != nil {
     return
   }
 
@@ -263,6 +270,11 @@ func (p *PlayerInfo) Decode(r codec.Reader) (err error) {
   if p.Nickname, err = r.ReadString(); err != nil {
     return
   }
+
+  if p.Color, err = r.ReadInt32(); err != nil {
+    return
+  }
+  
 
   if p.Health, err = r.ReadInt32(); err != nil {
     return

@@ -66,13 +66,13 @@ func (gm *GameManager) RegisterSpectator(conn model.Connection) {
 
 // RegisterPlayer ajoute un joueur à l'état du jeu et à la liste des clients.
 func (gm *GameManager) RegisterPlayer(conn model.Connection) error {
-  username, ok := gm.am.Authenticate(conn.Identifier())
+  username, color, ok := gm.am.Authenticate(conn.Identifier())
   if !ok {
     return fmt.Errorf("Unknown token")
   }
 
   spawn := gm.state.GetSpawnPoint()
-	player := model.NewPlayer(username, spawn.X, spawn.Y, conn)
+	player := model.NewPlayer(username, color, spawn.X, spawn.Y, conn)
   
 	gm.nm.Register(player.Client)
 	gm.state.AddPlayer(player)
@@ -139,11 +139,12 @@ func (gm *GameManager) process(p *model.Player, players []*model.Player, timeste
 			// pour s'authentifier. Si le jeton d'authentification est valide, le joueur
 			// est autorisé à rejoindre la partie. Sinon, le joueur est déconnecté.
 			tkn := message.Body.(string)
-      if user, ok := gm.am.Authenticate(tkn); !ok {
+      if user, color, ok := gm.am.Authenticate(tkn); !ok {
 				gm.nm.ForceDisconnect(p.Client.Connection)
 				continue
 			} else {
         p.Nickname = user
+        p.Color = color
       }
 
 		case model.Action:

@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/capucinoxx/forlorn/pkg/connector"
+	"github.com/capucinoxx/forlorn/pkg/utils"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -11,6 +12,12 @@ import (
 type TokenInfo struct {
   Token string `bson:"token"`
   Username string `bson:"username"`
+  Color int `bson:"color"`
+}
+
+type UserInfo struct {
+  Username string `bson:"username"`
+  Color int `bson:"color"`
 }
 
 // Auth est une interface pour l'authentification des utilisateurs.
@@ -44,7 +51,7 @@ func (am *AuthManager) Register(username string) (string, error) {
 	}
 
 	token := am.uuid()
-	user := bson.M{"username": username, "token": token}
+  user := bson.M{"username": username, "token": token, "color": utils.NameColor(username)}
 
 	_, err := am.service.Insert(am.collection, user)
 	if err != nil {
@@ -55,19 +62,19 @@ func (am *AuthManager) Register(username string) (string, error) {
 }
 
 // Authenticate retourne vrai si le jeton d'authentification existe. Sinon, retourne faux.
-func (am *AuthManager) Authenticate(token string) (string, bool) {
+func (am *AuthManager) Authenticate(token string) (string, int, bool) {
 	filter := bson.M{"token": token}
 	v, err := am.service.FindOne(am.collection, filter)
   if v == nil || err != nil {
-    return "", false
+    return "", 0, false
   }
  
   var result TokenInfo
   if err = v.Decode(&result); err != nil {
-    return "", false
+    return "", 0, false
   }
 
-  return result.Username, true
+  return result.Username, result.Color, true
 }
 
 // uuid génère un nouvel identifiant unique universel.
@@ -76,15 +83,16 @@ func (am *AuthManager) uuid() string {
 }
 
 // Users retourne une liste de tous les utilisateurs enregistrés.
-func (am *AuthManager) Users() ([]string, error) {
-	bsonUsers, err := am.service.FindKeep(am.collection, bson.M{}, &bson.M{"username": 1})
+func (am *AuthManager) Users() ([]UserInfo, error) {
+  bsonUsers, err := am.service.FindKeep(am.collection, bson.M{}, &bson.M{"username": 1, "color": 1})
 	if err != nil {
-		return []string{}, err
+		return []UserInfo{}, err
 	}
 
-	users := make([]string, len(bsonUsers))
+
+	users := make([]UserInfo, len(bsonUsers))
 	for i, user := range bsonUsers {
-		users[i] = user["username"].(string)
+    users[i] = UserInfo{Username: user["username"].(string), Color: user["color"].(int)}
 	}
 
 	return users, nil
