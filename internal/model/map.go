@@ -8,7 +8,6 @@ import (
 	"github.com/capucinoxx/forlorn/pkg/codec"
 	"github.com/capucinoxx/forlorn/pkg/config"
 	"github.com/capucinoxx/forlorn/pkg/model"
-	"github.com/capucinoxx/forlorn/pkg/utils"
 )
 
 type point struct { 
@@ -41,6 +40,7 @@ func (c cell) isWall(pos int) bool {
   return false
 }
 
+
 type Map struct {
   size int
   grid [][]cell
@@ -50,17 +50,6 @@ type Map struct {
   walls []*model.Collider
 }
 
-func NewMap() *Map {
-  grid := make([][]cell, config.MapWidth)
-  for i := range grid {
-    grid[i] = make([]cell, config.MapWidth)
-    for j := range grid[i] {
-      grid[i][j] = cell{true, true, true, true}
-    }
-  }
-
-  return &Map{config.CellWidth, grid, [][]uint8{}, []*model.Point{}, []*model.Collider{}}
-}
 
 func (m *Map) primGenerateMaze(start point) {
   walls := [][5]int{}
@@ -90,7 +79,9 @@ func (m *Map) primGenerateMaze(start point) {
   }
 }
 
+
 func (m *Map) generateColliders() {
+  m.walls = []*model.Collider{}
   for i, row := range m.grid {
     for j, c := range row {
       if c.n {
@@ -135,7 +126,6 @@ func (m *Map) generateColliders() {
 
 
 func (m *Map) removeWall(p1, p2 point, direction int) {
-  utils.Log("walls", "remove", "%v %v %d", p1, p2, direction)
   if direction == 0 {
     m.grid[p1.x][p1.y].n = false
     m.grid[p2.x][p2.y].s = false
@@ -197,16 +187,16 @@ func (m *Map) countWallsInSubsquares(n int) {
       count := uint8(0)
       for k := i; k < n+i && k < config.MapWidth; k++ {
         for l := j; l < n+j && l < config.MapWidth; l++ {
-          if m.grid[i][j].n {
+          if m.grid[k][l].n && k == i {
             count++
           }
-          if m.grid[i][j].s {
+          if m.grid[k][l].s {
             count++
           }
-          if m.grid[i][j].e {
+          if m.grid[k][l].e {
             count++
           }
-          if m.grid[i][j].w {
+          if m.grid[k][l].w && l == j {
             count++
           }
         }
@@ -223,15 +213,26 @@ type item struct {
   index int
 }
 
+
 type priorityQueue []*item
 
-func (pq priorityQueue) Len() int { return len(pq) }
-func (pq priorityQueue) Less(i, j int) bool { return pq[i].priority < pq[j].priority }
+
+func (pq priorityQueue) Len() int {
+  return len(pq)
+}
+
+
+func (pq priorityQueue) Less(i, j int) bool {
+  return pq[i].priority < pq[j].priority
+}
+
+
 func (pq priorityQueue) Swap(i, j int) {
   pq[i], pq[j] = pq[j], pq[i]
   pq[i].index = i
   pq[j].index = j
 }
+
 
 func (pq *priorityQueue) Push(x interface{}) {
   n := len(*pq)
@@ -239,6 +240,7 @@ func (pq *priorityQueue) Push(x interface{}) {
   item.index = n
   *pq = append(*pq, item)
 }
+
 
 func (pq *priorityQueue) Pop() interface{} {
   old := *pq
@@ -248,6 +250,7 @@ func (pq *priorityQueue) Pop() interface{} {
   *pq = old[0:n-1]
   return item
 }
+
 
 func (pq *priorityQueue) update(item *item, pos point, priority int) {
   item.pos = pos
@@ -302,6 +305,7 @@ func (m *Map) dijkstra(start point, grid [][]cell) [][]int {
   return dist
 }
 
+
 func (m *Map) getSpawnPoints(distances [][]int, min int) {
   points := map[int][]*model.Point{}
 
@@ -328,39 +332,54 @@ func (m *Map) getSpawnPoints(distances [][]int, min int) {
   m.spawns = points[max]
 }
 
+
 func (m *Map) Setup() {
   spawns := 0
   m.size = config.MapWidth
 
   for spawns < 40 {
+    grid := make([][]cell, config.MapWidth)
+    for i := range grid {
+      grid[i] = make([]cell, config.MapWidth)
+      for j := range grid[i] {
+        grid[i][j] = cell{true, true, true, true}
+      }
+    }
+    m.grid = grid
+
     start := point{rand.Intn(m.size), rand.Intn(m.size)}
     m.primGenerateMaze(start)
     m.generateColliders()
-    
+
     m.countWallsInSubsquares(2)
 
-    
+
     distances := m.dijkstra(point{x: start.x*10, y: start.y*10}, m.subdivise(10))
     m.getSpawnPoints(distances, 40)
     spawns = len(m.spawns)
   }
 }
 
+
 func (m *Map) Colliders() []*model.Collider {
   return m.walls
 }
+
 
 func (m *Map) Spawns() []*model.Point {
   return m.spawns
 }
 
+
 func (m *Map) Size() int {
   return m.size
 }
 
+
 func (m *Map) DiscreteMap() [][]uint8 {
   return m.discreteGrid
 }
+
 
 func (m *Map) Encode(w codec.Writer) error {
   w.WriteInt8(int8(len(m.discreteGrid)))
@@ -380,6 +399,7 @@ func (m *Map) Encode(w codec.Writer) error {
 
   return nil
 }
+
 
 func (m *Map) Decode(r codec.Reader) error {
   size, err := r.ReadInt8()
