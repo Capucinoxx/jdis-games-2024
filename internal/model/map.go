@@ -8,6 +8,7 @@ import (
 	"github.com/capucinoxx/forlorn/pkg/codec"
 	"github.com/capucinoxx/forlorn/pkg/config"
 	"github.com/capucinoxx/forlorn/pkg/model"
+	"github.com/capucinoxx/forlorn/pkg/utils"
 )
 
 type point struct { 
@@ -46,7 +47,7 @@ type Map struct {
   grid [][]cell
   discreteGrid [][]uint8
 
-  spawns []*model.Point
+  spawns [2][]*model.Point
   walls []*model.Collider
 }
 
@@ -308,6 +309,7 @@ func (m *Map) dijkstra(start point, grid [][]cell) [][]int {
 
 func (m *Map) getSpawnPoints(distances [][]int, min int) {
   points := map[int][]*model.Point{}
+  m.spawns[0] = []*model.Point{}
 
   for i, row := range distances {
     for j, dist := range row {
@@ -315,9 +317,17 @@ func (m *Map) getSpawnPoints(distances [][]int, min int) {
         points[dist] = []*model.Point{}
       }
 
+      if i > 0 && j > 0 && i < len(distances)-1 && j < len(row)-1 {
+        utils.Log("tt", "tt", "%d  %d  %f", i, j, config.SubsquareWidth)
+        m.spawns[0] = append(m.spawns[0], &model.Point{
+          X: float64(j)*config.SubsquareWidth,
+          Y: float64(i)*config.SubsquareWidth,
+        })
+      }
+
       points[dist] = append(points[dist], &model.Point{
-        X: float64(j*config.SubsquareWidth),
-        Y: float64(i*config.SubsquareWidth),
+        X: float64(j)*config.SubsquareWidth,
+        Y: float64(i)*config.SubsquareWidth,
       })
     }
   }
@@ -329,7 +339,7 @@ func (m *Map) getSpawnPoints(distances [][]int, min int) {
     }
   }
 
-  m.spawns = points[max]
+  m.spawns[1] = points[max]
 }
 
 
@@ -356,7 +366,7 @@ func (m *Map) Setup() {
 
     distances := m.dijkstra(point{x: start.x*10, y: start.y*10}, m.subdivise(10))
     m.getSpawnPoints(distances, 40)
-    spawns = len(m.spawns)
+    spawns = len(m.spawns[1])
   }
 }
 
@@ -366,8 +376,8 @@ func (m *Map) Colliders() []*model.Collider {
 }
 
 
-func (m *Map) Spawns() []*model.Point {
-  return m.spawns
+func (m *Map) Spawns(phase int) []*model.Point {
+  return m.spawns[phase]
 }
 
 

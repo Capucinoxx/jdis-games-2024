@@ -45,6 +45,7 @@ func main() {
   rm := iManager.NewRoundManager()
 	gm := manager.NewGameManager(am, nm, rm, &iModel.Map{})
 
+
   rm.AddChangeStageHandler(0, &iManager.DiscoveryStage{})
   rm.AddChangeStageHandler(iManager.TicksPointRushStage, &iManager.PointRushStage{})
 

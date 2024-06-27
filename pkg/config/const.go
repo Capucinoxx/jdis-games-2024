@@ -14,10 +14,10 @@ const (
   // CellWidth defines width of cell
   CellWidth = 10
 
-  SubsquareRatio = 1/9
+  SubsquareRatio (float64) = 1.0/9.0
 
   // SubsquareWidth defines width of sub square
-  SubsquareWidth  = CellWidth * SubsquareRatio
+  SubsquareWidth (float64) = 10.0 * SubsquareRatio
 
 
   // --- PLAYER CONSTANTS

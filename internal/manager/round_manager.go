@@ -1,9 +1,10 @@
 package manager
 
 import (
+  "math/rand"
+  "time"
   "github.com/capucinoxx/forlorn/pkg/model"
 	"github.com/capucinoxx/forlorn/pkg/utils"
-  "github.com/capucinoxx/forlorn/pkg/manager"
 )
 
 type Stage uint8
@@ -22,23 +23,27 @@ const (
 
 
 type StageHandler interface {
-  ChangeStage()
+  ChangeStage(state *model.GameState)
 }
 
 
 type RoundManager struct {
 	ticks int
-  spawns manager.SpawnManager
+  state *model.GameState
   handlers map[int]StageHandler
-  spawnsHandler map[int]manager.SpawnManager
 }
 
 
 func NewRoundManager() *RoundManager {
   return &RoundManager{
     ticks: 0,
+    state: nil,
     handlers: make(map[int]StageHandler),
   }
+}
+
+func (r *RoundManager) SetState(state *model.GameState) {
+  r.state = state
 }
 
 
@@ -46,11 +51,7 @@ func (r *RoundManager) Restart() {
 	r.ticks = 0
   
   if handler, ok := r.handlers[r.ticks]; ok {
-    handler.ChangeStage() 
-  }
-
-  if handler, ok := r.spawnsHandler[r.ticks]; ok {
-    r.spawns = handler
+    handler.ChangeStage(r.state) 
   }
 }
 
@@ -59,25 +60,13 @@ func (r *RoundManager) Tick() {
 	r.ticks++
 
   if handler, ok := r.handlers[r.ticks]; ok {
-    handler.ChangeStage()
+    handler.ChangeStage(r.state)
   }
-
-  if handler, ok := r.spawnsHandler[r.ticks]; ok {
-    r.spawns = handler
-  }
-}
-
-func (r *RoundManager) Spawn() *model.Point {
-  return r.spawns.Spawn()
 }
 
 
 func (r *RoundManager) AddChangeStageHandler(tick int, cb StageHandler) {
   r.handlers[tick] = cb
-}
-
-func (r *RoundManager) SetChangeSpawnHandler(tick int, spawnManager manager.SpawnManager) {
-  r.spawns = spawnManager
 }
 
 
@@ -87,7 +76,10 @@ func (r *RoundManager) HasEnded() bool {
 
 
 type DiscoveryStage struct {}
-func (s DiscoveryStage) ChangeStage() {
+func (s DiscoveryStage) ChangeStage(state *model.GameState) {
+  spawns := state.Map.Spawns(0)
+  utils.Shuffle(rand.New(rand.NewSource(time.Now().UnixNano())), spawns)
+  state.SetSpawns(spawns)
   utils.Log("game", "stage", "Set DiscoveryStage")
 }
 
@@ -96,6 +88,7 @@ func (s DiscoveryStage) ChangeStage() {
 // TODO: effacer toute les pièces
 // TODO: ajouter pièces au milieu
 type PointRushStage struct {}
-func (s PointRushStage) ChangeStage() {
+func (s PointRushStage) ChangeStage(state *model.GameState) {
+  state.SetSpawns(state.Map.Spawns(1))
   utils.Log("game", "stage", "Set PointRushStage")
 }
