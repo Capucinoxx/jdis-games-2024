@@ -12,6 +12,13 @@ func Shuffle[S ~[]E, E any](r *rand.Rand, s S) {
   })
 }
 
+
+func Round(f float64, decimals int) float64 {
+  pow := math.Pow(10, float64(decimals))
+  return math.Round(f * pow) / pow
+}
+
+
 func ToInt(b bool) int {
   if b {
     return 1
