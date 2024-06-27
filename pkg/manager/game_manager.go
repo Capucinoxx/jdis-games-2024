@@ -14,6 +14,7 @@ const tickrate = 30
 type RoundManager interface {
 	Restart()
 	Tick()
+  SetState(*model.GameState)
 	HasEnded() bool
 }
 
@@ -32,8 +33,11 @@ type GameManager struct {
 // NewGameManager crée un nouveau gestionnaire de jeu avec le serveur de jeu et
 // le gestionnaire de réseau spécifiés.
 func NewGameManager(am *AuthManager, nm *NetworkManager, rm RoundManager, m model.Map) *GameManager {
+  state := model.NewGameState(m)
+  rm.SetState(state)
+
 	return &GameManager{
-		state: model.NewGameState(m),
+		state: state,
 		am:    am,
 		nm:    nm,
 		rm:    rm,
@@ -112,6 +116,8 @@ func (gm *GameManager) Init() error {
 // démarre la boucle de jeu.
 func (gm *GameManager) Start() {
 	gm.state.Start()
+
+  gm.rm.Restart()
 	go gm.gameLoop()
 }
 

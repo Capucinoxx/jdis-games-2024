@@ -4,41 +4,47 @@ import (
 	"sync"
 	"time"
 
+	"github.com/capucinoxx/forlorn/pkg/utils"
 )
-
-const gameLength = 10
 
 // GameState représente l'état actuel du jeu.
 type GameState struct {
 	startTime    time.Time
-	length       time.Duration
 	inProgress   bool
 	lastPlayerID int64
 	playerCount  int
 	players      map[string]*Player
 	Map          Map
-  lastSpawnIdx int
+  spawns      []*Point
+  spawnIndex  int
 	mu           *sync.RWMutex
 }
 
 // NewGameState crée un nouvel état de jeu.
 func NewGameState(m Map) *GameState {
-	return &GameState{
-		length:       gameLength * time.Minute,
-		inProgress:   false,
-		lastPlayerID: 0,
-		playerCount:  0,
-		players:      make(map[string]*Player),
-		Map:          m,
-    lastSpawnIdx: 0,
-		mu:           &sync.RWMutex{},
-	}
+  return &GameState{
+    spawns:       []*Point{},
+    spawnIndex:   0,
+    inProgress:   false,
+    lastPlayerID: 0,
+    playerCount:  0,
+    players:      make(map[string]*Player),
+    Map:          m,
+    mu:           &sync.RWMutex{},
+  }
 }
 
 func (gs *GameState) GetSpawnPoint() *Point {
-  spawn := gs.Map.Spawns()[gs.lastSpawnIdx]
-  gs.lastSpawnIdx = (gs.lastSpawnIdx + 1) % len(gs.Map.Spawns())
+  
+  spawn := gs.spawns[gs.spawnIndex]
+  utils.Log("SPAWN", "SPWAN", "%d => %v", len(gs.spawns), gs.spawns)
+  gs.spawnIndex = (gs.spawnIndex + 1) % len(gs.spawns)
   return spawn
+}
+
+func (gs *GameState) SetSpawns(spawns []*Point) {
+  gs.spawnIndex = 0
+  gs.spawns = spawns
 }
 
 // InProgess retourne vrai si le jeu est en cours.
@@ -100,9 +106,15 @@ func (gs *GameState) RemovePlayer(p *Player) int {
 func (gs *GameState) Start() {
 	gs.Map.Setup()
 
-	// players := gs.Players()
+  players := gs.Players()
+  for _, p := range players {
+    p.Health.Store(100)
+    p.Score = 0
 
-	// TODO: initialize player informations (health, score, position)
+    spawn := gs.GetSpawnPoint()
+    p.Collider.ChangePosition(spawn.X, spawn.Y)
+  }
+
 
 	gs.startTime = time.Now()
 

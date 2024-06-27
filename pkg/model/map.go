@@ -217,7 +217,7 @@ func (c *Collider) polygon() Polygon {
 type Map interface {
 	Setup()
 	Colliders() []*Collider
-	Spawns() []*Point
+	Spawns(int) []*Point
 	Size() int
 	DiscreteMap() [][]uint8
 }

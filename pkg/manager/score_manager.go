@@ -88,4 +88,3 @@ func (sm *ScoreManager) Rank() (PlayerScores, error) {
 
   return players, err  
 }
-

@@ -2,6 +2,9 @@ package config
 
 
 const (
+  TicksPerRound = 5 * 60 * 3
+  TicksPointRushStage = 4 * 60 * 3
+
   // --- MAP CONSTANTS
   // ================================
   
@@ -11,10 +14,10 @@ const (
   // CellWidth defines width of cell
   CellWidth = 10
 
-  SubsquareRatio = 1/9
+  SubsquareRatio (float64) = 1.0/9.0
 
   // SubsquareWidth defines width of sub square
-  SubsquareWidth  = CellWidth * SubsquareRatio
+  SubsquareWidth (float64) = 10.0 * SubsquareRatio
 
 
   // --- PLAYER CONSTANTS
@@ -28,6 +31,8 @@ const (
 
   // PlayerSpeed defines the distance travelled per tick.
   PlayerSpeed = 1.15
+
+  RespawnTime = 3 * 60 
 
 
   // --- PORJECTILE CONSTANTS

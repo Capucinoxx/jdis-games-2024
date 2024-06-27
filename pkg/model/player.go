@@ -191,6 +191,17 @@ func (p *Player) updateVelocity(dt float32, hasCollision bool) {
 }
 
 
+func (p *Player) HandleRespawn(game *GameState) {
+  if !p.IsAlive() && p.respawnCountdown > config.RespawnTime {
+    spawn := game.GetSpawnPoint()
+    p.Health.Store(config.PlayerHealth)
+    p.respawnCountdown = 0
+
+    p.Collider.ChangePosition(spawn.X, spawn.Y)
+  }
+}
+
+
 // applyMovement applies the movement to the player based on their current direction and velocity.
 func (p *Player) applyMovement() {
 	r := p.Collider
