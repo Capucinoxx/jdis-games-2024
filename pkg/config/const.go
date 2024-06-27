@@ -2,6 +2,9 @@ package config
 
 
 const (
+  TicksPerRound = 5 * 60 * 3
+  TicksPointRushStage = 4 * 60 * 3
+
   // --- MAP CONSTANTS
   // ================================
   

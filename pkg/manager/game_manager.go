@@ -5,6 +5,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/capucinoxx/forlorn/pkg/config"
 	"github.com/capucinoxx/forlorn/pkg/model"
 )
 
@@ -14,6 +15,8 @@ const tickrate = 30
 type RoundManager interface {
 	Restart()
 	Tick()
+  SetChangeSpawnHandler(int, SpawnManager)
+  Spawn() *model.Point
 	HasEnded() bool
 }
 
@@ -112,6 +115,10 @@ func (gm *GameManager) Init() error {
 // démarre la boucle de jeu.
 func (gm *GameManager) Start() {
 	gm.state.Start()
+
+  gm.rm.SetChangeSpawnHandler(config.TicksPerRound, NewRandomSpawnManager())
+  gm.rm.SetChangeSpawnHandler(config.TicksPointRushStage, NewListSpawnManager(gm.state.Map.Spawns()))
+  gm.rm.Restart()
 	go gm.gameLoop()
 }
 

@@ -9,11 +9,9 @@ import (
   "github.com/capucinoxx/forlorn/pkg/utils"
 )
 
-
 type SpawnManager interface {
   Spawn() *model.Point
 }
-
 
 type RandomSpawnManager struct {
   r *rand.Rand
