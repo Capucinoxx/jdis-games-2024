@@ -32,6 +32,8 @@ const (
   // PlayerSpeed defines the distance travelled per tick.
   PlayerSpeed = 1.15
 
+  RespawnTime = 3 * 60 
+
 
   // --- PORJECTILE CONSTANTS
   // ================================

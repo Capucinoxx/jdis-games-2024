@@ -3,6 +3,7 @@ package manager
 import (
   "github.com/capucinoxx/forlorn/pkg/model"
 	"github.com/capucinoxx/forlorn/pkg/utils"
+  "github.com/capucinoxx/forlorn/pkg/manager"
 )
 
 type Stage uint8
@@ -18,9 +19,6 @@ const (
 )
 
 
-type SpawnManager interface {
-  Spawn() *model.Point
-}
 
 
 type StageHandler interface {
@@ -30,9 +28,9 @@ type StageHandler interface {
 
 type RoundManager struct {
 	ticks int
-  spawns SpawnManager
+  spawns manager.SpawnManager
   handlers map[int]StageHandler
-  spawnsHandler map[int]SpawnManager
+  spawnsHandler map[int]manager.SpawnManager
 }
 
 
@@ -78,7 +76,7 @@ func (r *RoundManager) AddChangeStageHandler(tick int, cb StageHandler) {
   r.handlers[tick] = cb
 }
 
-func (r *RoundManager) SetChangeSpawnManager(tick int, spawnManager SpawnManager) {
+func (r *RoundManager) SetChangeSpawnHandler(tick int, spawnManager manager.SpawnManager) {
   r.spawns = spawnManager
 }
 
