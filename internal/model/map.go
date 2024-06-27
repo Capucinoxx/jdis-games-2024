@@ -8,7 +8,6 @@ import (
 	"github.com/capucinoxx/forlorn/pkg/codec"
 	"github.com/capucinoxx/forlorn/pkg/config"
 	"github.com/capucinoxx/forlorn/pkg/model"
-	"github.com/capucinoxx/forlorn/pkg/utils"
 )
 
 type point struct { 
@@ -310,19 +309,28 @@ func (m *Map) dijkstra(start point, grid [][]cell) [][]int {
 func (m *Map) getSpawnPoints(distances [][]int, min int) {
   points := map[int][]*model.Point{}
   m.spawns[0] = []*model.Point{}
+  for i := 0; i < config.MapWidth; i++ {
+    for j := 0; j < config.MapWidth; j++ {
+      center := &model.Point{
+        X: float64(j*config.CellWidth+config.CellWidth/2),
+        Y: float64(i*config.CellWidth+config.CellWidth/2),
+      }
+
+      for _, dir := range directions {
+        x := center.X + float64(dir.x*config.PlayerSize) * 1.5
+        y := center.Y + float64(dir.y*config.PlayerSize) * 1.5
+
+        m.spawns[0] = append(m.spawns[0], &model.Point{X: x, Y: y})
+      }
+
+      m.spawns[0] = append(m.spawns[0], center)
+    }
+  }
 
   for i, row := range distances {
     for j, dist := range row {
       if _, ok := points[dist]; !ok {
         points[dist] = []*model.Point{}
-      }
-
-      if i > 0 && j > 0 && i < len(distances)-1 && j < len(row)-1 {
-        utils.Log("tt", "tt", "%d  %d  %f", i, j, config.SubsquareWidth)
-        m.spawns[0] = append(m.spawns[0], &model.Point{
-          X: float64(j)*config.SubsquareWidth,
-          Y: float64(i)*config.SubsquareWidth,
-        })
       }
 
       points[dist] = append(points[dist], &model.Point{
