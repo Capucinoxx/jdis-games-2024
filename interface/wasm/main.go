@@ -37,6 +37,7 @@ func getInformations(this js.Value, args []js.Value) interface{} {
 
   obj := js.Global().Get("Object").New()
 	msg := proto.Decode(bytes)
+  obj.Set("type", int(msg.MessageType))
 
 	if msg.MessageType == model.GameStart {
 		body := msg.Body.(imodel.Map)
@@ -61,7 +62,6 @@ func getInformations(this js.Value, args []js.Value) interface{} {
       colliders.Call("push", collider)
     }
 
-		obj.Set("type", int(msg.MessageType))
 	  obj.Set("map", board)
     obj.Set("walls", colliders)
   }
@@ -97,7 +97,6 @@ func getInformations(this js.Value, args []js.Value) interface{} {
       players.Call("push", player)
     }
 
-    obj.Set("type", int(msg.MessageType))
     obj.Set("players", players)
   }
 

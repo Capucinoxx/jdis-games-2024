@@ -1,8 +1,6 @@
 package protocol
 
 import (
-  "fmt"
-
 	imodel "github.com/capucinoxx/forlorn/internal/model"
 	"github.com/capucinoxx/forlorn/pkg/codec"
 	"github.com/capucinoxx/forlorn/pkg/model"
@@ -25,10 +23,12 @@ func NewBinaryProtocol() *p.BinaryProtocol {
 	bp := BinaryProtocol{}
 	protocol.EncodeHandlers[model.Spawn] = bp.encodeMapState
 	protocol.EncodeHandlers[model.GameStart] = bp.encodeMapState
+  protocol.EncodeHandlers[model.GameEnd] = bp.encodeGameEnd
 	protocol.EncodeHandlers[model.Position] = bp.encodeGameState
 
 	protocol.DecodeHandlers[model.Spawn] = bp.decodeMapState
 	protocol.DecodeHandlers[model.GameStart] = bp.decodeMapState
+  protocol.DecodeHandlers[model.GameEnd] = bp.decodeGameEnd
 	protocol.DecodeHandlers[model.Position] = bp.decodeGameState
   protocol.DecodeHandlers[model.Action] = bp.decodePlayerAction
 
@@ -52,10 +52,13 @@ func (b BinaryProtocol) encodeGameState(w *codec.ByteWriter, message *model.Clie
   players := message.Body.([]*model.Player)
 
   for _, player := range players {
-    fmt.Println("player encoded")
     player.Encode(w) 
   }
 }
+
+func (b BinaryProtocol) encodeGameEnd(w *codec.ByteWriter, message *model.ClientMessage) {}
+
+func (b BinaryProtocol) decodeGameEnd(r *codec.ByteReader, message *model.ClientMessage) {}
 
 func (b BinaryProtocol) decodeMapState(r *codec.ByteReader, message *model.ClientMessage) {
 	mapState := &imodel.Map{}

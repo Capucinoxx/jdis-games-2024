@@ -64,11 +64,15 @@ class GameManager {
       if (!('type' in data))
         return;
 
-      console.log(data)
       switch (data.type) {
         case 4:
           this.grid.map = { cells: data.map, colliders: data.walls };
           break;
+
+        case 5:
+          console.log("END");
+          break;
+
         case 1:
           this.handle_game_state(data);
           break;

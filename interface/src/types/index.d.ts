@@ -21,6 +21,10 @@ type ServerMapState = {
   walls: Array<Array<Position>>;
 };
 
+type ServerGameEnd = {
+  type: 5;
+};
+
 type ServerGameState = {
   type: 1;
   players: Array<PlayerData>;
@@ -29,4 +33,4 @@ type ServerGameState = {
 type Empty = Record<string, never>;
 
 
-type ServerMessage = ServerMapState | ServerGameState | Empty;
+type ServerMessage = ServerMapState | ServerGameState | ServerGameEnd | Empty;
