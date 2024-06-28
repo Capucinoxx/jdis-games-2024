@@ -41,6 +41,12 @@ class Manager<T extends GameObject> {
       }
     }); 
   }
+
+  public clear(): void {
+    this.cache.forEach((obj, _) => obj.destroy());
+    this.cache.clear();
+    this.objects.clear(true, true);
+  }
 };
 
 class BulletManager extends Manager<Bullet> {

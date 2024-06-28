@@ -68,6 +68,10 @@ class GridManager {
       this.grid_graphics.strokePath();
     });
   }
+
+  public clear(): void {
+    this.grid_graphics.clear();
+  }
 };
 
 export { GridManager };

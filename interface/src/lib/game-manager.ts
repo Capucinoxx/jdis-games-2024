@@ -70,7 +70,7 @@ class GameManager {
           break;
 
         case 5:
-          console.log("END");
+          this.clean();
           break;
 
         case 1:
@@ -82,6 +82,14 @@ class GameManager {
     this.ws.onclose = (event: CloseEvent) => {
       console.log('Disconnected from the server', event);
     };
+  }
+
+  private clean(): void {
+    this.players.forEach((player) => player.destroy());
+    this.players.clear();
+    this.bullets.clear();
+    this.coins.clear();
+    this.grid.clear();
   }
 };
 
