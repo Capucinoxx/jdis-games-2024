@@ -1,7 +1,14 @@
 interface Position { x: number, y: number };
 
-type Projectile = {
+type ProjectileObject = {
   id: string;
+  pos: Position;
+  dest: Position;
+};
+
+type PlayerObject = {
+  name: string;
+  color: number;
   pos: Position;
   dest: Position;
 };

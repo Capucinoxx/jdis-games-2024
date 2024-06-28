@@ -1,11 +1,11 @@
 import Phaser from 'phaser';
 
-class MovableObject extends Phaser.GameObjects.Graphics {
+class MovableObject extends Phaser.GameObjects.Container {
   private speed: number;
-  private destination: Phaser.Math.Vector2;
+  protected destination: Phaser.Math.Vector2;
 
-  constructor(scene: Phaser.Scene, x: number, y: number, destination: Phaser.Math.Vector2, speed: number) {
-    super(scene);
+  constructor(scene: Phaser.Scene, x: number, y: number, destination: Phaser.Math.Vector2, speed: number, deps: Array<Phaser.GameObjects.GameObject> = []) {
+    super(scene, x, y, deps);
     this.speed = speed;
     this.destination = destination;
     this.setPosition(x, y);

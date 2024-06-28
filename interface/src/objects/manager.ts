@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GameObject, Bullet, Coin, Payload } from './object';
+import { GameObject, Bullet, Coin, Player, Payload } from './object';
 import '../types/index.d.ts';
 
 interface Constructor<T> {
@@ -24,7 +24,7 @@ class Manager<T extends GameObject> {
 
   public sync(payloads: Payload[]): void {
     const current = new Map<string, Payload>();
-    payloads.forEach((p) => current.set(p.id, p));
+    payloads.forEach((p) => current.set(this.get_key(p), p));
 
     this.cache.forEach((obj, uuid) => {
       if (!current.has(uuid)) {
@@ -47,7 +47,12 @@ class Manager<T extends GameObject> {
     this.cache.clear();
     this.objects.clear(true, true);
   }
+
+  private get_key(p: Payload): string {
+    return 'id' in p ? p.id : (p as PlayerObject).name;
+  } 
 };
+
 
 class BulletManager extends Manager<Bullet> {
   constructor(scene: Phaser.Scene) {
@@ -59,11 +64,31 @@ class BulletManager extends Manager<Bullet> {
   }
 };
 
+
 class CoinManager extends Manager<Coin> {
   constructor(scene: Phaser.Scene) {
     super(scene, Coin);
   }
 };
 
-export { BulletManager, CoinManager };
+class PlayerManager extends Manager<Player> {
+  constructor(scene: Phaser.Scene) {
+    super(scene, Player);
+  }
+
+  public sync(payloads: Payload[]) {
+    super.sync(payloads);
+
+    payloads.forEach((p) => {
+      const player = this.cache.get((p as PlayerObject).name);
+      player?.set_movement(new Phaser.Math.Vector2(p.pos.x, p.pos.y), new Phaser.Math.Vector2(p.dest!.x, p.dest!.y));
+    });
+  }
+
+  public move(dt: number) {
+    this.cache.forEach((p, _) => p.move(dt));
+  }
+};
+
+export { BulletManager, CoinManager, PlayerManager };
 

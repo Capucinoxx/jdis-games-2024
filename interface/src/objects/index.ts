@@ -1,3 +1,3 @@
-import { BulletManager, CoinManager } from './manager';
+import { BulletManager, CoinManager, PlayerManager } from './manager';
 
-export { BulletManager, CoinManager };
+export { BulletManager, CoinManager, PlayerManager };
