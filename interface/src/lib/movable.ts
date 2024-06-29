@@ -8,11 +8,11 @@ class MovableObject extends Phaser.GameObjects.Container {
     super(scene, x, y, deps);
     this.speed = speed;
     this.destination = destination;
-    this.setPosition(x, y);
 
     this.scene.physics.world.enable(this);
     scene.add.existing(this);
   }
+
 
   public move(dt: number): void {
     const dist = this.speed * (dt / 1000);

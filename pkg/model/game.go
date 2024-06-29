@@ -3,8 +3,6 @@ package model
 import (
 	"sync"
 	"time"
-
-	"github.com/capucinoxx/forlorn/pkg/utils"
 )
 
 // GameState représente l'état actuel du jeu.
@@ -37,7 +35,6 @@ func NewGameState(m Map) *GameState {
 func (gs *GameState) GetSpawnPoint() *Point {
   
   spawn := gs.spawns[gs.spawnIndex]
-  utils.Log("SPAWN", "SPWAN", "%d => %v", len(gs.spawns), gs.spawns)
   gs.spawnIndex = (gs.spawnIndex + 1) % len(gs.spawns)
   return spawn
 }

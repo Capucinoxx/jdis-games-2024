@@ -8,6 +8,7 @@ import (
 
 	"github.com/capucinoxx/forlorn/pkg/codec"
 	"github.com/capucinoxx/forlorn/pkg/config"
+	"github.com/capucinoxx/forlorn/pkg/utils"
 )
 
 // Connection represents a network connection. It can be used for reading and writing data over the network
@@ -116,10 +117,14 @@ func (p *Player) moveToDestination(players []*Player, m Map, dt float64) {
   dist := math.Abs(dx) + math.Abs(dy)
   
   speed := config.PlayerSpeed
+ 
+  utils.Log("player", "player", "Moving to %f, %f %f", dest.X, dest.Y, dt)
+
 
   if dist > float64(speed*dt) {
     nextX := r.Pivot.X + dx/dist * speed * dt
     nextY := r.Pivot.Y + dy/dist * speed * dt
+    utils.Log("player", "player", "Moving to %f, %f", nextX, nextY)
 
     if !p.checkCollisionAt(nextX, nextY, players, m) {
       r.Pivot.X = nextX

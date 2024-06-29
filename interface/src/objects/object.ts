@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { PROJECTILE_SIZE, PROJECTILE_SPEED, COIN_SIZE, PLAYER_SPEED } from '../config'; 
+import { PROJECTILE_SIZE, PROJECTILE_SPEED, COIN_SIZE, PLAYER_SPEED, PLAYER_SIZE } from '../config'; 
 import { MovableObject } from '../lib/movable';
 import '../types/index.d.ts';
 
@@ -31,15 +31,15 @@ class Coin extends Phaser.GameObjects.Container implements GameObject {
 class Player extends MovableObject implements GameObject {
   constructor(scene: Phaser.Scene, payload: Payload) {
     const { pos, name, color } = payload as PlayerObject;
-    const rect = scene.add.rectangle(0, 0, PROJECTILE_SIZE, PROJECTILE_SIZE, color);
-    const label = scene.add.text(0, -PROJECTILE_SIZE / 2 - 10, name, { fontSize: '16px', color: 'red' }).setOrigin(0.5);
+    const rect = scene.add.rectangle(0, 0, PLAYER_SIZE, PLAYER_SIZE, color).setOrigin(0.5, 0.5);
+    const label = scene.add.text(0, -PLAYER_SIZE / 2 - 10, name, { fontSize: '16px', color: 'red' }).setOrigin(0.5, 0.5);
 
     super(scene, pos.x, pos.y, new Phaser.Math.Vector2(pos.x, pos.y), PLAYER_SPEED, [rect, label]);
+
   }
 
   public set_movement(pos: Phaser.Math.Vector2, dest: Phaser.Math.Vector2): void {
     this.destination = dest;
-    this.setPosition(pos.x, pos.y);
   }
 };
 
