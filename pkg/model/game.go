@@ -4,7 +4,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/capucinoxx/forlorn/pkg/codec"
 	"github.com/capucinoxx/forlorn/pkg/config"
+	"github.com/capucinoxx/forlorn/pkg/utils"
 )
 
 // GameState représente l'état actuel du jeu.
@@ -72,6 +74,12 @@ func (gd *GameState) Players() []*Player {
 	return players
 }
 
+func (gs *GameState) Coins() []*Scorer {
+  gs.mu.RLock()
+  defer gs.mu.RUnlock()
+  return gs.coins
+}
+
 // PlayerCount retourne le nombre de joueurs.
 func (gs *GameState) PlayerCount() int {
 	gs.mu.RLock()
@@ -122,10 +130,97 @@ func (gs *GameState) Start() {
     gs.coins = append(gs.coins, NewCoin())
   }
 
-
 	gs.startTime = time.Now()
 
 	gs.mu.Lock()
 	defer gs.mu.Unlock()
 	gs.inProgress = true
+}
+
+type GameMessage struct {
+  Players []*Player
+  Coins []*Scorer
+}
+
+type GameInfo struct {
+  Players []PlayerInfo
+  Coins []struct{
+    Uuid [16]byte
+    Value int32
+    Pos Point
+  }
+}
+
+
+func (gs *GameMessage) Encode(w codec.Writer) (err error) {
+  if err = w.WriteInt32(int32(len(gs.Players))); err != nil {
+    return
+  }
+
+  for _, p := range gs.Players {
+    if err = p.Encode(w); err != nil {
+      return
+    }
+  }
+
+  if err = w.WriteInt32(int32(len(gs.Coins))); err != nil {
+    return
+  }
+
+  for _, c := range gs.Coins {
+    if err = c.Encode(w); err != nil {
+      return
+    }
+  }
+
+  return
+}
+
+func (g *GameInfo) Decode(r codec.Reader) (err error) {
+  var size int32
+  if size, err = r.ReadInt32(); err != nil {
+    return
+  }
+
+  g.Players = make([]PlayerInfo, 0, size)
+  for i := int32(0); i < size; i++ {
+    p := PlayerInfo{}
+    if err = p.Decode(r); err != nil {
+      return
+    }
+    g.Players = append(g.Players, p)
+  }
+
+  if size, err = r.ReadInt32(); err != nil {
+    return
+  }
+  
+  g.Coins = make([]struct{
+    Uuid [16]byte
+    Value int32
+    Pos Point
+  }, 0, size)
+  for i := int32(0); i < size; i++ {
+    c := struct{
+      Uuid [16]byte
+      Value int32
+      Pos Point
+    }{}
+
+    var id []byte
+    if id, err = r.ReadBytes(16); err != nil {
+      return
+    }
+    copy(c.Uuid[:], id)
+    if err = c.Pos.Decode(r); err != nil {
+      return
+    }
+    if c.Value, err = r.ReadInt32(); err != nil {
+      return
+    }
+
+    g.Coins = append(g.Coins, c)
+  }
+
+  return
 }
