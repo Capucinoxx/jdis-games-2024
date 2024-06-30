@@ -75,7 +75,11 @@ func (gm *GameManager) RegisterPlayer(conn model.Connection) error {
     return fmt.Errorf("Unknown token")
   }
 
-  spawn := gm.state.GetSpawnPoint()
+  spawn := &model.Point{X: 0, Y: 0}
+
+  if gm.state.InProgess() {
+    spawn = gm.state.GetSpawnPoint()
+  }
 	player := model.NewPlayer(username, color, spawn, conn)
   
 	gm.nm.Register(player.Client)
