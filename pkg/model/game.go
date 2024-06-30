@@ -3,6 +3,8 @@ package model
 import (
 	"sync"
 	"time"
+
+	"github.com/capucinoxx/forlorn/pkg/config"
 )
 
 // GameState représente l'état actuel du jeu.
@@ -10,9 +12,12 @@ type GameState struct {
 	startTime    time.Time
 	inProgress   bool
 	lastPlayerID int64
+
 	playerCount  int
 	players      map[string]*Player
-	Map          Map
+	coins       []*Scorer
+
+  Map          Map
   spawns      []*Point
   spawnIndex  int
 	mu           *sync.RWMutex
@@ -25,6 +30,7 @@ func NewGameState(m Map) *GameState {
     spawnIndex:   0,
     inProgress:   false,
     lastPlayerID: 0,
+    coins:        []*Scorer{},
     playerCount:  0,
     players:      make(map[string]*Player),
     Map:          m,
@@ -110,6 +116,10 @@ func (gs *GameState) Start() {
 
     spawn := gs.GetSpawnPoint()
     p.Collider().ChangePosition(spawn.X, spawn.Y)
+  }
+
+  for i := 0; i < config.NumCoins; i++ {
+    gs.coins = append(gs.coins, NewCoin())
   }
 
 

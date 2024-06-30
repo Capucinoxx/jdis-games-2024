@@ -1,14 +1,23 @@
 package model
 
-import "github.com/capucinoxx/forlorn/pkg/config"
+import (
+	"math/rand"
+
+	"github.com/capucinoxx/forlorn/pkg/config"
+)
 
 type Scorer struct {
   Object
   Value int
 }
 
-func NewCoin(pos *Point) *Scorer {
+func NewCoin() *Scorer {
   s := &Scorer{Value: config.CoinValue}
+  pos := &Point{
+    X: rand.Float64() * float64(config.MapWidth),
+    Y: rand.Float64() * float64(config.MapWidth),
+  }
+
   s.setup(pos, config.CoinSize)
 
   return s
