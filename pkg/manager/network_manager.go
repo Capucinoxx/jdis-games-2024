@@ -167,7 +167,10 @@ func (nm *NetworkManager) Send(client *model.Client, message []byte) {
 func (nm *NetworkManager) BroadcastGameState(state *model.GameState) {
   nm.broadcast <- nm.protocol.Encode(0, 0, &model.ClientMessage{
     MessageType: model.Position,
-    Body: state.Players(),
+    Body: model.GameMessage{
+      Players: state.Players(),
+      Coins: state.Coins(),
+    },
   })
 }
 

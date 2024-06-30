@@ -1,9 +1,16 @@
 interface Position { x: number, y: number };
 
-type ProjectileObject = {
+type ServerObject = {
   id: string;
   pos: Position;
+};
+
+type ProjectileObject = ServerObject & {
   dest: Position;
+};
+
+type ScorerObject = ServerObject & {
+  value: number;
 };
 
 type PlayerObject = {
@@ -35,6 +42,7 @@ type ServerGameEnd = {
 type ServerGameState = {
   type: 1;
   players: Array<PlayerData>;
+  coins: Array<ScorerObject>;
 };
 
 type Empty = Record<string, never>;

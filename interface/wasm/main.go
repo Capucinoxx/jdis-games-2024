@@ -67,11 +67,11 @@ func getInformations(this js.Value, args []js.Value) interface{} {
   }
 
   if msg.MessageType == model.Position {
-    body := msg.Body.([]model.PlayerInfo)
+    body := msg.Body.(model.GameInfo)
 
     players := js.Global().Get("Array").New()
-    for i := 0; i < len(body); i++ {
-      data := body[i]
+    for i := 0; i < len(body.Players); i++ {
+      data := body.Players[i]
       player := js.Global().Get("Object").New()
       player.Set("name", data.Nickname)
       player.Set("color", int(data.Color))
@@ -98,6 +98,17 @@ func getInformations(this js.Value, args []js.Value) interface{} {
     }
 
     obj.Set("players", players)
+
+    coins := js.Global().Get("Array").New()
+    for _, coin := range body.Coins {
+      c := js.Global().Get("Object").New()
+      c.Set("id", format_id(coin.Uuid))
+      c.Set("pos", position(coin.Pos))
+      c.Set("value", coin.Value)
+      coins.Call("push", c)
+    }
+
+    obj.Set("coins", coins)
   }
 
 	return obj

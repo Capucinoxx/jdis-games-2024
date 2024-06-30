@@ -55,5 +55,7 @@ const (
   CoinSize = 0.5
 
   // CoinValue defines the value when player take a coin.
-  CoinValue (int) = 50
+  CoinValue (int32) = 50
+
+  NumCoins = 30
 )

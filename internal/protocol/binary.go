@@ -42,11 +42,9 @@ func (b BinaryProtocol) encodeMapState(w *codec.ByteWriter, message *model.Clien
 }
 
 func (b BinaryProtocol) encodeGameState(w *codec.ByteWriter, message *model.ClientMessage) {
-  players := message.Body.([]*model.Player)
-
-  for _, player := range players {
-    player.Encode(w) 
-  }
+  data := message.Body.(model.GameMessage)
+  
+  _ = data.Encode(w)
 }
 
 func (b BinaryProtocol) encodeGameEnd(w *codec.ByteWriter, message *model.ClientMessage) {}
@@ -63,18 +61,11 @@ func (b BinaryProtocol) decodeMapState(r *codec.ByteReader, message *model.Clien
 }
 
 func (b BinaryProtocol) decodeGameState(r *codec.ByteReader, message *model.ClientMessage) {
-  players := make([]model.PlayerInfo, 0)
+  var state model.GameInfo
 
-  var err error
-  for err == nil {
-    player := model.PlayerInfo{}
-    err = player.Decode(r)
-    if err == nil {
-      players = append(players, player)
-    }
-  }
+  state.Decode(r)
 
-  message.Body = players
+  message.Body = state
 }
 
 func (b BinaryProtocol) decodePlayerAction(r *codec.ByteReader, message *model.ClientMessage) {

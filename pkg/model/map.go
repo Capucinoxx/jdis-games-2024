@@ -221,3 +221,4 @@ type Map interface {
 	Size() int
 	DiscreteMap() [][]uint8
 }
+
