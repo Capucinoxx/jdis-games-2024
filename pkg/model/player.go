@@ -1,9 +1,7 @@
 package model
 
 import (
-	"fmt"
 	"math"
-	"sync/atomic"
 	"time"
 
 	"github.com/capucinoxx/forlorn/pkg/codec"
@@ -45,172 +43,107 @@ type Controls struct {
   Shoot *Point `json:"shoot,omitempty"`
 }
 
-// Player represents a player in the game.
+
 type Player struct {
-	Token            string
-	Nickname         string
+  Object
+  Destination *Point
+
+  Nickname string
   Color int
-	Health           atomic.Int32
-	Score            float64
-	respawnCountdown float64
-	Client           *Client
-	Controls         Controls
-	Collider         *RectCollider
-	cannon           *Cannon
+  Client *Client
+  health int
+  respawnCountdown float64
+
+  Controls Controls
+  cannon *Cannon
 }
 
-// NewPlayer creates a new player with an initial position and a network connection.
-func NewPlayer(name string, color int, x float64, y float64, conn Connection) *Player {
-	p := &Player{
-	  Nickname: name,
+func NewPlayer(name string,color int,  pos *Point, conn Connection) *Player {
+  p := &Player{
+    Nickname: name,
     Color: color,
-		Collider: NewRectCollider(x, y, config.PlayerSize),
-		Health:   atomic.Int32{},
-		Client: &Client{
-			Out:        make(chan []byte, 10),
-			In:         make(chan ClientMessage, 10),
-			Connection: conn,
-		},
-	}
+    Client: &Client{
+      Out: make(chan []byte, 10),
+      In: make(chan ClientMessage, 10),
+      Connection: conn,
+    },
 
-	p.Health.Add(config.PlayerHealth)
-	p.cannon = NewCanon(p)
-	return p
+    health: 100,
+  }
+
+  p.setup(pos, config.PlayerSize)
+  p.cannon = NewCanon(p)
+
+  return p
 }
 
-// String returns a string representation of the player.
-func (p *Player) String() string {
-	return fmt.Sprintf("[%s: { pos: (%f, %f), v: %f, dest: %+v, health: %d }]", p.Nickname, p.Collider.Pivot.X, p.Collider.Pivot.Y, p.Collider.velocity, p.Controls, p.Health.Load())
+func (p *Player) Collider() *RectCollider {
+  return p.collider
 }
 
-// IsAlive returns true if the player's health is above zero, indicating they are alive.
+func (p *Player) TakeDmg(dmg int) {
+  p.health -= dmg
+}
+
 func (p *Player) IsAlive() bool {
-	return p.Health.Load() > 0
+  return p.health > 0
 }
 
-// Update updates the player's state based on the current game state.
+
 func (p *Player) Update(players []*Player, game *GameState, dt float64) {
-	m := game.Map
-	if !p.IsAlive() {
-		p.respawnCountdown += dt
-		return
-	}
+  if !p.IsAlive() {
+    p.respawnCountdown += dt
+    return
+  }
 
-	p.HandleMovement(players, m, dt)
-	p.HandleCannon(players, m, dt)
+  p.HandleMovement(players, game.Map, dt)
+  p.HandleWeapon(players, game.Map, dt)
 }
 
-// HandleMovement manages the player's movement based on their controls.
 func (p *Player) HandleMovement(players []*Player, m Map, dt float64) {
-  if p.Controls.Dest != nil {
-    p.moveToDestination(players, m, dt)
+  if p.Controls.Dest == nil {
+    return
+  }
+
+  px, py := p.Position.X, p.Position.Y
+
+  p.moveToDestination(dt)
+
+  for _, collider := range m.Colliders() {
+    if PolygonsIntersect(p.collider.polygon(), collider.polygon()) {
+      p.Position.X, p.Position.Y = px, py
+      p.collider.ChangePosition(px, py)
+      return
+    }
   }
 }
 
-func (p *Player) moveToDestination(players []*Player, m Map, dt float64) {
-  r := p.Collider
+func (p *Player) moveToDestination(dt float64) {
   dest := p.Controls.Dest
 
-  dx := float64(dest.X - r.Pivot.X)
-  dy := float64(dest.Y - r.Pivot.Y)
+  dx := float64(dest.X - p.Position.X)
+  dy := float64(dest.Y - p.Position.Y)
   dist := math.Abs(dx) + math.Abs(dy)
-  
-  speed := config.PlayerSpeed
- 
-  if dist > float64(speed*dt) {
-    nextX := r.Pivot.X + dx/dist * speed * dt
-    nextY := r.Pivot.Y + dy/dist * speed * dt
 
-    if !p.checkCollisionAt(nextX, nextY, players, m) {
-      r.Pivot.X = nextX
-      r.Pivot.Y = nextY
-    }
-  } else {
-    if !p.checkCollisionAt(dest.X, dest.Y, players, m) {
-      r.Pivot.X = dest.X
-      r.Pivot.Y = dest.Y
-    }
-    p.Controls.Dest = nil
+  if dist > config.PlayerSpeed * float64(dt) {
+    nextX := p.Position.X + dx/dist * config.PlayerSpeed * dt
+    nextY := p.Position.Y + dy/dist * config.PlayerSpeed * dt
+
+    p.Position.X = nextX
+    p.Position.Y = nextY
+    p.collider.ChangePosition(nextX, nextY)
   }
 }
 
-func (p *Player) checkCollisionAt(x, y float64, players []*Player, m Map) bool {
-  originalX, originalY := p.Collider.Pivot.X, p.Collider.Pivot.Y
-  p.Collider.Pivot.X, p.Collider.Pivot.Y = x, y
 
-  collides := p.checkCollisionWithPlayers(players) || p.checkCollisionWithMap(m)
-
-  p.Collider.Pivot.X, p.Collider.Pivot.Y = originalX, originalY
-  return collides
-}
-
-// HandleCannon handles the player's cannon actions.
-func (p *Player) HandleCannon(players []*Player, m Map, dt float64) {
-	if p.Controls.Shoot != nil {
-		p.cannon.ShootAt(*p.Controls.Shoot)
-	}
-
+func (p *Player) HandleWeapon(players []*Player, m Map, dt float64) {
   p.cannon.Update(players, m, dt)
-}
 
-func (p *Player) TakeDmg(dmg int32) {
-	p.Health.Add(-dmg)
-}
-
-// checkCollisionWithPlayers checks if there is a collision with any other player.
-func (p *Player) checkCollisionWithPlayers(players []*Player) bool {
-	for _, ennemy := range players {
-    if ennemy.Nickname == p.Nickname || !ennemy.IsAlive() {
-			continue
-		}
-
-		if p.Collider.Collisions(ennemy.Collider.polygon()) {
-			return true
-		}
-	}
-
-	return false
-}
-
-// checkCollisionWithMap checks if the player collides with the map.
-func (p *Player) checkCollisionWithMap(m Map) bool {
-	for _, collider := range m.Colliders() {
-		if p.Collider.Collisions(collider.polygon()) {
-			return true
-		}
-	}
-
-	return false
-}
-
-// updateVelocity updates the player's velocity based on collision.
-// If there is a collision, the velocity is set to zero.
-func (p *Player) updateVelocity(dt float32, hasCollision bool) {
-	r := p.Collider
-	r.velocity = defaultForwardSpeed
-}
-
-
-func (p *Player) HandleRespawn(game *GameState) {
-  if !p.IsAlive() && p.respawnCountdown > config.RespawnTime {
-    spawn := game.GetSpawnPoint()
-    p.Health.Store(config.PlayerHealth)
-    p.respawnCountdown = 0
-
-    p.Collider.ChangePosition(spawn.X, spawn.Y)
+  if p.Controls.Shoot != nil {
+    p.cannon.ShootAt(*p.Controls.Shoot) 
   }
 }
 
-
-// applyMovement applies the movement to the player based on their current direction and velocity.
-func (p *Player) applyMovement() {
-	r := p.Collider
-	points := []*Point{r.rect.a, r.rect.b, r.rect.c, r.rect.d, r.look, r.Pivot}
-	for _, point := range points {
-		point.X += r.Dir.X * r.velocity
-		point.Y += r.Dir.Y * r.velocity
-	}
-}
 
 type PlayerInfo struct {
   Nickname string
@@ -234,11 +167,11 @@ func (p *Player) Encode(w codec.Writer) (err error) {
     return
   }
 
-  if err = w.WriteInt32(p.Health.Load()); err != nil {
+  if err = w.WriteInt32(int32(p.health)); err != nil {
     return
   }
 
-  if err = p.Collider.Pivot.Encode(w); err != nil {
+  if err = p.Position.Encode(w); err != nil {
     return
   }
 

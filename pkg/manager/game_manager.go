@@ -76,7 +76,7 @@ func (gm *GameManager) RegisterPlayer(conn model.Connection) error {
   }
 
   spawn := gm.state.GetSpawnPoint()
-	player := model.NewPlayer(username, color, spawn.X, spawn.Y, conn)
+	player := model.NewPlayer(username, color, spawn, conn)
   
 	gm.nm.Register(player.Client)
 	gm.state.AddPlayer(player)
@@ -135,7 +135,7 @@ func (gm *GameManager) State() (model.Map, int) {
 // en fonction des messages entrants. Il met également à jour les informations
 // des joueurs en fonction des messages entrants. La méthode prend en charge
 // l'authentification des joueurs et la mise à jour des informations des joueurs.
-func (gm *GameManager) process(p *model.Player, players []*model.Player, timestep float64) {
+func (gm *GameManager) process(p *model.Player, players []*model.Player, timestep float64, handleAction bool) {
 	for len(p.Client.In) != 0 {
 		message := <-p.Client.In
 
@@ -154,12 +154,14 @@ func (gm *GameManager) process(p *model.Player, players []*model.Player, timeste
       }
 
 		case model.Action:
-			p.Controls = message.Body.(model.Controls)
-
-			p.Update(players, gm.state, timestep)
-      break
+      if handleAction {
+			  p.Controls = message.Body.(model.Controls)
+      }
+      break;
 		}
 	}
+
+  p.Update(players, gm.state, timestep)
 }
 
 // gameLoop est la boucle principale du jeu. Il gère les mises à jour du jeu,
@@ -182,14 +184,15 @@ func (gm *GameManager) gameLoop() {
 		gm.rm.Tick()
 
 		for _, p := range players {
-			gm.process(p, players, timestep)
+			gm.process(p, players, timestep, true)
 			// handle respawn
 		}
-     
+    
     if count == 10 {
 		  gm.nm.BroadcastGameState(gm.state)
       count = 0
     }
+      
     count++
 		if gm.rm.HasEnded() {
 			break

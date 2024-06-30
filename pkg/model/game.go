@@ -105,11 +105,11 @@ func (gs *GameState) Start() {
 
   players := gs.Players()
   for _, p := range players {
-    p.Health.Store(100)
-    p.Score = 0
+    // p.SetHealth(100)
+    //p.Score = 0
 
     spawn := gs.GetSpawnPoint()
-    p.Collider.ChangePosition(spawn.X, spawn.Y)
+    p.Collider().ChangePosition(spawn.X, spawn.Y)
   }
 
 

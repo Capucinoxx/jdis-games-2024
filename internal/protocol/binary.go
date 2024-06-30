@@ -35,13 +35,6 @@ func NewBinaryProtocol() *p.BinaryProtocol {
 	return protocol
 }
 
-func (b BinaryProtocol) encodePlayerState(w *codec.ByteWriter, message *model.ClientMessage) {
-	p := message.Body.(*model.Player)
-
-	_ = p.Collider.Pivot.Encode(w)
-	_ = w.WriteByte(byte(p.Health.Load()))
-}
-
 func (b BinaryProtocol) encodeMapState(w *codec.ByteWriter, message *model.ClientMessage) {
 	p := message.Body.(*imodel.Map)
 
