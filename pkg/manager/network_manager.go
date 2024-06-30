@@ -27,7 +27,6 @@ import (
 
 	"github.com/capucinoxx/forlorn/pkg/model"
 	"github.com/capucinoxx/forlorn/pkg/network"
-	"github.com/capucinoxx/forlorn/pkg/utils"
 )
 
 const (
@@ -166,8 +165,6 @@ func (nm *NetworkManager) Send(client *model.Client, message []byte) {
 // ID and player data, structured as:
 // [0:1 id][1:2 messageType][2:6 currentTime][6:end (position)]
 func (nm *NetworkManager) BroadcastGameState(state *model.GameState) {
-  //utils.Log("network", "broadcast", "game state")
-
   nm.broadcast <- nm.protocol.Encode(0, 0, &model.ClientMessage{
     MessageType: model.Position,
     Body: state.Players(),
@@ -176,8 +173,6 @@ func (nm *NetworkManager) BroadcastGameState(state *model.GameState) {
 
 // BroadcastGameEnd sends a game end message to all players.
 func (nm *NetworkManager) BroadcastGameEnd() {
-	utils.Log("network", "broadcast", "game end")
-
 	nm.broadcast <- nm.protocol.Encode(0, 0, &model.ClientMessage{
 		MessageType: model.GameEnd,
 	})
@@ -185,8 +180,6 @@ func (nm *NetworkManager) BroadcastGameEnd() {
 
 // BroadcastGameStart sends a game start message to all players.
 func (nm *NetworkManager) BroadcastGameStart(state *model.GameState) {
-	utils.Log("network", "broadcast", "game start")
-
 	nm.broadcast <- nm.protocol.Encode(0, 0, &model.ClientMessage{
 		MessageType: model.GameStart,
 		Body:        state.Map,

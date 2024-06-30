@@ -9,9 +9,10 @@ handle_forms();
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
-  width: window.innerWidth,
-  height: window.innerHeight,
+  width: 800,
+  height: 800,
   backgroundColor: '#F0F0F0',
+  pixelArt: true,
   physics: {
     default: 'arcade',
     arcade: {
@@ -20,7 +21,6 @@ const config: Phaser.Types.Core.GameConfig = {
   },
   scene: [MainScene],
   scale: {
-    mode: Phaser.Scale.RESIZE,
     autoCenter: Phaser.Scale.CENTER_BOTH
   }
 };

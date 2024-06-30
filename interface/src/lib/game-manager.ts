@@ -1,24 +1,22 @@
 import Phaser from 'phaser';
-import { Player } from '.';
 import { WS_URL } from '../config';
 import { GridManager } from './grid-manager';
-import { BulletManager, CoinManager } from '../objects';
+import { BulletManager, CoinManager, PlayerManager } from '../objects';
 import '../types/index.d.ts';
 
 class GameManager {
-  private scene: Phaser.Scene;
-  private players: Map<string, Player>;
   private ws: WebSocket;
   private grid: GridManager;
+  
+  private players: PlayerManager;
   private bullets: BulletManager;
   private coins: CoinManager;
 
   constructor(scene: Phaser.Scene) {
-    this.scene = scene;
     this.grid = new GridManager(scene);
     this.bullets = new BulletManager(scene);
     this.coins = new CoinManager(scene);
-    this.players = new Map<string, Player>;
+    this.players = new PlayerManager(scene);
 
     this.ws = new WebSocket(WS_URL);
     this.ws.binaryType = 'arraybuffer';
@@ -27,36 +25,23 @@ class GameManager {
   }
 
   public handle_game_state(payload: ServerGameState): void {
-    const payload_bullets: Projectile[] = [];
+    const payload_bullets: ProjectileObject[] = [];
+    const payload_players: PlayerObject[] = [];
 
     payload.players.forEach((data: PlayerData) => {
-      let player = this.players.get(data.name);
+      payload_players.push({ name: data.name, pos: data.pos, color: data.color, dest: data.dest });
       payload_bullets.push(...data.projectiles);
-
-      if (player) {
-        player.set_movement(
-          new Phaser.Math.Vector2(data.pos.x, data.pos.y),
-          new Phaser.Math.Vector2(data.dest.x, data.dest.y));
-        return;
-      }
-
-      player = new Player(this.scene, data.pos.x, data.pos.y, data.name, data.color);
-      this.scene.add.existing(player);
-      this.scene.physics.add.existing(player);
-      this.players.set(data.name, player);
     });
 
-    this.bullets.sync(payload_bullets); 
+    this.players.sync(payload_players);
+    this.bullets.sync(payload_bullets);
   }
 
   public update_players_movement(delta: number) {
-    this.players.forEach((player) => player.move(delta));
+    this.players.move(delta);
     this.bullets.move(delta);
   }
 
-  public get_player(uuid: string): Player | undefined {
-    return this.players.get(uuid);
-  }
 
   private handle_ws_messages(): void {
     this.ws.onmessage = (event: MessageEvent<ArrayBuffer>) => {
@@ -64,11 +49,15 @@ class GameManager {
       if (!('type' in data))
         return;
 
-      console.log(data)
       switch (data.type) {
         case 4:
           this.grid.map = { cells: data.map, colliders: data.walls };
           break;
+
+        case 5:
+          this.clean();
+          break;
+
         case 1:
           this.handle_game_state(data);
           break;
@@ -78,6 +67,13 @@ class GameManager {
     this.ws.onclose = (event: CloseEvent) => {
       console.log('Disconnected from the server', event);
     };
+  }
+
+  private clean(): void {
+    this.players.clear();
+    this.bullets.clear();
+    this.coins.clear();
+    this.grid.clear();
   }
 };
 

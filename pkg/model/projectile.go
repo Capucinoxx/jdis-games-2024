@@ -145,8 +145,9 @@ func (c *Cannon) Update(players []*Player, m Map, dt float64) {
 
 // ShootAt creates a projectile at a specified position and calculates its direction.
 func (c *Cannon) ShootAt(pos Point) {
+  collider := c.owner.Collider()
   c.Projectiles = append(c.Projectiles, NewProjectile(
-    &Point{X: c.owner.Collider.Pivot.X, Y: c.owner.Collider.Pivot.Y},
+    &Point{X: collider.Pivot.X, Y: collider.Pivot.Y},
     &Point{X: pos.X, Y: pos.Y},
   ))
 }

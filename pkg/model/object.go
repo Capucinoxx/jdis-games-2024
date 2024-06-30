@@ -18,7 +18,7 @@ func (o *Object) setup(pos *Point, size float64) {
 }
 
 func (o *Object) IsCollidingWithPlayer(player *Player) bool {
-  return o.collider.Collisions(player.Collider.polygon())
+  return o.collider.Collisions(player.Collider().polygon())
 }
 
 func (o *Object) Remove() { o.cleanup = true }

@@ -4,32 +4,41 @@ import { GameManager } from '../../lib';
 
 class MainScene extends Phaser.Scene {
   private manager: GameManager | undefined;
+  private cursors: Phaser.Types.Input.Keyboard.CursorKeys | undefined;
 
   constructor() { super({ key: 'MainScene' }); }
 
   create() {
     this.manager = new GameManager(this);
 
-    this.cameras.main.setBounds(0, 0, 8000, 6000);
-    this.physics.world.setBounds(0, 0, 8000, 6000);
+    const cam = this.cameras.main;
+    cam.setZoom(1);
+    
+    this.cursors = this.input.keyboard?.createCursorKeys();
 
-    this.input.on('wheel', (pointer: Phaser.Input.Pointer): void => {
-      const dy = pointer.deltaY;
-      
-      let new_zoom = this.cameras.main.zoom + (dy > 0 ? -.1 : .1);
-      if (new_zoom > 0.3 && new_zoom <= 1)
-        this.cameras.main.zoom = new_zoom;
+    this.input.on('wheel', (_: Phaser.Input.Pointer, __: any, ___: number, dy: number, ____: number) => {
+      if (dy > 0) cam.zoom -= 0.1;
+      else if (dy < 0) cam.zoom += 0.1;
     });
+  }
 
-    this.input.on('pointerdown', (pointer: Phaser.Input.Pointer): void => {
-      this.cameras.main.pan(pointer.x, pointer.y, 500);
-    });
+  private handle_input(dt: number) {
+    if (!this.cursors)
+      return;
+  
+    const cam = this.cameras.main;
+    const speed = 500;
 
-    window.addEventListener('resize', () => this.scale.resize(window.innerWidth, window.innerHeight));
+    if (this.cursors!.left.isDown) cam.scrollX -= speed * (dt / 1000);
+    else if (this.cursors!.right.isDown) cam.scrollX += speed * (dt / 1000);
+
+    if (this.cursors!.up.isDown) cam.scrollY -= speed * (dt / 1000);
+    else if (this.cursors!.down.isDown) cam.scrollY += speed * (dt / 1000);
   }
 
   update(_: number, delta: number) {
     this.manager!.update_players_movement(delta);
+    this.handle_input(delta);
   }
 };
 
