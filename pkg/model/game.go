@@ -6,7 +6,6 @@ import (
 
 	"github.com/capucinoxx/forlorn/pkg/codec"
 	"github.com/capucinoxx/forlorn/pkg/config"
-	"github.com/capucinoxx/forlorn/pkg/utils"
 )
 
 // GameState représente l'état actuel du jeu.

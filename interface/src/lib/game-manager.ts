@@ -35,6 +35,8 @@ class GameManager {
 
     this.players.sync(payload_players);
     this.bullets.sync(payload_bullets);
+
+    this.coins.sync(payload.coins);
   }
 
   public update_players_movement(delta: number) {

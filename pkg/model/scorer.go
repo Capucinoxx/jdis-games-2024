@@ -15,8 +15,8 @@ type Scorer struct {
 func NewCoin() *Scorer {
   s := &Scorer{Value: config.CoinValue}
   pos := &Point{
-    X: rand.Float64() * float64(config.MapWidth),
-    Y: rand.Float64() * float64(config.MapWidth),
+    X: rand.Float64() * float64(config.MapWidth * config.CellWidth),
+    Y: rand.Float64() * float64(config.MapWidth * config.CellWidth),
   }
 
   s.setup(pos, config.CoinSize)
@@ -31,6 +31,7 @@ func (s *Scorer) IsCollidingWithPlayer(player *Player) bool {
 
   ok := PolygonsIntersect(s.collider.polygon(), player.Collider().polygon())
   if ok {
+    player.AddScore(int(s.Value))
     s.Remove()
   }
 
@@ -53,3 +54,29 @@ func (s *Scorer) Encode(w codec.Writer) (err error) {
   return
 }
 
+
+type Scorers struct {
+  scorers []*Scorer
+}
+
+func NewScorers() *Scorers {
+  return &Scorers{}
+}
+
+func (s *Scorers) Add(scorer *Scorer) {
+  s.scorers = append(s.scorers, scorer)
+}
+
+func (s *Scorers) Update(players []*Player) {
+  for _, scorer := range s.scorers {
+    for _, player := range players {
+      scorer.IsCollidingWithPlayer(player)
+    }
+  }
+
+  for i := 0; i < len(s.scorers); i++ {
+    if !s.scorers[i].IsAlive() {
+      s.scorers[i] = NewCoin()
+    }
+  }
+}

@@ -57,5 +57,5 @@ const (
   // CoinValue defines the value when player take a coin.
   CoinValue (int32) = 50
 
-  NumCoins = 10
+  NumCoins = 30
 )

@@ -49,6 +49,8 @@ class Manager<T extends GameObject> {
   }
 
   private get_key(p: Payload): string {
+    
+
     return 'id' in p ? p.id : (p as PlayerObject).name;
   } 
 };
@@ -80,8 +82,9 @@ class PlayerManager extends Manager<Player> {
     super.sync(payloads);
 
     payloads.forEach((p) => {
+      const pp = p as PlayerObject;
       const player = this.cache.get((p as PlayerObject).name);
-      player?.set_movement(new Phaser.Math.Vector2(p.pos.x, p.pos.y), new Phaser.Math.Vector2(p.dest!.x, p.dest!.y));
+      player?.set_movement(new Phaser.Math.Vector2(pp.pos.x, pp.pos.y), new Phaser.Math.Vector2(pp.dest!.x, pp.dest!.y));
     });
   }
 

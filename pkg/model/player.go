@@ -56,6 +56,7 @@ type Player struct {
 
   Controls Controls
   cannon *Cannon
+  score int
 }
 
 func NewPlayer(name string,color int,  pos *Point, conn Connection) *Player {
@@ -83,6 +84,14 @@ func (p *Player) Collider() *RectCollider {
 
 func (p *Player) TakeDmg(dmg int) {
   p.health -= dmg
+}
+
+func (p *Player) AddScore(score int) {
+  p.score += score
+}
+
+func (p *Player) Score() int {
+  return p.score
 }
 
 func (p *Player) IsAlive() bool {

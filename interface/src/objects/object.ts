@@ -3,7 +3,7 @@ import { PROJECTILE_SIZE, PROJECTILE_SPEED, COIN_SIZE, PLAYER_SPEED, PLAYER_SIZE
 import { MovableObject } from '../lib/movable';
 import '../types/index.d.ts';
 
-type Payload = ProjectileObject | PlayerObject;
+type Payload = ProjectileObject | PlayerObject | ScorerObject;
 
 interface GameObject extends Phaser.GameObjects.Container { };
 
@@ -11,7 +11,7 @@ interface GameObject extends Phaser.GameObjects.Container { };
 class Bullet extends MovableObject implements GameObject {
   constructor(scene: Phaser.Scene, payload: Payload) {
     const { pos, dest } = payload as ProjectileObject;
-    const circle = scene.add.circle(0, 0, PROJECTILE_SIZE, 0x00ff00);
+    const circle = scene.add.circle(0, 0, PROJECTILE_SIZE / 2, 0x00ff00);
 
     super(scene, pos.x, pos.y, new Phaser.Math.Vector2(dest?.x, dest?.y), PROJECTILE_SPEED, [circle]);
   };
@@ -20,10 +20,13 @@ class Bullet extends MovableObject implements GameObject {
 
 class Coin extends Phaser.GameObjects.Container implements GameObject {
   constructor(scene: Phaser.Scene, payload: Payload) {
-    const { pos } = payload;
-    const circle = scene.add.circle(0, 0, COIN_SIZE, 0xffff00);
+    const { pos } = payload as ScorerObject;
+    const circle = scene.add.circle(0, 0, COIN_SIZE / 2, 0x131313);
 
     super(scene, pos.x, pos.y, [circle]);
+
+    this.scene.physics.world.enable(this);
+    scene.add.existing(this);
   }
 };
 

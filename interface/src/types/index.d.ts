@@ -5,13 +5,11 @@ type ServerObject = {
   pos: Position;
 };
 
-type ProjectileObject = {
-  ServerObject;
+type ProjectileObject = ServerObject & {
   dest: Position;
 };
 
-type ScorerObject = {
-  ServerObject;
+type ScorerObject = ServerObject & {
   value: number;
 };
 
