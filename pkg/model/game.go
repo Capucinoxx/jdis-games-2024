@@ -115,6 +115,7 @@ func (gs *GameState) RemovePlayer(p *Player) int {
 // que le jeu est en cours.
 func (gs *GameState) Start() {
 	gs.Map.Setup()
+  gs.SetSpawns(gs.Map.Spawns(0))
 
   players := gs.Players()
   for _, p := range players {
@@ -123,6 +124,8 @@ func (gs *GameState) Start() {
 
     spawn := gs.GetSpawnPoint()
     p.Collider().ChangePosition(spawn.X, spawn.Y)
+    p.Position.X = spawn.X
+    p.Position.Y = spawn.Y
   }
 
   for i := 0; i < config.NumCoins; i++ {

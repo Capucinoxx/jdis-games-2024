@@ -75,7 +75,11 @@ func (gm *GameManager) RegisterPlayer(conn model.Connection) error {
     return fmt.Errorf("Unknown token")
   }
 
-  spawn := gm.state.GetSpawnPoint()
+  spawn := &model.Point{X: 0, Y: 0}
+
+  if gm.state.InProgess() {
+    spawn = gm.state.GetSpawnPoint()
+  }
 	player := model.NewPlayer(username, color, spawn, conn)
   
 	gm.nm.Register(player.Client)
@@ -93,18 +97,7 @@ func (gm *GameManager) RegisterPlayer(conn model.Connection) error {
 }
 
 // UnregisterPlayer supprime un joueur de l'état du jeu et de la liste des clients.
-func (gm *GameManager) Unregister(conn model.Connection) {
-  if conn.Identifier() != "" {
-	  players := gm.state.Players()
-
-	  for _, p := range players {
-		  if p.Client.Connection == conn {
-			  gm.state.RemovePlayer(p)
-			  break
-		  }
-	  }
-  }
-}
+func (gm *GameManager) Unregister(conn model.Connection) {}
 
 // Init initialise le gestionnaire de jeu. Il démarre le serveur de jeu et
 // attend les connexions des joueurs.
