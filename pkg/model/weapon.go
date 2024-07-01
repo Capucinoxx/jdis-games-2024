@@ -160,7 +160,7 @@ type Blade struct {
 func NewBlade(owner *Player) *Blade {
   blade := &Blade{ owner: owner }
   pivot := owner.Collider().Pivot
-  blade.collider = NewRectCollider(pivot.X, pivot.Y, config.BladeSize)
+  blade.collider = NewRectLineCollider(pivot.X, pivot.Y + config.BladeDistance, config.BladeSize)
   blade.collider.SetPivot(pivot.X, pivot.Y)
   return blade
 }
@@ -168,7 +168,7 @@ func NewBlade(owner *Player) *Blade {
 func (b *Blade) Update(players []*Player, m Map, dt float64) {
   pivot := b.owner.Collider().Pivot
   b.collider.SetPivot(pivot.X, pivot.Y)
-  b.collider.Rotate(config.BladeRotationSpeed * dt)
+  b.collider.Rotate(config.BladeRotationSpeed * dt + 90)
 
 
   for _, enemy := range players {
