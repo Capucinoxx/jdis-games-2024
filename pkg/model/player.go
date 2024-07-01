@@ -56,6 +56,7 @@ type Player struct {
 
   Controls Controls
   cannon *Cannon
+  blade *Blade
   score int
 }
 
@@ -74,6 +75,7 @@ func NewPlayer(name string,color int,  pos *Point, conn Connection) *Player {
 
   p.setup(pos, config.PlayerSize)
   p.cannon = NewCanon(p)
+  p.blade = NewBlade(p)
 
   return p
 }
@@ -107,6 +109,7 @@ func (p *Player) Update(players []*Player, game *GameState, dt float64) {
 
   p.HandleMovement(players, game.Map, dt)
   p.HandleWeapon(players, game.Map, dt)
+  p.blade.Update(players, game.Map, dt)
 }
 
 func (p *Player) HandleMovement(players []*Player, m Map, dt float64) {
@@ -165,6 +168,11 @@ type PlayerInfo struct {
     Pos Point
     Dest Point
   }
+  Blade struct {
+    Start Point
+    End Point
+    Rotation float64
+  }
 }
 
 func (p *Player) Encode(w codec.Writer) (err error) {
@@ -214,6 +222,19 @@ func (p *Player) Encode(w codec.Writer) (err error) {
     if err = bullet.Destination.Encode(w); err != nil {
       return
     }
+  }
+
+  // encode blade
+  if err = p.blade.collider.rect.a.Encode(w); err != nil {
+    return 
+  }
+
+  if err = p.blade.collider.rect.b.Encode(w); err != nil {
+    return
+  }
+
+  if err = w.WriteFloat64(p.blade.collider.Rotation); err != nil {
+    return 
   }
 
   return
@@ -270,6 +291,21 @@ func (p *PlayerInfo) Decode(r codec.Reader) (err error) {
     if err = p.Projectiles[i].Dest.Decode(r); err != nil {
       return
     }
+  }
+
+  // decode Blade
+  p.Blade.Start = Point{}
+  if err = p.Blade.Start.Decode(r); err != nil {
+    return
+  }
+
+  p.Blade.End = Point{}
+  if err = p.Blade.End.Decode(r); err != nil {
+    return
+  }
+
+  if p.Blade.Rotation, err = r.ReadFloat64(); err != nil {
+    return
   }
 
   return
