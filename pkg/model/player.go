@@ -117,17 +117,26 @@ func (p *Player) Update(players []*Player, game *GameState, dt float64) {
   p.blade.Update(players, game.Map, dt)
 }
 
+
+
 func (p *Player) HandleRespawn(game *GameState) {
   if !p.IsAlive() && p.respawnCountdown > config.RespawnTime {
     p.health = 100
-    p.respawnCountdown = 0
-    p.Position = game.GetSpawnPoint()
-    p.collider.ChangePosition(p.Position.X, p.Position.Y)
-    p.blade.collider.Rotation = 0.0
-
-    p.Client.Blind = false
+    
+    p.Respawn(game)
   }
 }
+
+
+func (p *Player) Respawn(game *GameState) {
+  p.respawnCountdown = 0
+  p.Position = game.GetSpawnPoint()
+  p.collider.ChangePosition(p.Position.X, p.Position.Y)
+
+  p.blade.collider.Rotation = 0.0
+  p.Client.Blind = false
+}
+
 
 func (p *Player) HandleMovement(players []*Player, m Map, dt float64) {
   if p.Controls.Dest == nil {
