@@ -17,8 +17,8 @@ class MainScene extends Phaser.Scene {
     this.cursors = this.input.keyboard?.createCursorKeys();
 
     this.input.on('wheel', (_: Phaser.Input.Pointer, __: any, ___: number, dy: number, ____: number) => {
-      if (dy > 0) cam.zoom -= 0.1;
-      else if (dy < 0) cam.zoom += 0.1;
+      if (dy > 0) cam.zoom = Math.max(0.5, cam.zoom - 0.1);
+      else if (dy < 0) cam.zoom = Math.min(1.1, cam.zoom + 0.1);
     });
   }
 
