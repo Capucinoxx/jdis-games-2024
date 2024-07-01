@@ -1,5 +1,7 @@
 package model
 
+import "math"
+
 
 const (
 	// defaultForwardSpeed est la vitesse de déplacement par défaut.
@@ -33,13 +35,9 @@ func (p Polygon) String() string {
 type RectCollider struct {
 	rect  *Rect
 	look  *Point
-	Dir   *Point
 	Pivot *Point
 
 	Rotation     uint32
-	forwardSpeed float64
-
-	velocity float64
 }
 
 // NewRectCollider crée un nouveau RectCollider.
@@ -54,19 +52,14 @@ func NewRectCollider(x, y, size float64) *RectCollider {
 
 		Pivot: &Point{X: x, Y: y},
 		look:  &Point{X: x, Y: y + 2},
-		Dir:   &Point{X: 0, Y: 0},
 
 		Rotation:     0,
-		forwardSpeed: defaultForwardSpeed,
-	}
+  }
 }
 
-// CalculDirection calcule la direction du RectCollider et
-// la normalise.
-func (r *RectCollider) CalculDirection() {
-	r.Dir.X = r.look.X - r.Pivot.X
-	r.Dir.Y = r.look.Y - r.Pivot.Y
-	r.Dir.normalize()
+func (r *RectCollider) SetPivot(x, y float64) {
+  r.Pivot.X = x
+  r.Pivot.Y = y
 }
 
 func (r *RectCollider) ChangePosition(px, py float64) {
@@ -119,6 +112,29 @@ func ProjectPolygon(axis Point, polygon Polygon) (float64, float64) {
   return min, max
 }
 
+
+func (r *RectCollider) Rotate(theta float64) {
+  r.rotate(theta, r.rect.a)
+  r.rotate(theta, r.rect.b)
+  r.rotate(theta, r.rect.c)
+  r.rotate(theta, r.rect.d)
+}
+
+
+func (r *RectCollider) rotate(theta float64, p *Point) {
+  sin := math.Sin(theta)
+  cos := math.Cos(theta)
+
+  p.X -= r.Pivot.X
+  p.Y -= r.Pivot.Y
+  
+  x := p.X*cos - p.Y*sin
+  y := p.X*sin + p.Y*cos
+
+  p.X = x + r.Pivot.X
+  p.Y = y + r.Pivot.Y
+}
+
 // PolygonsIntersect retourne vrai si les deux polygones spécifiés se chevauchent.
 // Sinon, retourne faux.
 func PolygonsIntersect(a, b Polygon) bool {
@@ -156,3 +172,4 @@ func PolygonsIntersect(a, b Polygon) bool {
 
   return true
 }
+

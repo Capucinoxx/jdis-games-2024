@@ -56,6 +56,7 @@ type Player struct {
 
   Controls Controls
   cannon *Cannon
+  blade *Blade
   score int
 }
 
@@ -74,6 +75,7 @@ func NewPlayer(name string,color int,  pos *Point, conn Connection) *Player {
 
   p.setup(pos, config.PlayerSize)
   p.cannon = NewCanon(p)
+  p.blade = NewBlade(p)
 
   return p
 }

@@ -151,3 +151,33 @@ func (c *Cannon) ShootAt(pos Point) {
     &Point{X: pos.X, Y: pos.Y},
   ))
 }
+
+type Blade struct {
+  RectCollider
+  owner *Player
+}
+
+func NewBlade(owner *Player) *Blade {
+  blade := &Blade{owner: owner}
+  pivot := owner.Collider().Pivot
+  blade.SetPivot(pivot.X, pivot.Y)
+  return blade
+}
+
+func (b *Blade) Update(players []*Player, m Map, dt float64) {
+  pivot := b.owner.Collider().Pivot
+  b.SetPivot(pivot.X, pivot.Y)
+  b.Rotate(config.BladeRotationSpeed * dt)
+
+
+  for _, enemy := range players {
+    if b.owner.Nickname == enemy.Nickname {
+      continue
+    }
+
+    if PolygonsIntersect(b.polygon(), enemy.Collider().polygon()) {
+      enemy.TakeDmg(config.BladeDmg)
+    }
+  }
+}
+

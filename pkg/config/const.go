@@ -48,6 +48,21 @@ const (
   ProjectileSpeed = 1.75
 
 
+  // --- BLADE CONSTANTS
+  // ================================
+
+  // BladeSize defines the size of a blade.
+  BladeSize = 0.5
+
+  // BladeDmg defines the damage suffered by a player when hit by a blade.
+  BladeDmg = 20
+
+  // BladeRotationSpeed defines the speed of rotation of a blade (in deg).
+  BladeRotationSpeed = 230
+
+  // BladeDistance defines the distance between the player and the blade.
+  BladeDistance = 1.5
+
   // --- SCORER CONSTANTS
   // ================================
   
