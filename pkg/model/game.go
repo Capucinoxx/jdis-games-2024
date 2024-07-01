@@ -122,6 +122,7 @@ func (gs *GameState) Start() {
     p.Respawn(gs)
   }
 
+  gs.coins = make([]*Scorer, 0, config.NumCoins)
   for i := 0; i < config.NumCoins; i++ {
     gs.coins = append(gs.coins, NewCoin())
   }
