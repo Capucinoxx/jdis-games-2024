@@ -133,6 +133,10 @@ func (nm *NetworkManager) run() {
 
 		case message := <-nm.broadcast:
 			for conn, client := range nm.clients {
+        if client.Blind {
+          continue
+        }
+
 				select {
 				case client.Out <- message:
 				default:

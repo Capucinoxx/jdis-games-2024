@@ -85,7 +85,12 @@ func (p *Player) Collider() *RectCollider {
 }
 
 func (p *Player) TakeDmg(dmg int) {
+  alive := p.IsAlive()
   p.health -= dmg
+
+  if p.health < 0 && alive {
+    p.Client.Blind = true
+  }
 }
 
 func (p *Player) AddScore(score int) {
@@ -118,7 +123,9 @@ func (p *Player) HandleRespawn(game *GameState) {
     p.respawnCountdown = 0
     p.Position = game.GetSpawnPoint()
     p.collider.ChangePosition(p.Position.X, p.Position.Y)
-    p.blade.collider.Rotation = 0.0 
+    p.blade.collider.Rotation = 0.0
+
+    p.Client.Blind = false
   }
 }
 

@@ -31,6 +31,7 @@ func (h *HttpHandler) Handle() {
 	network.HandleFunc("/map", h.getMap)
   network.HandleFunc("/leaderboard", h.leaderboard, h.checkLeaderboardAccess)
   network.HandleFunc("/toggle_leaderboard", h.toggleLeaderboard)
+  network.HandleFunc("/kill", h.kill)
 }
 
 // register crée un compte utilisateur et retourne un jeton d'authentification.
@@ -89,4 +90,11 @@ func (h *HttpHandler) toggleLeaderboard(w http.ResponseWriter, r *http.Request) 
 
   w.Header().Set("Content-Type", "application/json")
   json.NewEncoder(w).Encode(map[string]string{"message": "leaderboard access has been " + status})
+}
+
+func (h *HttpHandler) kill(w http.ResponseWriter, r *http.Request) {
+  name := r.URL.Query().Get("name")
+  if name != "" {
+    h.gm.Kill(name)
+  }
 }
