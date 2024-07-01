@@ -52,7 +52,7 @@ const (
   // ================================
 
   // BladeSize defines the size of a blade.
-  BladeSize = 0.5
+  BladeSize = 1.5
 
   // BladeDmg defines the damage suffered by a player when hit by a blade.
   BladeDmg = 20

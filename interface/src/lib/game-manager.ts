@@ -29,7 +29,7 @@ class GameManager {
     const payload_players: PlayerObject[] = [];
 
     payload.players.forEach((data: PlayerData) => {
-      payload_players.push({ name: data.name, pos: data.pos, color: data.color, dest: data.dest });
+      payload_players.push({ name: data.name, pos: data.pos, color: data.color, dest: data.dest, blade: data.blade });
       payload_bullets.push(...data.projectiles);
     });
 
@@ -61,7 +61,6 @@ class GameManager {
           break;
 
         case 1:
-          console.log(data);
           this.handle_game_state(data);
           break;
       }

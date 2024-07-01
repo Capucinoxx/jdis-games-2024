@@ -5,6 +5,12 @@ type ServerObject = {
   pos: Position;
 };
 
+type BladeObject = {
+  start: Position;
+  end: Position;
+  rotation: number;
+};
+
 type ProjectileObject = ServerObject & {
   dest: Position;
 };
@@ -18,6 +24,7 @@ type PlayerObject = {
   color: number;
   pos: Position;
   dest: Position;
+  blade: BladeObject;
 };
 
 type PlayerData = {
@@ -26,6 +33,7 @@ type PlayerData = {
   health: number;
   pos: Position;
   dest: Position;
+  blade: BladeObject;
   projectiles: Array<Projectile>
 };
 

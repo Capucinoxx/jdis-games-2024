@@ -34,10 +34,9 @@ func (p Polygon) String() string {
 // dans un espace 2D.
 type RectCollider struct {
 	rect  *Rect
-	look  *Point
 	Pivot *Point
 
-	Rotation     uint32
+	Rotation     float64
 }
 
 // NewRectCollider crée un nouveau RectCollider.
@@ -51,11 +50,24 @@ func NewRectCollider(x, y, size float64) *RectCollider {
 		},
 
 		Pivot: &Point{X: x, Y: y},
-		look:  &Point{X: x, Y: y + 2},
-
 		Rotation:     0,
   }
 }
+
+func NewRectLineCollider(x, y, height float64) *RectCollider {
+  return &RectCollider{
+    rect: &Rect{
+      a: &Point{X: x, Y: y},
+      b: &Point{X: x, Y: y + height},
+      c: &Point{X: x, Y: y + height},
+      d: &Point{X: x, Y: y},
+    },
+
+    Pivot: &Point{X: x, Y: y},
+    Rotation:     0,
+  }
+}
+
 
 func (r *RectCollider) SetPivot(x, y float64) {
   r.Pivot.X = x
@@ -118,6 +130,8 @@ func (r *RectCollider) Rotate(theta float64) {
   r.rotate(theta, r.rect.b)
   r.rotate(theta, r.rect.c)
   r.rotate(theta, r.rect.d)
+
+  r.Rotation = math.Mod((r.Rotation + theta), 360.0)
 }
 
 

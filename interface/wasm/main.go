@@ -95,6 +95,12 @@ func getInformations(this js.Value, args []js.Value) interface{} {
       }
       player.Set("projectiles", projectiles)
       players.Call("push", player)
+
+      blade := js.Global().Get("Object").New()
+      blade.Set("start", position(data.Blade.Start))
+      blade.Set("end", position(data.Blade.End))
+      blade.Set("rotation", data.Blade.Rotation)
+      player.Set("blade", blade)
     }
 
     obj.Set("players", players)

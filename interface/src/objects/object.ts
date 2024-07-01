@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { PROJECTILE_SIZE, PROJECTILE_SPEED, COIN_SIZE, PLAYER_SPEED, PLAYER_SIZE } from '../config'; 
+import { PROJECTILE_SIZE, PROJECTILE_SPEED, COIN_SIZE, PLAYER_SPEED, PLAYER_SIZE, BLADE_ROTATION_SPEED, BLADE_DISTANCE, BLADE_LENGTH } from '../config'; 
 import { MovableObject } from '../lib/movable';
 import '../types/index.d.ts';
 
@@ -32,6 +32,8 @@ class Coin extends Phaser.GameObjects.Container implements GameObject {
 
 
 class Player extends MovableObject implements GameObject {
+  private blade: Blade;
+
   constructor(scene: Phaser.Scene, payload: Payload) {
     const { pos, name, color } = payload as PlayerObject;
     const rect = scene.add.rectangle(0, 0, PLAYER_SIZE, PLAYER_SIZE, color).setOrigin(0.5, 0.5);
@@ -39,12 +41,57 @@ class Player extends MovableObject implements GameObject {
 
     super(scene, pos.x, pos.y, new Phaser.Math.Vector2(pos.x, pos.y), PLAYER_SPEED, [rect, label]);
 
+    this.blade = new Blade(scene, this);
+
   }
 
   public set_movement(pos: Phaser.Math.Vector2, dest: Phaser.Math.Vector2): void {
     this.destination = dest;
-    if (Math.abs(this.x - pos.x) > 0.01 || Math.abs(this.y - pos.y) > 0.01)
+
+    if (Math.abs(this.x - pos.x) > 0.01 || Math.abs(this.y - pos.y) > 0.01) {
       this.setPosition(pos.x, pos.y);
+      this.blade.setPosition(pos.x, pos.y);
+    }
+  }
+
+  public update(time: number, delta: number): void {
+    super.update(time, delta);
+
+    this.blade.update(delta);
+  }
+
+};
+
+class Blade extends Phaser.GameObjects.Container {
+  private blade: Phaser.GameObjects.Rectangle;
+  private owner: Player;
+  private speed: number;
+
+  constructor(scene: Phaser.Scene, player: Player) {
+    super(scene, player.x, player.y);
+    const blade = scene.add.rectangle(0, 0, 4, BLADE_LENGTH, 0x0000);
+
+    this.add(blade);
+
+    this.blade = blade;
+    this.owner = player;
+    this.speed = Phaser.Math.DegToRad(BLADE_ROTATION_SPEED);
+    
+    scene.add.existing(this);
+  }
+
+  public update(dt: number): void {
+    this.angle += (this.speed * (dt / 1000));
+    this.angle %= (Math.PI * 2);
+
+    this.x = this.owner.x + (BLADE_DISTANCE * Math.cos(this.angle));
+    this.y = this.owner.y + (BLADE_DISTANCE * Math.sin(this.angle));
+
+    const dx = this.owner.x - this.x;
+    const dy = this.owner.y - this.y;
+    const rotation = Math.atan2(dy, dx);
+
+    this.blade.setRotation(rotation + Math.PI / 2);
   }
 };
 
