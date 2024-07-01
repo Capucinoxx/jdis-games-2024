@@ -85,7 +85,12 @@ func (p *Player) Collider() *RectCollider {
 }
 
 func (p *Player) TakeDmg(dmg int) {
+  alive := p.IsAlive()
   p.health -= dmg
+
+  if p.health < 0 && alive {
+    p.Client.Blind = true
+  }
 }
 
 func (p *Player) AddScore(score int) {
@@ -111,6 +116,27 @@ func (p *Player) Update(players []*Player, game *GameState, dt float64) {
   p.HandleWeapon(players, game.Map, dt)
   p.blade.Update(players, game.Map, dt)
 }
+
+
+
+func (p *Player) HandleRespawn(game *GameState) {
+  if !p.IsAlive() && p.respawnCountdown > config.RespawnTime {
+    p.health = 100
+    
+    p.Respawn(game)
+  }
+}
+
+
+func (p *Player) Respawn(game *GameState) {
+  p.respawnCountdown = 0
+  p.Position = game.GetSpawnPoint()
+  p.collider.ChangePosition(p.Position.X, p.Position.Y)
+
+  p.blade.collider.Rotation = 0.0
+  p.Client.Blind = false
+}
+
 
 func (p *Player) HandleMovement(players []*Player, m Map, dt float64) {
   if p.Controls.Dest == nil {

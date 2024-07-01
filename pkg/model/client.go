@@ -7,6 +7,7 @@ type Client struct {
 	Out        chan []byte
 	In         chan ClientMessage
 	Connection Connection
+  Blind bool
 }
 
 // ClientMessage représente un message envoyé par un client.

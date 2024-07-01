@@ -123,6 +123,15 @@ func (gm *GameManager) State() (model.Map, int) {
 	return state.Map, 0
 }
 
+func (gm *GameManager) Kill(name string) {
+  for _, player := range gm.state.Players() {
+    if player.Nickname == name {
+      player.TakeDmg(1_000_000)
+      return
+    }
+  }
+}
+
 
 // process traite les messages entrants des joueurs. Il met à jour l'état du jeu
 // en fonction des messages entrants. Il met également à jour les informations
@@ -178,7 +187,7 @@ func (gm *GameManager) gameLoop() {
 
 		for _, p := range players {
 			gm.process(p, players, timestep, true)
-			// handle respawn
+			p.HandleRespawn(gm.state)
 		}
     
     if count == 10 {
