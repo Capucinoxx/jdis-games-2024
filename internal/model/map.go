@@ -4,10 +4,12 @@ import (
 	"container/heap"
 	"math"
 	"math/rand"
+	"time"
 
 	"github.com/capucinoxx/forlorn/pkg/codec"
 	"github.com/capucinoxx/forlorn/pkg/config"
 	"github.com/capucinoxx/forlorn/pkg/model"
+	"github.com/capucinoxx/forlorn/pkg/utils"
 )
 
 type point struct { 
@@ -354,6 +356,8 @@ func (m *Map) getSpawnPoints(distances [][]int, min int) {
 func (m *Map) Setup() {
   spawns := 0
   m.size = config.MapWidth
+  
+  r := rand.New(rand.NewSource(time.Now().UnixNano()))
 
   for spawns < 40 {
     grid := make([][]cell, config.MapWidth)
@@ -374,8 +378,11 @@ func (m *Map) Setup() {
 
     distances := m.dijkstra(point{x: start.x*10, y: start.y*10}, m.subdivise(10))
     m.getSpawnPoints(distances, 40)
-    spawns = len(m.spawns[1])
+    spawns = len(m.spawns[1]) 
   }
+
+  utils.Shuffle(r, m.spawns[0])
+  utils.Shuffle(r, m.spawns[1])
 }
 
 
