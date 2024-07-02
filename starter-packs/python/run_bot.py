@@ -20,7 +20,7 @@ def main():
     if args.rank:
         channel = "/ranked/game"
 
-    print(f"Starting bot with base URL: {args.url}, token: {args.token}, and rank: {args.rank}")
+    print(f"Starting bot with base URL: {args.url}, token: {args.token}, is ranked: {args.rank}")
     
     # asyncio.run(loop(args.token, args.url + channel))
 
