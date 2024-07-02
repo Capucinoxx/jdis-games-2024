@@ -114,6 +114,13 @@ func (gs *GameState) RemovePlayer(p *Player) int {
 // démarre le chronomètre et met un drapeau pour indiquer
 // que le jeu est en cours.
 func (gs *GameState) Start() {
+  gs.mu.Lock()
+  if gs.inProgress {
+    gs.mu.Unlock()
+    return
+  }
+  gs.mu.Unlock()
+
 	gs.Map.Setup()
   gs.SetSpawns(gs.Map.Spawns(0))
 
@@ -122,6 +129,7 @@ func (gs *GameState) Start() {
     p.Respawn(gs)
   }
 
+  gs.coins = make([]*Scorer, 0, config.NumCoins)
   for i := 0; i < config.NumCoins; i++ {
     gs.coins = append(gs.coins, NewCoin())
   }
@@ -131,6 +139,12 @@ func (gs *GameState) Start() {
 	gs.mu.Lock()
 	defer gs.mu.Unlock()
 	gs.inProgress = true
+}
+
+func (gs *GameState) Stop() {
+  gs.mu.Lock()
+  gs.mu.Unlock()
+  gs.inProgress = false
 }
 
 type GameMessage struct {

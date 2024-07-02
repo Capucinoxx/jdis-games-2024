@@ -61,6 +61,7 @@ class GameManager {
           break;
 
         case 1:
+          console.log(data);
           this.handle_game_state(data);
           break;
       }
