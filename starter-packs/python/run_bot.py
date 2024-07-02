@@ -1,11 +1,8 @@
 import argparse
 
-import asyncio
+from network.network import Socket
 
-DEFAULT_BASE_URL = "ws://jdis-ia.dinf.fsci.usherbrooke.ca"
-
-# async def loop(token: str, url: str):
-#     await Socket(url, token).run()
+DEFAULT_BASE_URL = "ws://localhost:8087/echo"
 
 def main():
     parser = argparse.ArgumentParser(description="Starts the bot")
@@ -16,13 +13,15 @@ def main():
     args = parser.parse_args()
 
     args.url = args.url.rstrip()
-    channel = "/unranked/game"
-    if args.rank:
-        channel = "/ranked/game"
+
+    channel = ""
+    # channel = "/unranked/game"
+    # if args.rank:
+    #     channel = "/ranked/game"
 
     print(f"Starting bot with base URL: {args.url}, token: {args.token}, is ranked: {args.rank}")
     
-    # asyncio.run(loop(args.token, args.url + channel))
+    Socket(args.url + channel, args.token).run()
 
 if __name__ == "__main__":
     main()
