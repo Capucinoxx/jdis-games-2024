@@ -197,14 +197,15 @@ func (gm *GameManager) gameLoop() {
       
     count++
 		if gm.rm.HasEnded() {
+      gm.state.Stop()
 			break
 		}
 	}
 	ticker.Stop()
 
 	gm.nm.BroadcastGameEnd()
-
-	gm.rm.Restart()
+  
+  
 	time.Sleep(10 * time.Second)
 	gm.Start()
 }

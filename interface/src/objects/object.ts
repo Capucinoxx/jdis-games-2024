@@ -60,6 +60,10 @@ class Player extends MovableObject implements GameObject {
     this.blade.update(delta);
   }
 
+  public destroy(): void {
+    this.blade.destroy();
+    super.destroy(); 
+  }
 };
 
 class Blade extends Phaser.GameObjects.Container {

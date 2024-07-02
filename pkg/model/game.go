@@ -141,6 +141,12 @@ func (gs *GameState) Start() {
 	gs.inProgress = true
 }
 
+func (gs *GameState) Stop() {
+  gs.mu.Lock()
+  gs.mu.Unlock()
+  gs.inProgress = false
+}
+
 type GameMessage struct {
   Players []*Player
   Coins []*Scorer
