@@ -49,6 +49,8 @@ type ServerGameEnd = {
 
 type ServerGameState = {
   type: 1;
+  tick: number;
+  round: number;
   players: Array<PlayerData>;
   coins: Array<ScorerObject>;
 };

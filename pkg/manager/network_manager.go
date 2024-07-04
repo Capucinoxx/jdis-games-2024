@@ -168,10 +168,12 @@ func (nm *NetworkManager) Send(client *model.Client, message []byte) {
 // This involves sending a packet for each player containing the player's
 // ID and player data, structured as:
 // [0:1 id][1:2 messageType][2:6 currentTime][6:end (position)]
-func (nm *NetworkManager) BroadcastGameState(state *model.GameState) {
+func (nm *NetworkManager) BroadcastGameState(state *model.GameState, tick int32, round int8) {
   nm.broadcast <- nm.protocol.Encode(0, 0, &model.ClientMessage{
     MessageType: model.Position,
     Body: model.GameMessage{
+      CurrentTick: tick,
+      CurrentRound: round,
       Players: state.Players(),
       Coins: state.Coins(),
     },

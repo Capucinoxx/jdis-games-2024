@@ -64,6 +64,16 @@ func (r *RoundManager) Tick() {
   }
 }
 
+func (r *RoundManager) CurrentTick() int {
+  return r.ticks / 10
+}
+
+func (r *RoundManager) CurrentRound() int8 {
+  if r.ticks < TicksPointRushStage {
+    return 0
+  }
+  return 1
+}
 
 func (r *RoundManager) AddChangeStageHandler(tick int, cb StageHandler) {
   r.handlers[tick] = cb

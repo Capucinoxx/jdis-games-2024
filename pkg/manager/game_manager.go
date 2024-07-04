@@ -14,6 +14,8 @@ const tickrate = 30
 type RoundManager interface {
 	Restart()
 	Tick()
+  CurrentTick() int
+  CurrentRound() int8
   SetState(*model.GameState)
 	HasEnded() bool
 }
@@ -191,7 +193,7 @@ func (gm *GameManager) gameLoop() {
 		}
     
     if count == 10 {
-		  gm.nm.BroadcastGameState(gm.state)
+		  gm.nm.BroadcastGameState(gm.state, int32(gm.rm.CurrentTick()), gm.rm.CurrentRound())
       count = 0
     }
       

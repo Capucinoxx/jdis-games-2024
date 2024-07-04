@@ -12,7 +12,6 @@ import (
 type GameState struct {
 	startTime    time.Time
 	inProgress   bool
-	lastPlayerID int64
 
 	playerCount  int
 	players      map[string]*Player
@@ -30,7 +29,6 @@ func NewGameState(m Map) *GameState {
     spawns:       []*Point{},
     spawnIndex:   0,
     inProgress:   false,
-    lastPlayerID: 0,
     coins:        []*Scorer{},
     playerCount:  0,
     players:      make(map[string]*Player),
@@ -148,11 +146,15 @@ func (gs *GameState) Stop() {
 }
 
 type GameMessage struct {
+  CurrentTick int32
+  CurrentRound int8
   Players []*Player
   Coins []*Scorer
 }
 
 type GameInfo struct {
+  CurrentTick int32
+  CourrentRound int8
   Players []PlayerInfo
   Coins []struct{
     Uuid [16]byte
@@ -163,6 +165,14 @@ type GameInfo struct {
 
 
 func (gs *GameMessage) Encode(w codec.Writer) (err error) {
+  if err = w.WriteInt32(gs.CurrentTick); err != nil {
+    return
+  }
+
+  if err = w.WriteInt8(gs.CurrentRound); err != nil {
+    return
+  }
+
   if err = w.WriteInt32(int32(len(gs.Players))); err != nil {
     return
   }
@@ -187,6 +197,14 @@ func (gs *GameMessage) Encode(w codec.Writer) (err error) {
 }
 
 func (g *GameInfo) Decode(r codec.Reader) (err error) {
+  if g.CurrentTick, err = r.ReadInt32(); err != nil {
+    return
+  }
+
+  if g.CourrentRound, err = r.ReadInt8(); err != nil {
+    return
+  }
+
   var size int32
   if size, err = r.ReadInt32(); err != nil {
     return
