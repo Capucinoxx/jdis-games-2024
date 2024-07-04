@@ -69,6 +69,9 @@ func getInformations(this js.Value, args []js.Value) interface{} {
   if msg.MessageType == model.Position {
     body := msg.Body.(model.GameInfo)
 
+    obj.Set("tick", body.CurrentTick)
+    obj.Set("round", body.CourrentRound)
+
     players := js.Global().Get("Array").New()
     for i := 0; i < len(body.Players); i++ {
       data := body.Players[i]
