@@ -1,8 +1,9 @@
 import Phaser from 'phaser';
-import { WS_URL } from '../config';
+import { COIN_SIZES, WS_URL } from '../config';
 import { GridManager } from './grid-manager';
 import { BulletManager, CoinManager, PlayerManager } from '../objects';
 import '../types/index.d.ts';
+import { Coin } from '../objects/object';
 
 class GameManager {
   private ws: WebSocket;
@@ -61,7 +62,7 @@ class GameManager {
           break;
 
         case 1:
-          console.log(data);
+          Coin.size = COIN_SIZES[data.round];
           this.handle_game_state(data);
           break;
       }

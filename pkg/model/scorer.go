@@ -24,6 +24,13 @@ func NewCoin() *Scorer {
   return s
 }
 
+func NewBigCoin(center *Point) *Scorer {
+  s := &Scorer{Value: config.BigCoinValue}
+  s.setup(center, config.BigCoinSize)
+
+  return s
+}
+
 func (s *Scorer) IsCollidingWithPlayer(player *Player) bool {
   if !s.IsAlive() {
     return false

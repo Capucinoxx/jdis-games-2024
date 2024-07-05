@@ -121,14 +121,13 @@ func (p *Player) Update(players []*Player, game *GameState, dt float64) {
 
 func (p *Player) HandleRespawn(game *GameState) {
   if !p.IsAlive() && p.respawnCountdown > config.RespawnTime {
-    p.health = 100
-    
     p.Respawn(game)
   }
 }
 
 
 func (p *Player) Respawn(game *GameState) {
+  p.health = 100
   p.respawnCountdown = 0
   p.Position = game.GetSpawnPoint()
   p.collider.ChangePosition(p.Position.X, p.Position.Y)

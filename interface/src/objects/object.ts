@@ -19,9 +19,11 @@ class Bullet extends MovableObject implements GameObject {
 
 
 class Coin extends Phaser.GameObjects.Container implements GameObject {
+  public static size = COIN_SIZE;
+
   constructor(scene: Phaser.Scene, payload: Payload) {
     const { pos } = payload as ScorerObject;
-    const circle = scene.add.circle(0, 0, COIN_SIZE / 2, 0x131313);
+    const circle = scene.add.circle(0, 0, Coin.size / 2, 0x131313);
 
     super(scene, pos.x, pos.y, [circle]);
 
