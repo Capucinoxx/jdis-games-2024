@@ -1,9 +1,8 @@
 package manager
 
 import (
-  "math/rand"
-  "time"
-  "github.com/capucinoxx/forlorn/pkg/model"
+	"github.com/capucinoxx/forlorn/pkg/config"
+	"github.com/capucinoxx/forlorn/pkg/model"
 	"github.com/capucinoxx/forlorn/pkg/utils"
 )
 
@@ -88,9 +87,14 @@ func (r *RoundManager) HasEnded() bool {
 type DiscoveryStage struct {}
 func (s DiscoveryStage) ChangeStage(state *model.GameState) {
   spawns := state.Map.Spawns(0)
-  utils.Shuffle(rand.New(rand.NewSource(time.Now().UnixNano())), spawns)
   state.SetSpawns(spawns)
-  utils.Log("game", "stage", "Set DiscoveryStage")
+  utils.Log("stage", "stage", "DISCOVERY STAGE CHANGE STAGE")
+
+  coins := make([]*model.Scorer, 0, config.NumCoins)
+  for i := 0; i < config.NumCoins; i++ {
+    coins = append(coins, model.NewCoin())
+  }
+  state.Reset(coins)
 }
 
 
@@ -100,5 +104,9 @@ func (s DiscoveryStage) ChangeStage(state *model.GameState) {
 type PointRushStage struct {}
 func (s PointRushStage) ChangeStage(state *model.GameState) {
   state.SetSpawns(state.Map.Spawns(1))
-  utils.Log("game", "stage", "Set PointRushStage")
+  utils.Log("stage", "stage", "POINT RUSH STAGE CHANGE STAGE")
+  
+  centroid := state.Map.Centroid()
+  coins := []*model.Scorer{model.NewBigCoin(&centroid)}
+  state.Reset(coins)
 }

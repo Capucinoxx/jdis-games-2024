@@ -73,4 +73,10 @@ const (
   CoinValue (int32) = 50
 
   NumCoins = 30
+
+  // BigCoinSize defines the size of big coin.
+  BigCoinSize = 4
+
+  // BigCoinValue defines the value when player take a big coin.
+  BigCoinValue (int32) = 500
 )

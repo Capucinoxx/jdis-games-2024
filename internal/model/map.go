@@ -47,11 +47,15 @@ type Map struct {
   size int
   grid [][]cell
   discreteGrid [][]uint8
+  start model.Point
 
   spawns [2][]*model.Point
   walls []*model.Collider
 }
 
+func (m *Map) Centroid() model.Point {
+  return m.start
+}
 
 func (m *Map) primGenerateMaze(start point) {
   walls := [][5]int{}
@@ -375,7 +379,7 @@ func (m *Map) Setup() {
 
     m.countWallsInSubsquares(2)
 
-
+    m.start = model.Point{X: float64(start.y*config.CellWidth + config.CellWidth / 2), Y: float64(start.x*config.CellWidth + config.CellWidth/2)}
     distances := m.dijkstra(point{x: start.x*10, y: start.y*10}, m.subdivise(10))
     m.getSpawnPoints(distances, 40)
     spawns = len(m.spawns[1]) 

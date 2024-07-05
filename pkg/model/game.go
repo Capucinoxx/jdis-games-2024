@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/capucinoxx/forlorn/pkg/codec"
-	"github.com/capucinoxx/forlorn/pkg/config"
 )
 
 // GameState représente l'état actuel du jeu.
@@ -47,6 +46,10 @@ func (gs *GameState) GetSpawnPoint() *Point {
 func (gs *GameState) SetSpawns(spawns []*Point) {
   gs.spawnIndex = 0
   gs.spawns = spawns
+}
+
+func (gs *GameState) SetCoins(coins []*Scorer) {
+  gs.coins = coins
 }
 
 // InProgess retourne vrai si le jeu est en cours.
@@ -122,15 +125,17 @@ func (gs *GameState) Start() {
 	gs.Map.Setup()
   gs.SetSpawns(gs.Map.Spawns(0))
 
-  players := gs.Players()
-  for _, p := range players {
-    p.Respawn(gs)
-  }
+  //utils.Log("stage", "stage", "GAME STARTED")
 
-  gs.coins = make([]*Scorer, 0, config.NumCoins)
-  for i := 0; i < config.NumCoins; i++ {
-    gs.coins = append(gs.coins, NewCoin())
-  }
+  //players := gs.Players()
+  //for _, p := range players {
+  //  p.Respawn(gs)
+  //}
+
+  //gs.coins = make([]*Scorer, 0, config.NumCoins)
+  //for i := 0; i < config.NumCoins; i++ {
+  //  gs.coins = append(gs.coins, NewCoin())
+  //}
 
 	gs.startTime = time.Now()
 
@@ -138,6 +143,16 @@ func (gs *GameState) Start() {
 	defer gs.mu.Unlock()
 	gs.inProgress = true
 }
+
+func (gs *GameState) Reset(scorers []*Scorer) {
+  players := gs.Players()
+  for _, p := range players {
+    p.Respawn(gs)
+  }
+
+  gs.coins = scorers
+}
+
 
 func (gs *GameState) Stop() {
   gs.mu.Lock()

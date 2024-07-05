@@ -216,6 +216,7 @@ func (c *Collider) polygon() Polygon {
 // Map represents a game map, containing information about collisions and spawn points.
 type Map interface {
 	Setup()
+  Centroid() Point
 	Colliders() []*Collider
 	Spawns(int) []*Point
 	Size() int
