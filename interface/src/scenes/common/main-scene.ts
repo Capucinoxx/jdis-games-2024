@@ -5,7 +5,7 @@ import { GameManager } from '../../lib';
 class MainScene extends Phaser.Scene {
   private manager: GameManager | undefined;
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys | undefined;
-  private wasd_keys: { w: Phaser.Input.Keyboard.Key, a: Phaser.Input.Keyboard.Key, s: Phaser.Input.Keyboard.Key, d: Phaser.Input.Keyboard.Key };
+  private wasd_keys: { w: Phaser.Input.Keyboard.Key, a: Phaser.Input.Keyboard.Key, s: Phaser.Input.Keyboard.Key, d: Phaser.Input.Keyboard.Key } | undefined;
 
   constructor() { super({ key: 'MainScene' }); }
 
@@ -33,7 +33,7 @@ class MainScene extends Phaser.Scene {
   }
 
   private handle_input(dt: number) {
-    if (!this.cursors)
+    if (!this.cursors || !this.wasd_keys)
       return;
   
     const cam = this.cameras.main;
