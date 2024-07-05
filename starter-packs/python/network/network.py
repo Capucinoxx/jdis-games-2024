@@ -1,7 +1,10 @@
 import websocket
 import json
 
+import struct
+
 from src.bot import MyBot
+from core.game_state import MapState
 
 class Socket:  
     def __init__(self, url: str, token: str):
@@ -24,16 +27,53 @@ class Socket:
             return
         
         ws.run_forever()
+
+    # def decode(self, data:bytes):
+    #     # little indian byte order
+    #     message_type = int(data[0])
+
+    #     # message = struct.unpack_from('<I', message[1:], 0)
+    #     self.handle_message(message_type, data[1:])
+
+
+    # TODO : put this somewhere else
+    def handle_message(self,  message:bytes):
+        message_type = int(message[0])
+        print(message_type)
+        if message_type == 4:
+            print(message_type)
+
+            # MapState
+            # size = struct.unpack_from('<B', message[1:], 0)
+            # print(size)
+            state = MapState.decode(message[1:])
+            # self.bot.on_tick(state)
+            
+
+            # pass
+        # elif message_type == 1:
+        #     # GameState
+        #     pass
+        # elif message_type == 2:
+        #     # PlayerAction
+        #     pass
+        # elif message_type == 3:
+        #     # GameStart
+        #     pass
+        # else:
+            # print("Unknown message type")
+
         
     def on_open(self, ws):
         print("Connection opened")
-        self.send_message(ws)
+        # self.send_message(ws)
         print("Message sent")
         
     def on_message(self, ws, message):
-        print("Message received from server: ", message)
-        self.bot.tick()
-        self.send_message(ws)
+        # print("Message received from server: ", message)
+        self.handle_message(message)
+        # self.bot.on_tick()
+        # self.send_message(ws)
         
     def on_error(self, ws, error):
         print("Error: ", error)

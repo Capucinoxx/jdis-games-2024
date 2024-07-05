@@ -21,7 +21,7 @@ class MyBot:
     #     return random.choice(list(Direction))
 
 
-    def tick(self):
+    def on_tick(self):
         """
         (fr)
         Cette méthode est appelée à chaque tick de jeu. Vous pouvez y définir le comportement de
