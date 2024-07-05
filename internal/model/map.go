@@ -6,8 +6,8 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/capucinoxx/forlorn/consts"
 	"github.com/capucinoxx/forlorn/pkg/codec"
-	"github.com/capucinoxx/forlorn/pkg/config"
 	"github.com/capucinoxx/forlorn/pkg/model"
 	"github.com/capucinoxx/forlorn/pkg/utils"
 )
@@ -73,7 +73,7 @@ func (m *Map) primGenerateMaze(start point) {
     walls = append(walls[:idx], walls[idx+1:]...)
     nx, ny, direction, px, py := wall[0], wall[1], wall[2], wall[3], wall[4]
 
-    if nx >= 0 && nx < config.MapWidth && ny >= 0 && ny < config.MapWidth && !visited[point{nx, ny}] {
+    if nx >= 0 && nx < consts.MapWidth && ny >= 0 && ny < consts.MapWidth && !visited[point{nx, ny}] {
       m.removeWall(point{px, py}, point{nx, ny}, direction)
       visited[point{nx, ny}] = true
 
@@ -93,8 +93,8 @@ func (m *Map) generateColliders() {
       if c.n {
         m.walls = append(m.walls, &model.Collider{
           Points: []*model.Point{
-            {X: float64(j*config.CellWidth), Y: float64(i*config.CellWidth)}, 
-            {X: float64((j+1)*config.CellWidth), Y: float64(i*config.CellWidth)},
+            {X: float64(j*consts.CellWidth), Y: float64(i*consts.CellWidth)}, 
+            {X: float64((j+1)*consts.CellWidth), Y: float64(i*consts.CellWidth)},
           },
         })
       }
@@ -102,8 +102,8 @@ func (m *Map) generateColliders() {
       if c.s {
         m.walls = append(m.walls, &model.Collider{
           Points: []*model.Point{
-            {X: float64(j*config.CellWidth), Y: float64((i+1)*config.CellWidth)}, 
-            {X: float64((j+1)*config.CellWidth), Y: float64((i+1)*config.CellWidth)},
+            {X: float64(j*consts.CellWidth), Y: float64((i+1)*consts.CellWidth)}, 
+            {X: float64((j+1)*consts.CellWidth), Y: float64((i+1)*consts.CellWidth)},
           },
         })
       }
@@ -111,8 +111,8 @@ func (m *Map) generateColliders() {
       if c.e {
         m.walls = append(m.walls, &model.Collider{
           Points: []*model.Point{
-            {X: float64((j+1)*config.CellWidth), Y: float64(i*config.CellWidth)}, 
-            {X: float64((j+1)*config.CellWidth), Y: float64((i+1)*config.CellWidth)},
+            {X: float64((j+1)*consts.CellWidth), Y: float64(i*consts.CellWidth)}, 
+            {X: float64((j+1)*consts.CellWidth), Y: float64((i+1)*consts.CellWidth)},
           },
         })
       }
@@ -120,8 +120,8 @@ func (m *Map) generateColliders() {
       if c.w {
         m.walls = append(m.walls, &model.Collider{
           Points: []*model.Point{
-            {X: float64(j*config.CellWidth), Y: float64(i*config.CellWidth)}, 
-            {X: float64(j*config.CellWidth), Y: float64((i+1)*config.CellWidth)},
+            {X: float64(j*consts.CellWidth), Y: float64(i*consts.CellWidth)}, 
+            {X: float64(j*consts.CellWidth), Y: float64((i+1)*consts.CellWidth)},
           },
         })
       }
@@ -158,9 +158,9 @@ func (m *Map) removeWall(p1, p2 point, direction int) {
 
 
 func (m *Map) subdivise(n int) [][]cell {
-  nm := make([][]cell, config.MapWidth * n)
+  nm := make([][]cell, consts.MapWidth * n)
   for i := range nm {
-    nm[i] = make([]cell, config.MapWidth * n)
+    nm[i] = make([]cell, consts.MapWidth * n)
   }
 
   for i, row := range m.grid {
@@ -183,16 +183,16 @@ func (m *Map) subdivise(n int) [][]cell {
 
 
 func (m *Map) countWallsInSubsquares(n int) {
-  m.discreteGrid = make([][]uint8, (config.MapWidth/n))
-  for i := 0; i < (config.MapWidth/n); i++ {
-    m.discreteGrid[i] = make([]uint8, (config.MapWidth/n))
+  m.discreteGrid = make([][]uint8, (consts.MapWidth/n))
+  for i := 0; i < (consts.MapWidth/n); i++ {
+    m.discreteGrid[i] = make([]uint8, (consts.MapWidth/n))
   }
 
-  for i := 0; i < config.MapWidth; i += n {
-    for j := 0; j < config.MapWidth; j += n {
+  for i := 0; i < consts.MapWidth; i += n {
+    for j := 0; j < consts.MapWidth; j += n {
       count := uint8(0)
-      for k := i; k < n+i && k < config.MapWidth; k++ {
-        for l := j; l < n+j && l < config.MapWidth; l++ {
+      for k := i; k < n+i && k < consts.MapWidth; k++ {
+        for l := j; l < n+j && l < consts.MapWidth; l++ {
           if m.grid[k][l].n && k == i {
             count++
           }
@@ -315,16 +315,16 @@ func (m *Map) dijkstra(start point, grid [][]cell) [][]int {
 func (m *Map) getSpawnPoints(distances [][]int, min int) {
   points := map[int][]*model.Point{}
   m.spawns[0] = []*model.Point{}
-  for i := 0; i < config.MapWidth; i++ {
-    for j := 0; j < config.MapWidth; j++ {
+  for i := 0; i < consts.MapWidth; i++ {
+    for j := 0; j < consts.MapWidth; j++ {
       center := &model.Point{
-        X: float64(j*config.CellWidth+config.CellWidth/2),
-        Y: float64(i*config.CellWidth+config.CellWidth/2),
+        X: float64(j*consts.CellWidth+consts.CellWidth/2),
+        Y: float64(i*consts.CellWidth+consts.CellWidth/2),
       }
 
       for _, dir := range directions {
-        x := center.X + float64(dir.x*config.PlayerSize) * 1.5
-        y := center.Y + float64(dir.y*config.PlayerSize) * 1.5
+        x := center.X + float64(dir.x*consts.PlayerSize) * 1.5
+        y := center.Y + float64(dir.y*consts.PlayerSize) * 1.5
 
         m.spawns[0] = append(m.spawns[0], &model.Point{X: x, Y: y})
       }
@@ -340,8 +340,8 @@ func (m *Map) getSpawnPoints(distances [][]int, min int) {
       }
 
       points[dist] = append(points[dist], &model.Point{
-        X: float64(j)*config.SubsquareWidth,
-        Y: float64(i)*config.SubsquareWidth,
+        X: float64(j)*consts.SubsquareWidth,
+        Y: float64(i)*consts.SubsquareWidth,
       })
     }
   }
@@ -359,14 +359,14 @@ func (m *Map) getSpawnPoints(distances [][]int, min int) {
 
 func (m *Map) Setup() {
   spawns := 0
-  m.size = config.MapWidth
+  m.size = consts.MapWidth
   
   r := rand.New(rand.NewSource(time.Now().UnixNano()))
 
   for spawns < 40 {
-    grid := make([][]cell, config.MapWidth)
+    grid := make([][]cell, consts.MapWidth)
     for i := range grid {
-      grid[i] = make([]cell, config.MapWidth)
+      grid[i] = make([]cell, consts.MapWidth)
       for j := range grid[i] {
         grid[i][j] = cell{true, true, true, true}
       }
@@ -379,7 +379,7 @@ func (m *Map) Setup() {
 
     m.countWallsInSubsquares(2)
 
-    m.start = model.Point{X: float64(start.y*config.CellWidth + config.CellWidth / 2), Y: float64(start.x*config.CellWidth + config.CellWidth/2)}
+    m.start = model.Point{X: float64(start.y*consts.CellWidth + consts.CellWidth / 2), Y: float64(start.x*consts.CellWidth + consts.CellWidth/2)}
     distances := m.dijkstra(point{x: start.x*10, y: start.y*10}, m.subdivise(10))
     m.getSpawnPoints(distances, 40)
     spawns = len(m.spawns[1]) 

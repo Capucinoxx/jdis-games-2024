@@ -4,8 +4,8 @@ import (
 	"math"
 	"time"
 
+	"github.com/capucinoxx/forlorn/consts"
 	"github.com/capucinoxx/forlorn/pkg/codec"
-	"github.com/capucinoxx/forlorn/pkg/config"
 )
 
 // Connection represents a network connection. It can be used for reading and writing data over the network
@@ -73,7 +73,7 @@ func NewPlayer(name string,color int,  pos *Point, conn Connection) *Player {
     health: 100,
   }
 
-  p.setup(pos, config.PlayerSize)
+  p.setup(pos, consts.PlayerSize)
   p.cannon = NewCanon(p)
   p.blade = NewBlade(p)
 
@@ -120,7 +120,7 @@ func (p *Player) Update(players []*Player, game *GameState, dt float64) {
 
 
 func (p *Player) HandleRespawn(game *GameState) {
-  if !p.IsAlive() && p.respawnCountdown > config.RespawnTime {
+  if !p.IsAlive() && p.respawnCountdown > consts.RespawnTime {
     p.Respawn(game)
   }
 }
@@ -162,9 +162,9 @@ func (p *Player) moveToDestination(dt float64) {
   dy := float64(dest.Y - p.Position.Y)
   dist := math.Abs(dx) + math.Abs(dy)
 
-  if dist > config.PlayerSpeed * float64(dt) {
-    nextX := p.Position.X + dx/dist * config.PlayerSpeed * dt
-    nextY := p.Position.Y + dy/dist * config.PlayerSpeed * dt
+  if dist > consts.PlayerSpeed * float64(dt) {
+    nextX := p.Position.X + dx/dist * consts.PlayerSpeed * dt
+    nextY := p.Position.Y + dy/dist * consts.PlayerSpeed * dt
 
     p.Position.X = nextX
     p.Position.Y = nextY

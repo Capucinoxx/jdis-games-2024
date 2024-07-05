@@ -1,10 +1,10 @@
 package model
 
 import (
-	"math/rand"
+  "math/rand"
 
-	"github.com/capucinoxx/forlorn/pkg/codec"
-	"github.com/capucinoxx/forlorn/pkg/config"
+  "github.com/capucinoxx/forlorn/consts"
+  "github.com/capucinoxx/forlorn/pkg/codec"
 )
 
 type Scorer struct {
@@ -13,20 +13,20 @@ type Scorer struct {
 }
 
 func NewCoin() *Scorer {
-  s := &Scorer{Value: config.CoinValue}
+  s := &Scorer{Value: consts.CoinValue}
   pos := &Point{
-    X: rand.Float64() * float64(config.MapWidth * config.CellWidth),
-    Y: rand.Float64() * float64(config.MapWidth * config.CellWidth),
+    X: rand.Float64() * float64(consts.MapWidth * consts.CellWidth),
+    Y: rand.Float64() * float64(consts.MapWidth * consts.CellWidth),
   }
 
-  s.setup(pos, config.CoinSize)
+  s.setup(pos, consts.CoinSize)
 
   return s
 }
 
 func NewBigCoin(center *Point) *Scorer {
-  s := &Scorer{Value: config.BigCoinValue}
-  s.setup(center, config.BigCoinSize)
+  s := &Scorer{Value: consts.BigCoinValue}
+  s.setup(center, consts.BigCoinSize)
 
   return s
 }

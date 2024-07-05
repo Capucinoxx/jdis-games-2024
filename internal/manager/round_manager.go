@@ -1,9 +1,8 @@
 package manager
 
 import (
-	"github.com/capucinoxx/forlorn/pkg/config"
+	"github.com/capucinoxx/forlorn/consts"
 	"github.com/capucinoxx/forlorn/pkg/model"
-	"github.com/capucinoxx/forlorn/pkg/utils"
 )
 
 type Stage uint8
@@ -88,10 +87,9 @@ type DiscoveryStage struct {}
 func (s DiscoveryStage) ChangeStage(state *model.GameState) {
   spawns := state.Map.Spawns(0)
   state.SetSpawns(spawns)
-  utils.Log("stage", "stage", "DISCOVERY STAGE CHANGE STAGE")
 
-  coins := make([]*model.Scorer, 0, config.NumCoins)
-  for i := 0; i < config.NumCoins; i++ {
+  coins := make([]*model.Scorer, 0, consts.NumCoins)
+  for i := 0; i < consts.NumCoins; i++ {
     coins = append(coins, model.NewCoin())
   }
   state.Reset(coins)
@@ -104,7 +102,6 @@ func (s DiscoveryStage) ChangeStage(state *model.GameState) {
 type PointRushStage struct {}
 func (s PointRushStage) ChangeStage(state *model.GameState) {
   state.SetSpawns(state.Map.Spawns(1))
-  utils.Log("stage", "stage", "POINT RUSH STAGE CHANGE STAGE")
   
   centroid := state.Map.Centroid()
   coins := []*model.Scorer{model.NewBigCoin(&centroid)}

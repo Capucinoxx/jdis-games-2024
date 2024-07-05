@@ -1,9 +1,9 @@
 package model
 
 import (
-	"math"
+  "math"
 
-	"github.com/capucinoxx/forlorn/pkg/config"
+  "github.com/capucinoxx/forlorn/consts"
 )
 
 // Projectile represents a moving projectile in the game.
@@ -15,7 +15,7 @@ type Projectile struct {
 func NewProjectile(pos *Point, dest *Point) *Projectile {
   p := &Projectile{Destination: dest}
   p.restrictToSquare(pos)
-  p.setup(pos, config.ProjectileSize)
+  p.setup(pos, consts.ProjectileSize)
 
   return p
 } 
@@ -29,9 +29,9 @@ func (p *Projectile) moveToDestination(dt float64) bool {
   dy := float64(dest.Y - p.Position.Y)
   dist := math.Abs(dx) + math.Abs(dy)
 
-  if dist > config.ProjectileSpeed * float64(dt) {
-    nextX := p.Position.X + dx/dist * config.ProjectileSpeed * dt
-    nextY := p.Position.Y + dy/dist * config.ProjectileSpeed * dt
+  if dist > consts.ProjectileSpeed * float64(dt) {
+    nextX := p.Position.X + dx/dist * consts.ProjectileSpeed * dt
+    nextY := p.Position.Y + dy/dist * consts.ProjectileSpeed * dt
 
     p.Position.X = nextX
     p.Position.Y = nextY
@@ -46,37 +46,37 @@ func (p *Projectile) moveToDestination(dt float64) bool {
 
 
 func (p *Projectile) restrictToSquare(pos *Point) {
-	squareSize := 10.0
+  squareSize := 10.0
 
-	left := math.Floor(pos.X/squareSize)*squareSize + (config.ProjectileSize / 2)
-	right := left + squareSize - config.ProjectileSize
-	top := math.Floor(pos.Y/squareSize)*squareSize + (config.ProjectileSize / 2)
-	bottom := top + squareSize - config.ProjectileSize
+  left := math.Floor(pos.X/squareSize)*squareSize + (consts.ProjectileSize / 2)
+  right := left + squareSize - consts.ProjectileSize
+  top := math.Floor(pos.Y/squareSize)*squareSize + (consts.ProjectileSize / 2)
+  bottom := top + squareSize - consts.ProjectileSize
 
-	newX := p.Destination.X
-	newY := p.Destination.Y
+  newX := p.Destination.X
+  newY := p.Destination.Y
 
-	originalDestX := p.Destination.X
-	originalDestY := p.Destination.Y
+  originalDestX := p.Destination.X
+  originalDestY := p.Destination.Y
 
-	if originalDestX < left {
-		newX = left
-		newY = pos.Y + (left-pos.X)*(originalDestY-pos.Y)/(originalDestX-pos.X)
-	} else if originalDestX > right {
-		newX = right
-		newY = pos.Y + (right-pos.X)*(originalDestY-pos.Y)/(originalDestX-pos.X)
-	}
+  if originalDestX < left {
+    newX = left
+    newY = pos.Y + (left-pos.X)*(originalDestY-pos.Y)/(originalDestX-pos.X)
+  } else if originalDestX > right {
+    newX = right
+    newY = pos.Y + (right-pos.X)*(originalDestY-pos.Y)/(originalDestX-pos.X)
+  }
 
-	if newY < top {
-		newY = top
-		newX = pos.X + (top-pos.Y)*(originalDestX-pos.X)/(originalDestY-pos.Y)
-	} else if newY > bottom {
-		newY = bottom
-		newX = pos.X + (bottom-pos.Y)*(originalDestX-pos.X)/(originalDestY-pos.Y)
-	}
+  if newY < top {
+    newY = top
+    newX = pos.X + (top-pos.Y)*(originalDestX-pos.X)/(originalDestY-pos.Y)
+  } else if newY > bottom {
+    newY = bottom
+    newX = pos.X + (bottom-pos.Y)*(originalDestX-pos.X)/(originalDestY-pos.Y)
+  }
 
-	p.Destination.X = newX
-	p.Destination.Y = newY
+  p.Destination.X = newX
+  p.Destination.Y = newY
 }
 
 
@@ -85,57 +85,57 @@ func (p *Projectile) IsCollidingWithEnvironment(m Map) bool {
   for _, collider := range m.Colliders() {	
     if collider.Type == ColliderProjectile {
       continue
-		}
-   
+    }
+
     if PolygonsIntersect(p.collider.polygon(), collider.polygon()) {
       return true
     }
-	}
+  }
 
-	return false
+  return false
 }
 
 
 // Cannon represents a cannon that can shoot projectiles.
 type Cannon struct {
-	Projectiles []*Projectile
-	owner       *Player
+  Projectiles []*Projectile
+  owner       *Player
 }
 
 // NewCanon creates a new cannon associated with a specific player.
 func NewCanon(owner *Player) *Cannon {
-	return &Cannon{
-		owner: owner,
-	}
+  return &Cannon{
+    owner: owner,
+  }
 }
 
 // Update processes all projectiles for movement and collision detection.
 func (c *Cannon) Update(players []*Player, m Map, dt float64) {
-	for _, p := range c.Projectiles {
-		if !p.moveToDestination(dt) {
+  for _, p := range c.Projectiles {
+    if !p.moveToDestination(dt) {
       continue
     }
 
-		for _, enemy := range players {
-			if c.owner.Nickname == enemy.Nickname {
-				continue
-			}
+    for _, enemy := range players {
+      if c.owner.Nickname == enemy.Nickname {
+        continue
+      }
 
-			if p.IsCollidingWithPlayer(enemy) {
-				enemy.TakeDmg(config.ProjectileDmg)
+      if p.IsCollidingWithPlayer(enemy) {
+        enemy.TakeDmg(consts.ProjectileDmg)
         p.Remove()
-				continue
-			}
+        continue
+      }
     }
 
     if p.IsCollidingWithEnvironment(m) {
-			p.Remove()
-		}
-	}
+      p.Remove()
+    }
+  }
 
-	// Filters out projectiles that need to be cleaned up.
-	projectiles := make([]*Projectile, 0)
-	for _, p := range c.Projectiles {
+  // Filters out projectiles that need to be cleaned up.
+  projectiles := make([]*Projectile, 0)
+  for _, p := range c.Projectiles {
     if p.IsAlive() {
       projectiles = append(projectiles, p)
     }
@@ -149,7 +149,7 @@ func (c *Cannon) ShootAt(pos Point) {
   c.Projectiles = append(c.Projectiles, NewProjectile(
     &Point{X: collider.Pivot.X, Y: collider.Pivot.Y},
     &Point{X: pos.X, Y: pos.Y},
-  ))
+    ))
 }
 
 type Blade struct {
@@ -160,7 +160,7 @@ type Blade struct {
 func NewBlade(owner *Player) *Blade {
   blade := &Blade{ owner: owner }
   pivot := owner.Collider().Pivot
-  blade.collider = NewRectLineCollider(pivot.X, pivot.Y + config.BladeDistance, config.BladeSize)
+  blade.collider = NewRectLineCollider(pivot.X, pivot.Y + consts.BladeDistance, consts.BladeSize)
   blade.collider.SetPivot(pivot.X, pivot.Y)
   return blade
 }
@@ -168,7 +168,7 @@ func NewBlade(owner *Player) *Blade {
 func (b *Blade) Update(players []*Player, m Map, dt float64) {
   pivot := b.owner.Collider().Pivot
   b.collider.SetPivot(pivot.X, pivot.Y)
-  b.collider.Rotate(config.BladeRotationSpeed * dt + 90)
+  b.collider.Rotate(consts.BladeRotationSpeed * dt + 90)
 
 
   for _, enemy := range players {
@@ -177,7 +177,7 @@ func (b *Blade) Update(players []*Player, m Map, dt float64) {
     }
 
     if PolygonsIntersect(b.collider.polygon(), enemy.Collider().polygon()) {
-      enemy.TakeDmg(config.BladeDmg)
+      enemy.TakeDmg(consts.BladeDmg)
     }
   }
 }
