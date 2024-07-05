@@ -19,9 +19,9 @@ func MongoDatabase() string {
 }
 
 func RedisAddr() string {
-  return os.Getenv("REDIS_ADDR")
+	return os.Getenv("REDIS_ADDR")
 }
 
 func RedisPassword() string {
-  return os.Getenv("REDIS_PASSWORD")
+	return os.Getenv("REDIS_PASSWORD")
 }

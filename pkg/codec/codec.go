@@ -26,7 +26,7 @@ type Reader interface {
 	ReadBool() (bool, error)
 	ReadBytes(n int) ([]byte, error)
 	ReadString() (string, error)
-  ReadJSON(v interface{}) error
+	ReadJSON(v interface{}) error
 }
 
 type Writer interface {
@@ -97,10 +97,10 @@ func (r *ByteReader) Seek(offset int64, whence int) (int64, error) {
 	case io.SeekEnd:
 		abs = int64(len(r.data)) + offset
 	default:
-		return 0, errors.New("binstruct: invalid whence")
+		return 0, errors.New("invalid whence")
 	}
 	if abs < 0 {
-		return 0, errors.New("binstruct: negative position")
+		return 0, errors.New("negative position")
 	}
 	r.pos = int(abs)
 	return abs, nil
@@ -193,13 +193,13 @@ func (r *ByteReader) ReadString() (string, error) {
 }
 
 func (r *ByteReader) ReadJSON(v interface{}) error {
-  if r.pos >= len(r.data) {
-    return io.EOF
-  }
+	if r.pos >= len(r.data) {
+		return io.EOF
+	}
 
-  err := json.Unmarshal(r.data[r.pos:], v)
-  r.pos = len(r.data)
-  return err
+	err := json.Unmarshal(r.data[r.pos:], v)
+	r.pos = len(r.data)
+	return err
 }
 
 type ByteWriter struct {

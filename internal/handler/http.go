@@ -12,7 +12,7 @@ import (
 type HttpHandler struct {
 	gm *manager.GameManager
 	am *manager.AuthManager
-  sm *manager.ScoreManager
+	sm *manager.ScoreManager
 }
 
 // NewHttpHandler crée un nouveau gestionnaire HTTP.
@@ -20,7 +20,7 @@ func NewHttpHandler(gm *manager.GameManager, am *manager.AuthManager, sm *manage
 	return &HttpHandler{
 		gm: gm,
 		am: am,
-    sm: sm,
+		sm: sm,
 	}
 }
 
@@ -28,9 +28,9 @@ func NewHttpHandler(gm *manager.GameManager, am *manager.AuthManager, sm *manage
 func (h *HttpHandler) Handle() {
 	network.HandleFunc("/start", h.startGame)
 	network.HandleFunc("/create", h.register)
-  network.HandleFunc("/leaderboard", h.leaderboard, h.checkLeaderboardAccess)
-  network.HandleFunc("/toggle_leaderboard", h.toggleLeaderboard)
-  network.HandleFunc("/kill", h.kill)
+	network.HandleFunc("/leaderboard", h.leaderboard, h.checkLeaderboardAccess)
+	network.HandleFunc("/toggle_leaderboard", h.toggleLeaderboard)
+	network.HandleFunc("/kill", h.kill)
 }
 
 // register crée un compte utilisateur et retourne un jeton d'authentification.
@@ -51,7 +51,7 @@ func (h *HttpHandler) register(w http.ResponseWriter, r *http.Request) {
 
 	token, _ := h.am.Register(payload.Username)
 	w.Header().Set("Content-Type", "application/json")
-  json.NewEncoder(w).Encode(map[string]string{"type": "success", "message": fmt.Sprintf("Token: %s", token)})
+	json.NewEncoder(w).Encode(map[string]string{"type": "success", "message": fmt.Sprintf("Token: %s", token)})
 }
 
 // startGame démarre le serveur de jeu.
@@ -60,31 +60,31 @@ func (h *HttpHandler) startGame(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *HttpHandler) leaderboard(w http.ResponseWriter, r *http.Request) {
-  l, err := h.sm.Rank()
-  if err != nil {
-    http.Error(w, "error", http.StatusInternalServerError)
-    return
-  }
+	l, err := h.sm.Rank()
+	if err != nil {
+		http.Error(w, "error", http.StatusInternalServerError)
+		return
+	}
 
-  w.Header().Set("Content-Type", "application/json")
-  json.NewEncoder(w).Encode(l)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(l)
 }
 
 func (h *HttpHandler) toggleLeaderboard(w http.ResponseWriter, r *http.Request) {
-  visible := h.sm.ToggleVisibility()
+	visible := h.sm.ToggleVisibility()
 
-  status := "disabled"
-  if visible {
-    status = "enabled"
-  }
+	status := "disabled"
+	if visible {
+		status = "enabled"
+	}
 
-  w.Header().Set("Content-Type", "application/json")
-  json.NewEncoder(w).Encode(map[string]string{"message": "leaderboard access has been " + status})
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"message": "leaderboard access has been " + status})
 }
 
 func (h *HttpHandler) kill(w http.ResponseWriter, r *http.Request) {
-  name := r.URL.Query().Get("name")
-  if name != "" {
-    h.gm.Kill(name)
-  }
+	name := r.URL.Query().Get("name")
+	if name != "" {
+		h.gm.Kill(name)
+	}
 }

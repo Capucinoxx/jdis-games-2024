@@ -336,3 +336,16 @@ func (p *PlayerInfo) Decode(r codec.Reader) (err error) {
   return
 }
 
+// Client représente un client connecté au serveur.
+type Client struct {
+	Out        chan []byte
+	In         chan ClientMessage
+	Connection Connection
+  Blind bool
+}
+
+// ClientMessage représente un message envoyé par un client.
+type ClientMessage struct {
+	MessageType MessageType
+	Body        interface{}
+}

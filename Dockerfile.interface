@@ -5,6 +5,7 @@ WORKDIR /app
 COPY go.mod .
 COPY go.sum .
 COPY pkg/ pkg/
+COPY consts/ consts/
 COPY internal/ internal/
 
 COPY interface/wasm/main.go wasm/main.go

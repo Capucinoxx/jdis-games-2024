@@ -1,93 +1,100 @@
 package manager
 
-import (
-  "errors"
+// AuthManager handles user authentication and registration using a MongoDB service.
+// This manager provides functionality for registering new users, authenticating users
+// based on a token, and retrieving a list of registered users. It ensures that user
+// information is securely stored and efficiently retrieved from the database.
 
-  "github.com/capucinoxx/forlorn/pkg/connector"
-  "github.com/capucinoxx/forlorn/pkg/utils"
-  "github.com/google/uuid"
-  "go.mongodb.org/mongo-driver/bson"
+import (
+	"errors"
+
+	"github.com/capucinoxx/forlorn/pkg/connector"
+	"github.com/capucinoxx/forlorn/pkg/utils"
+	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
-
+// TokenInfo represents the structure of a user's token information stored in MongoDB.
 type TokenInfo struct {
-  Token     string  `bson:"token"`
-  Username  string  `bson:"username"`
-  Color     int     `bson:"color"`
+	Token    string `bson:"token"`
+	Username string `bson:"username"`
+	Color    int    `bson:"color"`
 }
 
-
+// UserInfo represents the structure of a user's basic information retrieved from MongoDB.
 type UserInfo struct {
-  Username  string  `bson:"username"`
-  Color     int     `bson:"color"`
+	Username string `bson:"username"`
+	Color    int    `bson:"color"`
 }
 
-
+// AuthManager handles user authentication and registration.
 type AuthManager struct {
-  service    *connector.MongoService
-  collection string
+	service    *connector.MongoService
+	collection string
 }
 
-
+// NewAuthManager creates a new AuthManager with the specified MongoDB service.
 func NewAuthManager(db *connector.MongoService) *AuthManager {
-  return &AuthManager{
-    service:    db,
-    collection: "users",
-  }
+	return &AuthManager{
+		service:    db,
+		collection: "users",
+	}
 }
 
-
+// Register registers a new user with the specified username. It generates a unique token
+// for the user and stores their information in the MongoDB collection. If the user already
+// exists, an error is returned.
 func (am *AuthManager) Register(username string) (string, error) {
-  filter := bson.M{"username": username}
+	filter := bson.M{"username": username}
 
-  if v, _ := am.service.FindOne(am.collection, filter); v != nil {
-    return "", errors.New("user already exist")
-  }
+	if v, _ := am.service.FindOne(am.collection, filter); v != nil {
+		return "", errors.New("user already exist")
+	}
 
-  token := am.uuid()
-  user := bson.M{"username": username, "token": token, "color": utils.NameColor(username)}
+	token := am.uuid()
+	user := bson.M{"username": username, "token": token, "color": utils.NameColor(username)}
 
-  _, err := am.service.Insert(am.collection, user)
-  if err != nil {
-    return "", errors.New("error inserting user")
-  }
+	_, err := am.service.Insert(am.collection, user)
+	if err != nil {
+		return "", errors.New("error inserting user")
+	}
 
-  return token, nil
+	return token, nil
 }
 
-
+// Authenticate authenticates a user based on their token. It retrieves the user's information
+// from the MongoDB collection and returns their username, color, and a boolean indicating success.
 func (am *AuthManager) Authenticate(token string) (string, int, bool) {
-  filter := bson.M{"token": token}
-  v, err := am.service.FindOne(am.collection, filter)
-  if v == nil || err != nil {
-    return "", 0, false
-  }
+	filter := bson.M{"token": token}
+	v, err := am.service.FindOne(am.collection, filter)
+	if v == nil || err != nil {
+		return "", 0, false
+	}
 
-  var result TokenInfo
-  if err = v.Decode(&result); err != nil {
-    return "", 0, false
-  }
+	var result TokenInfo
+	if err = v.Decode(&result); err != nil {
+		return "", 0, false
+	}
 
-  return result.Username, result.Color, true
+	return result.Username, result.Color, true
 }
 
-
+// uuid generates a new unique identifier for user tokens.
 func (am *AuthManager) uuid() string {
-  return uuid.NewString()
+	return uuid.NewString()
 }
 
-
+// Users retrieves a list of all registered users with their username and color.
 func (am *AuthManager) Users() ([]UserInfo, error) {
-  bsonUsers, err := am.service.FindKeep(am.collection, bson.M{}, &bson.M{"username": 1, "color": 1})
-  if err != nil {
-    return []UserInfo{}, err
-  }
+	bsonUsers, err := am.service.FindKeep(am.collection, bson.M{}, &bson.M{"username": 1, "color": 1})
+	if err != nil {
+		return []UserInfo{}, err
+	}
 
+	users := make([]UserInfo, len(bsonUsers))
+	for i, user := range bsonUsers {
+		users[i] = UserInfo{Username: user["username"].(string), Color: user["color"].(int)}
+	}
 
-  users := make([]UserInfo, len(bsonUsers))
-  for i, user := range bsonUsers {
-    users[i] = UserInfo{Username: user["username"].(string), Color: user["color"].(int)}
-  }
-
-  return users, nil
+	return users, nil
 }

@@ -7,36 +7,25 @@ import (
 )
 
 func Shuffle[S ~[]E, E any](r *rand.Rand, s S) {
-  r.Shuffle(len(s), func(i, j int) {
-    s[i], s[j] =  s[j], s[i]
-  })
+	r.Shuffle(len(s), func(i, j int) {
+		s[i], s[j] = s[j], s[i]
+	})
 }
-
 
 func Round(f float64, decimals int) float64 {
-  pow := math.Pow(10, float64(decimals))
-  return math.Round(f * pow) / pow
+	pow := math.Pow(10, float64(decimals))
+	return math.Round(f*pow) / pow
 }
-
 
 func ToInt(b bool) int {
-  if b {
-    return 1
-  }
-  return 0
+	if b {
+		return 1
+	}
+	return 0
 }
-
-
-func hashToColor(hash [32]byte) (int, int, int) {
-	r := int(hash[0])
-	g := int(hash[1])
-	b := int(hash[2])
-	return r, g, b
-}
-
 
 func hslToRGB(h, s, l float64) (int, int, int) {
-  c := (1 - math.Abs(2*l-1)) * s
+	c := (1 - math.Abs(2*l-1)) * s
 	x := c * (1 - math.Abs(math.Mod(h/60.0, 2)-1))
 	m := l - c/2
 
@@ -58,7 +47,6 @@ func hslToRGB(h, s, l float64) (int, int, int) {
 
 	return int((r + m) * 255), int((g + m) * 255), int((b + m) * 255)
 }
-
 
 func NameColor(name string) int32 {
 	hasher := sha256.New()
