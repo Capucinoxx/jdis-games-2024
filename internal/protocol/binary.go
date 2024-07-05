@@ -21,16 +21,14 @@ func NewBinaryProtocol() *p.BinaryProtocol {
 	}
 
 	bp := BinaryProtocol{}
-	protocol.EncodeHandlers[model.Spawn] = bp.encodeMapState
-	protocol.EncodeHandlers[model.GameStart] = bp.encodeMapState
-  protocol.EncodeHandlers[model.GameEnd] = bp.encodeGameEnd
-	protocol.EncodeHandlers[model.Position] = bp.encodeGameState
+	protocol.EncodeHandlers[model.MessageMapState] = bp.encodeMapState
+	protocol.EncodeHandlers[model.MessageGameEnd] = bp.encodeGameEnd
+	protocol.EncodeHandlers[model.MessageGameState] = bp.encodeGameState
 
-	protocol.DecodeHandlers[model.Spawn] = bp.decodeMapState
-	protocol.DecodeHandlers[model.GameStart] = bp.decodeMapState
-  protocol.DecodeHandlers[model.GameEnd] = bp.decodeGameEnd
-	protocol.DecodeHandlers[model.Position] = bp.decodeGameState
-  protocol.DecodeHandlers[model.Action] = bp.decodePlayerAction
+	protocol.DecodeHandlers[model.MessageMapState] = bp.decodeMapState
+	protocol.DecodeHandlers[model.MessageGameEnd] = bp.decodeGameEnd
+	protocol.DecodeHandlers[model.MessageGameState] = bp.decodeGameState
+	protocol.DecodeHandlers[model.MessagePlayerAction] = bp.decodePlayerAction
 
 	return protocol
 }
@@ -42,9 +40,9 @@ func (b BinaryProtocol) encodeMapState(w *codec.ByteWriter, message *model.Clien
 }
 
 func (b BinaryProtocol) encodeGameState(w *codec.ByteWriter, message *model.ClientMessage) {
-  data := message.Body.(model.GameMessage)
-  
-  _ = data.Encode(w)
+	data := message.Body.(model.MessageGameStateToEncode)
+
+	_ = data.Encode(w)
 }
 
 func (b BinaryProtocol) encodeGameEnd(w *codec.ByteWriter, message *model.ClientMessage) {}
@@ -61,18 +59,16 @@ func (b BinaryProtocol) decodeMapState(r *codec.ByteReader, message *model.Clien
 }
 
 func (b BinaryProtocol) decodeGameState(r *codec.ByteReader, message *model.ClientMessage) {
-  var state model.GameInfo
+	var state model.MessageGameStateToDecode
+	state.Decode(r)
 
-  state.Decode(r)
-
-  message.Body = state
+	message.Body = state
 }
 
 func (b BinaryProtocol) decodePlayerAction(r *codec.ByteReader, message *model.ClientMessage) {
-  var action model.Controls
+	var action model.Controls
 
-  _ = r.ReadJSON(&action)
+	_ = r.ReadJSON(&action)
 
-  message.Body = action
+	message.Body = action
 }
-

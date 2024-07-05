@@ -92,7 +92,7 @@ func NewNetworkManager(transport *network.Network, protocol Protocol) *NetworkMa
 	return &NetworkManager{
 		transport:  transport,
 		protocol:   protocol,
-		clients:    make(map[model.Connection]*model.Client), 
+		clients:    make(map[model.Connection]*model.Client),
 		broadcast:  make(chan []byte),
 		register:   make(chan *model.Client),
 		unregister: make(chan model.Connection),
@@ -121,21 +121,21 @@ func (nm *NetworkManager) run() {
 			nm.clients[c.Connection] = c
 			go nm.writer(c)
 			if c.Connection.Identifier() != "" {
-        go nm.reader(c)
+				go nm.reader(c)
 			}
 
 		case c := <-nm.unregister:
-      if _, ok := nm.clients[c]; ok {
+			if _, ok := nm.clients[c]; ok {
 				delete(nm.clients, c)
-        
+
 				nm.transport.Unregister(c)
 			}
 
 		case message := <-nm.broadcast:
 			for conn, client := range nm.clients {
-        if client.Blind {
-          continue
-        }
+				if client.Blind {
+					continue
+				}
 
 				select {
 				case client.Out <- message:
@@ -165,36 +165,33 @@ func (nm *NetworkManager) Send(client *model.Client, message []byte) {
 }
 
 // BroadcastGameState sends the current state of the game to all players.
-// This involves sending a packet for each player containing the player's
-// ID and player data, structured as:
-// [0:1 id][1:2 messageType][2:6 currentTime][6:end (position)]
+// This involves sending the positions of all players and coins in the game.
 func (nm *NetworkManager) BroadcastGameState(state *model.GameState, tick int32, round int8) {
-  nm.broadcast <- nm.protocol.Encode(0, 0, &model.ClientMessage{
-    MessageType: model.Position,
-    Body: model.GameMessage{
-      CurrentTick: tick,
-      CurrentRound: round,
-      Players: state.Players(),
-      Coins: state.Coins(),
-    },
-  })
+	nm.broadcast <- nm.protocol.Encode(0, 0, &model.ClientMessage{
+		MessageType: model.MessageGameState,
+		Body: model.MessageGameStateToEncode{
+			CurrentTick:  tick,
+			CurrentRound: round,
+			Players:      state.Players(),
+			Coins:        state.Coins(),
+		},
+	})
 }
 
 // BroadcastGameEnd sends a game end message to all players.
 func (nm *NetworkManager) BroadcastGameEnd() {
 	nm.broadcast <- nm.protocol.Encode(0, 0, &model.ClientMessage{
-		MessageType: model.GameEnd,
+		MessageType: model.MessageGameEnd,
 	})
 }
 
 // BroadcastGameStart sends a game start message to all players.
 func (nm *NetworkManager) BroadcastGameStart(state *model.GameState) {
 	nm.broadcast <- nm.protocol.Encode(0, 0, &model.ClientMessage{
-		MessageType: model.GameStart,
+		MessageType: model.MessageMapState,
 		Body:        state.Map,
 	})
 }
-
 
 // writer writes outgoing messages to the WebSocket network. If a message cannot be written,
 // the connection is closed. The game loop closes the connection in case of an error to prevent
@@ -216,9 +213,9 @@ func (nm *NetworkManager) writer(client *model.Client) {
 				return
 			}
 
-      if err := client.Connection.Write(msg); err != nil {
-        nm.unregister <- client.Connection
-      }
+			if err := client.Connection.Write(msg); err != nil {
+				nm.unregister <- client.Connection
+			}
 
 		case <-ticker.C:
 			client.Connection.Ping(writeWait)

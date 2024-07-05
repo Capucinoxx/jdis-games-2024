@@ -4,8 +4,9 @@ import (
 	"math"
 	"time"
 
+	"github.com/capucinoxx/forlorn/consts"
 	"github.com/capucinoxx/forlorn/pkg/codec"
-	"github.com/capucinoxx/forlorn/pkg/config"
+	"github.com/capucinoxx/forlorn/pkg/utils"
 )
 
 // Connection represents a network connection. It can be used for reading and writing data over the network
@@ -33,306 +34,321 @@ type Connection interface {
 	Ping(time.Duration)
 }
 
-
 // Controls struct represents the player's controls.
 // When a control is activated, the player performs the corresponding action.
 type Controls struct {
-  Dest *Point `json:"dest,omitempty"`
+	Dest *Point `json:"dest,omitempty"`
 
 	// Shoot is the target point to shoot at, if any.
-  Shoot *Point `json:"shoot,omitempty"`
+	Shoot *Point `json:"shoot,omitempty"`
 }
-
 
 type Player struct {
-  Object
-  Destination *Point
+	Object
+	Destination *Point
 
-  Nickname string
-  Color int
-  Client *Client
-  health int
-  respawnCountdown float64
+	Nickname         string
+	Color            int
+	Client           *Client
+	health           int
+	respawnCountdown float64
 
-  Controls Controls
-  cannon *Cannon
-  blade *Blade
-  score int
+	Controls Controls
+	cannon   *Cannon
+	blade    *Blade
+	score    int
 }
 
-func NewPlayer(name string,color int,  pos *Point, conn Connection) *Player {
-  p := &Player{
-    Nickname: name,
-    Color: color,
-    Client: &Client{
-      Out: make(chan []byte, 10),
-      In: make(chan ClientMessage, 10),
-      Connection: conn,
-    },
+func NewPlayer(name string, color int, pos *Point, conn Connection) *Player {
+	p := &Player{
+		Nickname: name,
+		Color:    color,
+		Client: &Client{
+			Out:        make(chan []byte, 10),
+			In:         make(chan ClientMessage, 10),
+			Connection: conn,
+		},
 
-    health: 100,
-  }
+		health: 100,
+	}
 
-  p.setup(pos, config.PlayerSize)
-  p.cannon = NewCanon(p)
-  p.blade = NewBlade(p)
+	p.setup(pos, consts.PlayerSize)
+	p.cannon = NewCanon(p)
+	p.blade = NewBlade(p)
 
-  return p
+	return p
 }
 
 func (p *Player) Collider() *RectCollider {
-  return p.collider
+	return p.collider
 }
 
 func (p *Player) TakeDmg(dmg int) {
-  alive := p.IsAlive()
-  p.health -= dmg
+	alive := p.IsAlive()
+	p.health -= dmg
 
-  if p.health < 0 && alive {
-    p.Client.Blind = true
-  }
+	if p.health < 0 && alive {
+		p.Client.Blind = true
+	}
 }
 
 func (p *Player) AddScore(score int) {
-  p.score += score
+	p.score += score
 }
 
 func (p *Player) Score() int {
-  return p.score
+	return p.score
 }
 
 func (p *Player) IsAlive() bool {
-  return p.health > 0
+	return p.health > 0
 }
-
 
 func (p *Player) Update(players []*Player, game *GameState, dt float64) {
-  if !p.IsAlive() {
-    p.respawnCountdown += dt
-    return
-  }
+	if !p.IsAlive() {
+		p.respawnCountdown += dt
+		return
+	}
 
-  p.HandleMovement(players, game.Map, dt)
-  p.HandleWeapon(players, game.Map, dt)
-  p.blade.Update(players, game.Map, dt)
+	p.HandleMovement(players, game.Map, dt)
+	p.HandleWeapon(players, game.Map, dt)
+	p.blade.Update(players, game.Map, dt)
+	p.HandleCoinCollision(game.coins)
 }
 
-
+func (p *Player) HandleCoinCollision(coins []*Scorer) {
+	for _, coin := range coins {
+		if coin.IsCollidingWithPlayer(p) {
+			utils.Log("player", p.Nickname, "Score +%d, total: %d", coin.Value, p.score)
+		}
+	}
+}
 
 func (p *Player) HandleRespawn(game *GameState) {
-  if !p.IsAlive() && p.respawnCountdown > config.RespawnTime {
-    p.Respawn(game)
-  }
+	if !p.IsAlive() && p.respawnCountdown > consts.RespawnTime {
+		p.Respawn(game)
+	}
 }
-
 
 func (p *Player) Respawn(game *GameState) {
-  p.health = 100
-  p.respawnCountdown = 0
-  p.Position = game.GetSpawnPoint()
-  p.collider.ChangePosition(p.Position.X, p.Position.Y)
+	p.health = 100
+	p.respawnCountdown = 0
+	p.Position = game.GetSpawnPoint()
+	p.collider.ChangePosition(p.Position.X, p.Position.Y)
 
-  p.blade.collider.Rotation = 0.0
-  p.Client.Blind = false
+	p.blade.collider.Rotation = 0.0
+	p.Client.Blind = false
 }
 
-
 func (p *Player) HandleMovement(players []*Player, m Map, dt float64) {
-  if p.Controls.Dest == nil {
-    return
-  }
+	if p.Controls.Dest == nil {
+		return
+	}
 
-  px, py := p.Position.X, p.Position.Y
+	px, py := p.Position.X, p.Position.Y
 
-  p.moveToDestination(dt)
+	p.moveToDestination(dt)
 
-  for _, collider := range m.Colliders() {
-    if PolygonsIntersect(p.collider.polygon(), collider.polygon()) {
-      p.Position.X, p.Position.Y = px, py
-      p.collider.ChangePosition(px, py)
-      return
-    }
-  }
+	for _, collider := range m.Colliders() {
+		if PolygonsIntersect(p.collider.polygon(), collider.polygon()) {
+			p.Position.X, p.Position.Y = px, py
+			p.collider.ChangePosition(px, py)
+			return
+		}
+	}
 }
 
 func (p *Player) moveToDestination(dt float64) {
-  dest := p.Controls.Dest
+	dest := p.Controls.Dest
 
-  dx := float64(dest.X - p.Position.X)
-  dy := float64(dest.Y - p.Position.Y)
-  dist := math.Abs(dx) + math.Abs(dy)
+	dx := float64(dest.X - p.Position.X)
+	dy := float64(dest.Y - p.Position.Y)
+	dist := math.Abs(dx) + math.Abs(dy)
 
-  if dist > config.PlayerSpeed * float64(dt) {
-    nextX := p.Position.X + dx/dist * config.PlayerSpeed * dt
-    nextY := p.Position.Y + dy/dist * config.PlayerSpeed * dt
+	if dist > consts.PlayerSpeed*float64(dt) {
+		nextX := p.Position.X + dx/dist*consts.PlayerSpeed*dt
+		nextY := p.Position.Y + dy/dist*consts.PlayerSpeed*dt
 
-    p.Position.X = nextX
-    p.Position.Y = nextY
-    p.collider.ChangePosition(nextX, nextY)
-  }
+		p.Position.X = nextX
+		p.Position.Y = nextY
+		p.collider.ChangePosition(nextX, nextY)
+	}
 }
-
 
 func (p *Player) HandleWeapon(players []*Player, m Map, dt float64) {
-  p.cannon.Update(players, m, dt)
+	p.cannon.Update(players, m, dt)
 
-  if p.Controls.Shoot != nil {
-    p.cannon.ShootAt(*p.Controls.Shoot) 
-  }
+	if p.Controls.Shoot != nil {
+		p.cannon.ShootAt(*p.Controls.Shoot)
+	}
 }
 
-
 type PlayerInfo struct {
-  Nickname string
-  Color int32
-  Health int32
-  Pos Point
-  Dest *Point
-  Projectiles []struct {
-    Uuid [16]byte
-    Pos Point
-    Dest Point
-  }
-  Blade struct {
-    Start Point
-    End Point
-    Rotation float64
-  }
+	Nickname    string
+	Color       int32
+	Health      int32
+	Pos         Point
+	Dest        *Point
+	Projectiles []struct {
+		Uuid [16]byte
+		Pos  Point
+		Dest Point
+	}
+	Blade struct {
+		Start    Point
+		End      Point
+		Rotation float64
+	}
 }
 
 func (p *Player) Encode(w codec.Writer) (err error) {
-  if err = w.WriteString(p.Nickname); err != nil {
-    return
-  }
+	if err = w.WriteString(p.Nickname); err != nil {
+		return
+	}
 
-  if err = w.WriteInt32(int32(p.Color)); err != nil {
-    return
-  }
+	if err = w.WriteInt32(int32(p.Color)); err != nil {
+		return
+	}
 
-  if err = w.WriteInt32(int32(p.health)); err != nil {
-    return
-  }
+	if err = w.WriteInt32(int32(p.health)); err != nil {
+		return
+	}
 
-  if err = p.Position.Encode(w); err != nil {
-    return
-  }
+	if err = p.Position.Encode(w); err != nil {
+		return
+	}
 
-  if p.Controls.Dest != nil {
-    if err = w.WriteBool(true); err != nil {
-      return
-    }
+	if p.Controls.Dest != nil {
+		if err = w.WriteBool(true); err != nil {
+			return
+		}
 
-    if err = p.Controls.Dest.Encode(w); err != nil {
-      return
-    }
-  } else {
-    if err = w.WriteBool(false); err != nil {
-      return
-    }
-  }
+		if err = p.Controls.Dest.Encode(w); err != nil {
+			return
+		}
+	} else {
+		if err = w.WriteBool(false); err != nil {
+			return
+		}
+	}
 
-  bullets := p.cannon.Projectiles
-  if err = w.WriteInt32(int32(len(bullets))); err != nil {
-    return
-  }
+	bullets := p.cannon.Projectiles
+	if err = w.WriteInt32(int32(len(bullets))); err != nil {
+		return
+	}
 
-  for _, bullet := range bullets {
-    if _, err = w.WriteBytes(bullet.uuid[:]); err != nil {
-      return
-    }
+	for _, bullet := range bullets {
+		if _, err = w.WriteBytes(bullet.uuid[:]); err != nil {
+			return
+		}
 
-    if err = bullet.Position.Encode(w); err != nil {
-      return
-    }
-    if err = bullet.Destination.Encode(w); err != nil {
-      return
-    }
-  }
+		if err = bullet.Position.Encode(w); err != nil {
+			return
+		}
+		if err = bullet.Destination.Encode(w); err != nil {
+			return
+		}
+	}
 
-  // encode blade
-  if err = p.blade.collider.rect.a.Encode(w); err != nil {
-    return 
-  }
+	// encode blade
+	if err = p.blade.collider.rect.a.Encode(w); err != nil {
+		return
+	}
 
-  if err = p.blade.collider.rect.b.Encode(w); err != nil {
-    return
-  }
+	if err = p.blade.collider.rect.b.Encode(w); err != nil {
+		return
+	}
 
-  if err = w.WriteFloat64(p.blade.collider.Rotation); err != nil {
-    return 
-  }
+	if err = w.WriteFloat64(p.blade.collider.Rotation); err != nil {
+		return
+	}
 
-  return
+	return
 }
 
 func (p *PlayerInfo) Decode(r codec.Reader) (err error) {
-  if p.Nickname, err = r.ReadString(); err != nil {
-    return
-  }
+	if p.Nickname, err = r.ReadString(); err != nil {
+		return
+	}
 
-  if p.Color, err = r.ReadInt32(); err != nil {
-    return
-  }
-  
+	if p.Color, err = r.ReadInt32(); err != nil {
+		return
+	}
 
-  if p.Health, err = r.ReadInt32(); err != nil {
-    return
-  }
+	if p.Health, err = r.ReadInt32(); err != nil {
+		return
+	}
 
-  
-  if err = p.Pos.Decode(r); err != nil {
-    return
-  }
+	if err = p.Pos.Decode(r); err != nil {
+		return
+	}
 
-  var hasDest bool
-  if hasDest, err = r.ReadBool(); err != nil {
-    return
-  }
+	var hasDest bool
+	if hasDest, err = r.ReadBool(); err != nil {
+		return
+	}
 
-  if hasDest {
-    p.Dest = &Point{}
-    if err = p.Dest.Decode(r); err != nil {
-      return
-    }
-  }
-  
-  var length int32
-  if length, err = r.ReadInt32(); err != nil {
-    return
-  }
-  
-  p.Projectiles = make([]struct{Uuid [16]byte; Pos Point; Dest Point}, length)
-  for i := 0; i < int(length); i++ {
-    var id []byte
-    if id, err = r.ReadBytes(16); err != nil {
-      return
-    }
-    copy(p.Projectiles[i].Uuid[:], id)
+	if hasDest {
+		p.Dest = &Point{}
+		if err = p.Dest.Decode(r); err != nil {
+			return
+		}
+	}
 
-    if err = p.Projectiles[i].Pos.Decode(r); err != nil {
-      return
-    }
+	var length int32
+	if length, err = r.ReadInt32(); err != nil {
+		return
+	}
 
-    if err = p.Projectiles[i].Dest.Decode(r); err != nil {
-      return
-    }
-  }
+	p.Projectiles = make([]struct {
+		Uuid [16]byte
+		Pos  Point
+		Dest Point
+	}, length)
+	for i := 0; i < int(length); i++ {
+		var id []byte
+		if id, err = r.ReadBytes(16); err != nil {
+			return
+		}
+		copy(p.Projectiles[i].Uuid[:], id)
 
-  // decode Blade
-  p.Blade.Start = Point{}
-  if err = p.Blade.Start.Decode(r); err != nil {
-    return
-  }
+		if err = p.Projectiles[i].Pos.Decode(r); err != nil {
+			return
+		}
 
-  p.Blade.End = Point{}
-  if err = p.Blade.End.Decode(r); err != nil {
-    return
-  }
+		if err = p.Projectiles[i].Dest.Decode(r); err != nil {
+			return
+		}
+	}
 
-  if p.Blade.Rotation, err = r.ReadFloat64(); err != nil {
-    return
-  }
+	// decode Blade
+	p.Blade.Start = Point{}
+	if err = p.Blade.Start.Decode(r); err != nil {
+		return
+	}
 
-  return
+	p.Blade.End = Point{}
+	if err = p.Blade.End.Decode(r); err != nil {
+		return
+	}
+
+	if p.Blade.Rotation, err = r.ReadFloat64(); err != nil {
+		return
+	}
+
+	return
 }
 
+// Client représente un client connecté au serveur.
+type Client struct {
+	Out        chan []byte
+	In         chan ClientMessage
+	Connection Connection
+	Blind      bool
+}
+
+// ClientMessage représente un message envoyé par un client.
+type ClientMessage struct {
+	MessageType MessageType
+	Body        interface{}
+}
