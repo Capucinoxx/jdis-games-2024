@@ -4,7 +4,8 @@ import json
 import struct
 
 from src.bot import MyBot
-from core.game_state import MapState
+from core.map_state import MapState
+from core.game_state import GameInfo
 
 class Socket:  
     def __init__(self, url: str, token: str):
@@ -51,9 +52,11 @@ class Socket:
             
 
             # pass
-        # elif message_type == 1:
-        #     # GameState
-        #     pass
+        elif message_type == 1:
+            # GameState
+            game_info = GameInfo.decode(message[1:])
+            
+            pass
         # elif message_type == 2:
         #     # PlayerAction
         #     pass

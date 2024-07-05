@@ -1,121 +1,122 @@
 from dataclasses import dataclass
-from typing import Dict, List, Tuple, Set
+from typing import List, Tuple
+
+from core.map_state import Point
+from utils.utils import read_string_until_null as read_str
 
 import struct
 
-from enum import IntEnum
-
-
-
-# in go
-# type Map struct {
-#   size int
-#   grid [][]cell
-#   discreteGrid [][]uint8
-
-#   spawns [2][]*model.Point
-#   walls []*model.Collider
-# }
-
-
-class ColliderType(IntEnum):
-    Wall = 0
-    Projectile = 1
+@dataclass
+class Projectile:
+    uid: str
+    pos: Point
+    dest: Point
 
 @dataclass
-class Point:
-    x: float
-    y: float
+class Blade:
+    start: Point
+    end: Point
+    rotation: float
+
+@dataclass
+class Coin:
+    uid: str
+    value: int
+    pos: Point
+
+@dataclass
+class PlayerInfo:
+    name: str
+    color: int
+    health: int
+    pos: Point
+    dest: Point   
+    projectiles: List[Projectile]
+    blade: Blade
+
 
     def __init__(self):
-        self.x = 0
-        self.y = 0
+        self.name = ''
+        self.color = 0
+        self.health = 0
+        self.pos = Point()
+        self.dest = Point()
 
     def decode(self, data:bytes):
-        self.x, self.y = struct.unpack_from('<dd', data, 0)
-    
-    def __str__(self):
-        return f'Point(x={self.x}, y={self.y})'
+        self.name, end_index = read_str(data)
+        offset = end_index
+        self.color, self.health = struct.unpack_from('<ii', data, offset)
+        offset += 8
+
+        offset += self.pos.decode(data[offset:])
         
-@dataclass
-class Collider:
-    collider_type: ColliderType
-    positions: List[Point]
-
-    def __init__(self):
-        self.positions = []
-        self.collider_type = None
-
-    def decode(self, pos_size:int, data:bytes):
-        # pos_size = struct.unpack_from('<B', data, 0)[0]
-        print(f'pos_size {pos_size}')
-        for i in range(pos_size):
-            p = Point()
-            p.decode(data[i * 16:])
-            # print(p)
-            self.positions.append(p)
-
-        # self.positions = [Point.decode(data[i * 16:]) for i in range(pos_size)]
-        # for pos in self.positions:
-        #     print(pos.__str__(pos) + ' ')
-
-        self.collider_type = ColliderType(struct.unpack_from('<B', data, pos_size * 16)[0])
-        # print(self.collider_type.name)
+        has_dest = struct.unpack_from('<?', data, offset)[0]
+        offset += 1
     
-    def __str__(self):
-        # return for each point
-        
-        str_positions = ' '.join(str(pos) for pos in self.positions)
+        if has_dest:
+            offset += self.dest.decode(data[offset:])
 
-        return f'{self.collider_type.name} {str_positions.__str__(self)}'
+        projectile_size = struct.unpack_from('<i', data, offset)[0]
+        offset += 4
+
+        self.projectiles = []
+        for i in range(projectile_size):
+            projectile = Projectile()
+            projectile.uid, end_index = read_str(data[offset:], 16)
+            offset += end_index
+
+            offset += projectile.pos.decode(data[offset:])
+
+            offset += projectile.dest.decode(data[offset:])
+            
+            self.projectiles.append(projectile)
+
+        self.blade = Blade()
+        offset += self.blade.start.decode(data[offset:])
+        offset += self.blade.end.decode(data[offset:])
+        
+        self.blade.rotation = struct.unpack_from('<d', data, offset)[0]
+        offset += 8
+
+        return offset
 
 @dataclass
-class MapState:
-    discrete_grid: List[List[int]]
-    size: int
-
-    spawns: List[Tuple[Point]]
-    walls: List[Collider]
+class GameInfo:
+    current_tick: int
+    current_round: int
+    players: List[PlayerInfo]
+    coins: List[Coin]
 
     @classmethod
     def decode(cls, data:bytes):
-        cls.size = struct.unpack_from('<B', data, 0)[0]
-        cls.discrete_grid = []
-        cls.spawns = []
-        cls.walls = []
+        cls.current_tick, cls.current_round = struct.unpack_from('<ib', data, 0)
+        offset = 5
 
-        print(cls.size)
-
-        # decode discrete grid
-        cls.discrete_grid = [
-            list(struct.unpack_from('<' + 'B' * cls.size, data, i * cls.size + 1)) for i in range(cls.size)
-        ]
-
-        print(cls.discrete_grid)
-
-        # decode walls
-        offset = cls.size * cls.size + 1
-        walls_len = struct.unpack_from('<i', data, offset)[0]
-        # cls.walls = [Collider.decode(data[cls.size * cls.size + 5 + i * 16:]) for i in range(walls_len)]
-        
-        print(f'walls_len {walls_len}')
+        player_size = struct.unpack_from('<i', data, offset)[0]
         offset += 4
-        for i in range(walls_len):
-            pos_size = struct.unpack_from('<B', data, offset)[0]
-            offset += 1
-            collider = Collider()
-            collider.decode(pos_size, data[offset:])
-            offset += pos_size * 16 + 1
-            cls.walls.append(collider)
-            # print(wall.__str__(wall) + ' ')
 
-        # print(cls.walls.__str__())
-        # print(cls.walls)
 
-        # # decode walls
-        # walls_size = struct.unpack_from('<B', data[1:], self.size * self.size + 1 + spawns_size * 2)
-        # for i in range(walls_size):
-        #     wall = Collider(ColliderType.Wall,
-        #                     Point(struct.unpack_from('<f', data[1:], self.size * self.size + 1 + spawns_size * 2 + 1 + i * 3),
-        #                           struct.unpack_from('<f', data[1:], self.size * self.size + 1 + spawns_size * 2 + 1 + i * 3 + 1)))
-        #     self.walls.append(wall)
+        cls.players = []
+        for i in range(player_size):
+            player = PlayerInfo()
+            offset = player.decode(data[offset:])
+
+            cls.players.append(player)
+
+        coin_size = struct.unpack_from('<i', data, offset)[0]
+        offset += 4
+
+        cls.coins = []
+        for i in range(coin_size):
+            coin = Coin()
+            coin.uid, end_index = read_str(data[offset:], 16)
+            offset += end_index
+
+            coin.value = struct.unpack_from('<i', data, offset)[0]
+            offset += 4
+
+            offset += coin.pos.decode(data[offset:])
+
+            cls.coins.append(coin)
+
+        print(f'current_tick {cls.current_tick} current_round {cls.current_round}')
