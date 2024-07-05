@@ -21,12 +21,10 @@ func NewBinaryProtocol() *p.BinaryProtocol {
 	}
 
 	bp := BinaryProtocol{}
-	protocol.EncodeHandlers[model.Spawn] = bp.encodeMapState
 	protocol.EncodeHandlers[model.GameStart] = bp.encodeMapState
   protocol.EncodeHandlers[model.GameEnd] = bp.encodeGameEnd
 	protocol.EncodeHandlers[model.Position] = bp.encodeGameState
 
-	protocol.DecodeHandlers[model.Spawn] = bp.decodeMapState
 	protocol.DecodeHandlers[model.GameStart] = bp.decodeMapState
   protocol.DecodeHandlers[model.GameEnd] = bp.decodeGameEnd
 	protocol.DecodeHandlers[model.Position] = bp.decodeGameState

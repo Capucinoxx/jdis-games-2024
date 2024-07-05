@@ -51,12 +51,12 @@ func main() {
 
   sm := manager.NewScoreManager(redis, mongo)
 
-	transport.SetRegisterFunc(gm.Register)
-	transport.SetUnregisterFunc(gm.Unregister)
+	transport.SetRegisterFunc(gm.RegisterConnection)
+	transport.SetUnregisterFunc(gm.RemoveConnection)
 
 	go func() {
 		handler.NewHttpHandler(gm, am, sm).Handle()
-		log.Fatal(gm.Init())
+		log.Fatal(gm.Initialize())
 	}()
 
 	sigs := make(chan os.Signal, 1)

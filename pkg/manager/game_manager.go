@@ -1,62 +1,84 @@
 package manager
 
-import (
-	"fmt"
-	"sync"
-	"time"
+// GameManager orchestrates the game logic and state management for a multiplayer game.This package provides 
+// the necessary tools to manage player connections, game state updates, and game loop execution. It integrates 
+// tightly with the AuthManager, NetworkManager, and RoundManager to provide a seamless gaming experience.
+//
+// The GameManager is responsible for:
+// - Registering and unregistering player connections, including handling spectators and authenticated players.
+// - Initializing and starting the game server.
+// - Managing the game loop, which includes processing player actions and updating the game state.
+// - Broadcasting game state updates, game start, and game end messages to all connected clients.
+// - Handling player-specific actions such as respawn and damage.
+//
+// The GameManager utilizes a mutex to ensure thread safety when accessing and modifying the game state.
+// It also abstracts the details of authentication, network communication, and round management via interfaces.
+//
+// Usage of this package involves creating an instance of GameManager with specific instances of AuthManager,
+// NetworkManager, and RoundManager, along with the initial game map. The GameManager then handles the game
+// lifecycle, including player management and game state updates.
 
-	"github.com/capucinoxx/forlorn/pkg/model"
+import (
+  "fmt"
+  "sync"
+  "time"
+
+  "github.com/capucinoxx/forlorn/consts"
+  "github.com/capucinoxx/forlorn/pkg/model"
 )
 
-// tickrate est le nombre de mises à jour du jeu par seconde.
-const tickrate = 30
 
+// RoundManager is an interface for managing game rounds and tick.
 type RoundManager interface {
-	Restart()
-	Tick()
+  Restart()
+  Tick()
   CurrentTick() int
   CurrentRound() int8
   SetState(*model.GameState)
-	HasEnded() bool
+  HasEnded() bool
 }
 
-// GameManager est responsable de la gestion de l'état du jeu, des joueurs et
-// de la boucle de jeu. Il est également responsable de la gestion des messages
-// entrants des joueurs et de la synchronisation des mises à jour du jeu.
+
+// GameManager maintains the game state and manages the game loop.
 type GameManager struct {
-	tickStart time.Time
-	am        *AuthManager
-	nm        *NetworkManager
-	rm        RoundManager
-	state     *model.GameState
-	mu        sync.Mutex
+  tickStart time.Time
+  am        *AuthManager
+  nm        *NetworkManager
+  rm        RoundManager
+  state     *model.GameState
+  mu        sync.Mutex
 }
 
-// NewGameManager crée un nouveau gestionnaire de jeu avec le serveur de jeu et
-// le gestionnaire de réseau spécifiés.
+
+// NewGameManager creates a new GameManager with the specified authentication, network, and round managers, and initial 
+// game map
 func NewGameManager(am *AuthManager, nm *NetworkManager, rm RoundManager, m model.Map) *GameManager {
   state := model.NewGameState(m)
   rm.SetState(state)
 
-	return &GameManager{
-		state: state,
-		am:    am,
-		nm:    nm,
-		rm:    rm,
-	}
-}
-
-
-func (gm *GameManager) Register(conn model.Connection) error {
-  if (conn.Identifier() == "") {
-    gm.RegisterSpectator(conn)
-    return nil
-  } else {
-     return gm.RegisterPlayer(conn)
+  return &GameManager{
+    state: state,
+    am:    am,
+    nm:    nm,
+    rm:    rm,
   }
 }
 
-func (gm *GameManager) RegisterSpectator(conn model.Connection) {
+
+// RegisterConnection registers a new connection, either as a player or a spectator.
+func (gm *GameManager) RegisterConnection(conn model.Connection) error {
+  if (conn.Identifier() == "") {
+    gm.addSpectator(conn)
+    return nil
+  } else {
+    return gm.addPlayer(conn)
+  }
+}
+
+
+// addSpectator adds a new spectator to the game. A spectator is a client that is not authenticated as a player.
+// Spectators receive game state updates but cannot interact with the game.
+func (gm *GameManager) addSpectator(conn model.Connection) {
   client := &model.Client{
     Out: make(chan []byte, 10),
     Connection: conn,
@@ -70,8 +92,9 @@ func (gm *GameManager) RegisterSpectator(conn model.Connection) {
   }
 }
 
-// RegisterPlayer ajoute un joueur à l'état du jeu et à la liste des clients.
-func (gm *GameManager) RegisterPlayer(conn model.Connection) error {
+
+// addPlayer adds a new player to the game. A player is a client that is authenticated and can interact with the game.
+func (gm *GameManager) addPlayer(conn model.Connection) error {
   username, color, ok := gm.am.Authenticate(conn.Identifier())
   if !ok {
     return fmt.Errorf("Unknown token")
@@ -82,49 +105,43 @@ func (gm *GameManager) RegisterPlayer(conn model.Connection) error {
   if gm.state.InProgess() {
     spawn = gm.state.GetSpawnPoint()
   }
-	player := model.NewPlayer(username, color, spawn, conn)
-  
-	gm.nm.Register(player.Client)
-	gm.state.AddPlayer(player)
+  player := model.NewPlayer(username, color, spawn, conn)
+
+  gm.nm.Register(player.Client)
+  gm.state.AddPlayer(player)
 
 
-	if gm.state.InProgess() {
+  if gm.state.InProgess() {
     gm.nm.Send(player.Client, gm.nm.protocol.Encode(0, 0, &model.ClientMessage{
       MessageType: model.GameStart,
       Body: gm.state.Map,
     }))
-	}
+  }
 
   return nil
 }
 
-// UnregisterPlayer supprime un joueur de l'état du jeu et de la liste des clients.
-func (gm *GameManager) Unregister(conn model.Connection) {}
 
-// Init initialise le gestionnaire de jeu. Il démarre le serveur de jeu et
-// attend les connexions des joueurs.
-func (gm *GameManager) Init() error {
-	return gm.nm.Start()
+func (gm *GameManager) RemoveConnection(conn model.Connection) {}
+
+
+// Initialize starts the network manager and prepares the game for execution.
+func (gm *GameManager) Initialize() error {
+  return gm.nm.Start()
 }
 
-// Start démarre le gestionnaire de jeu. Il initialise le serveur de jeu et
-// démarre la boucle de jeu.
+
+// Start starts the game, initializing the game state and starting the game loop.
 func (gm *GameManager) Start() {
-	gm.state.Start()
+  gm.state.Start()
 
   gm.rm.Restart()
-	go gm.gameLoop()
+  go gm.gameLoop()
 }
 
-// State retourne l'état actuel du jeu.
-func (gm *GameManager) State() (model.Map, int) {
-	gm.mu.Lock()
-	defer gm.mu.Unlock()
 
-	state := gm.state
-	return state.Map, 0
-}
-
+// Kill foribly removes a player from the game by setting their health to 0.
+// This is used for debugging purposes.
 func (gm *GameManager) Kill(name string) {
   for _, player := range gm.state.Players() {
     if player.Nickname == name {
@@ -135,79 +152,57 @@ func (gm *GameManager) Kill(name string) {
 }
 
 
-// process traite les messages entrants des joueurs. Il met à jour l'état du jeu
-// en fonction des messages entrants. Il met également à jour les informations
-// des joueurs en fonction des messages entrants. La méthode prend en charge
-// l'authentification des joueurs et la mise à jour des informations des joueurs.
+// process processes player actions and updates the game state.
 func (gm *GameManager) process(p *model.Player, players []*model.Player, timestep float64, handleAction bool) {
-	for len(p.Client.In) != 0 {
-		message := <-p.Client.In
+  for len(p.Client.In) != 0 {
+    message := <-p.Client.In
 
-		switch msgType := message.MessageType; msgType {
-		case model.Spawn:
-			// Lorsqu'un joueur se connecte, il doit envoyer un message de type Spawn
-			// pour s'authentifier. Si le jeton d'authentification est valide, le joueur
-			// est autorisé à rejoindre la partie. Sinon, le joueur est déconnecté.
-			tkn := message.Body.(string)
-      if user, color, ok := gm.am.Authenticate(tkn); !ok {
-				gm.nm.ForceDisconnect(p.Client.Connection)
-				continue
-			} else {
-        p.Nickname = user
-        p.Color = color
-      }
-
-		case model.Action:
+    switch msgType := message.MessageType; msgType {
+    case model.Action:
       if handleAction {
-			  p.Controls = message.Body.(model.Controls)
+        p.Controls = message.Body.(model.Controls)
       }
       break;
-		}
-	}
+    }
+  }
 
   p.Update(players, gm.state, timestep)
 }
 
-// gameLoop est la boucle principale du jeu. Il gère les mises à jour du jeu,
-// les entrées des joueurs et les sorties des joueurs. La boucle de jeu appelle
-// cette méthode dans une goroutine séparée. Cela permet à la boucle de jeu de
-// continuer à s'exécuter même si le jeu est occupé. La boucle de jeu est
-// responsable de la synchronisation des mises à jour du jeu.
-func (gm *GameManager) gameLoop() {
-	interval := time.Duration((int(1000 / tickrate))) * time.Millisecond
-	timestep := float64(interval/time.Millisecond) / 1000.0
 
-	ticker := time.NewTicker(interval)
-	gm.nm.BroadcastGameStart(gm.state)
+// gameLoop is the main game loop that handles game state updates and broadcasting game state to clients.
+func (gm *GameManager) gameLoop() {
+  interval := time.Duration((int(1000 / consts.Tickrate))) * time.Millisecond
+  timestep := float64(interval/time.Millisecond) / 1000.0
+
+  ticker := time.NewTicker(interval)
+  gm.nm.BroadcastGameStart(gm.state)
 
   count := 0 
-	for range ticker.C {
-		gm.tickStart = time.Now()
-		players := gm.state.Players()
+  for range ticker.C {
+    gm.tickStart = time.Now()
+    players := gm.state.Players()
 
-		gm.rm.Tick()
+    gm.rm.Tick()
 
-		for _, p := range players {
-			gm.process(p, players, timestep, true)
-			p.HandleRespawn(gm.state)
-		}
-    
+    for _, p := range players {
+      gm.process(p, players, timestep, true)
+      p.HandleRespawn(gm.state)
+    }
+
     if count == 10 {
-		  gm.nm.BroadcastGameState(gm.state, int32(gm.rm.CurrentTick()), gm.rm.CurrentRound())
+      gm.nm.BroadcastGameState(gm.state, int32(gm.rm.CurrentTick()), gm.rm.CurrentRound())
       count = 0
     }
-      
-    count++
-		if gm.rm.HasEnded() {
-      gm.state.Stop()
-			break
-		}
-	}
-	ticker.Stop()
 
-	gm.nm.BroadcastGameEnd()
-  
-  
-	time.Sleep(10 * time.Second)
-	gm.Start()
+    count++
+    if gm.rm.HasEnded() {
+      gm.state.Stop()
+      break
+    }
+  }
+  ticker.Stop()
+
+  gm.nm.BroadcastGameEnd()
+  gm.Start()
 }

@@ -28,7 +28,6 @@ func NewHttpHandler(gm *manager.GameManager, am *manager.AuthManager, sm *manage
 func (h *HttpHandler) Handle() {
 	network.HandleFunc("/start", h.startGame)
 	network.HandleFunc("/create", h.register)
-	network.HandleFunc("/map", h.getMap)
   network.HandleFunc("/leaderboard", h.leaderboard, h.checkLeaderboardAccess)
   network.HandleFunc("/toggle_leaderboard", h.toggleLeaderboard)
   network.HandleFunc("/kill", h.kill)
@@ -58,15 +57,6 @@ func (h *HttpHandler) register(w http.ResponseWriter, r *http.Request) {
 // startGame démarre le serveur de jeu.
 func (h *HttpHandler) startGame(w http.ResponseWriter, r *http.Request) {
 	h.gm.Start()
-}
-
-func (h *HttpHandler) getMap(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	state, ttl := h.gm.State()
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"map": state,
-		"ttl": ttl,
-	})
 }
 
 func (h *HttpHandler) leaderboard(w http.ResponseWriter, r *http.Request) {

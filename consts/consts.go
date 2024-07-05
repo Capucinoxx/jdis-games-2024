@@ -1,82 +1,84 @@
 package consts
 
-
 const (
-  TicksPerRound = 5 * 60 * 3
-  TicksPointRushStage = 4 * 60 * 3
+	// --- GAME CONSTANTS
+	// ================================
 
-  // --- MAP CONSTANTS
-  // ================================
-  
-  // MapWidth defines CELLS in x and y.
-  MapWidth = 10
+	// Tickrate defines the number of ticks per second.
+	Tickrate = 30
 
-  // CellWidth defines width of cell
-  CellWidth = 10
+	TicksPerRound       = 5 * 60 * 3
+	TicksPointRushStage = 4 * 60 * 3
 
-  SubsquareRatio (float64) = 1.0/9.0
+	// --- MAP CONSTANTS
+	// ================================
 
-  // SubsquareWidth defines width of sub square
-  SubsquareWidth (float64) = 10.0 * SubsquareRatio
+	// MapWidth defines CELLS in x and y.
+	MapWidth = 10
 
+	// CellWidth defines width of cell
+	CellWidth = 10
 
-  // --- PLAYER CONSTANTS
-  // ================================
+	SubsquareRatio (float64) = 1.0 / 9.0
 
-  // PlayerSize defines the size of a player.
-  PlayerSize = 1
+	// SubsquareWidth defines width of sub square
+	SubsquareWidth (float64) = 10.0 * SubsquareRatio
 
-  // PlayerHealth is the starting health of a player.
-  PlayerHealth = 100
+	// --- PLAYER CONSTANTS
+	// ================================
 
-  // PlayerSpeed defines the distance travelled per tick.
-  PlayerSpeed = 1.15
+	// PlayerSize defines the size of a player.
+	PlayerSize = 1
 
-  RespawnTime = 5 
+	// PlayerHealth is the starting health of a player.
+	PlayerHealth = 100
 
+	// PlayerSpeed defines the distance travelled per tick.
+	PlayerSpeed = 1.15
 
-  // --- PORJECTILE CONSTANTS
-  // ================================
+	RespawnTime = 5
 
-  // ProjectileSize defines the sizes of a projectile. 
-  ProjectileSize = 0.35
+	// --- PORJECTILE CONSTANTS
+	// ================================
 
-  // ProjectileDmg defines the damage suffered by a player when hit by a projectile
-  ProjectileDmg = 30
+	// ProjectileSize defines the sizes of a projectile.
+	ProjectileSize = 0.35
 
-  // ProjectileSpeed defines
-  ProjectileSpeed = 1.75
+	// ProjectileDmg defines the damage suffered by a player when hit by a projectile
+	ProjectileDmg = 30
 
+	// ProjectileSpeed defines
+	ProjectileSpeed = 1.75
 
-  // --- BLADE CONSTANTS
-  // ================================
+	// --- BLADE CONSTANTS
+	// ================================
 
-  // BladeSize defines the size of a blade.
-  BladeSize = 1.5
+	// BladeSize defines the size of a blade.
+	BladeSize = 1.5
 
-  // BladeDmg defines the damage suffered by a player when hit by a blade.
-  BladeDmg = 20
+	// BladeDmg defines the damage suffered by a player when hit by a blade.
+	BladeDmg = 20
 
-  // BladeRotationSpeed defines the speed of rotation of a blade (in deg).
-  BladeRotationSpeed = 230
+	// BladeRotationSpeed defines the speed of rotation of a blade (in deg).
+	BladeRotationSpeed = 230
 
-  // BladeDistance defines the distance between the player and the blade.
-  BladeDistance = 1.5
+	// BladeDistance defines the distance between the player and the blade.
+	BladeDistance = 1.5
 
-  // --- SCORER CONSTANTS
-  // ================================
-  
-  // CoinSize defines the size of coin.
-  CoinSize = 0.5
+	// --- SCORER CONSTANTS
+	// ================================
 
-  // CoinValue defines the value when player take a coin.
-  CoinValue (int32) = 50
+	// CoinSize defines the size of coin.
+	CoinSize = 0.5
 
-  NumCoins = 30
+	// CoinValue defines the value when player take a coin.
+	CoinValue (int32) = 50
 
-  // BigCoinSize defines the size of big coin.
-  BigCoinSize = 4
+	NumCoins = 30
 
-  // BigCoinValue defines the value when player take a big coin.
-  BigCoinValue (int32) = 500
+	// BigCoinSize defines the size of big coin.
+	BigCoinSize = 4
+
+	// BigCoinValue defines the value when player take a big coin.
+	BigCoinValue (int32) = 500
 )

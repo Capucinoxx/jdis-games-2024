@@ -1,74 +1,68 @@
 package manager
 
 import (
-	"errors"
+  "errors"
 
-	"github.com/capucinoxx/forlorn/pkg/connector"
-	"github.com/capucinoxx/forlorn/pkg/utils"
-	"github.com/google/uuid"
-	"go.mongodb.org/mongo-driver/bson"
+  "github.com/capucinoxx/forlorn/pkg/connector"
+  "github.com/capucinoxx/forlorn/pkg/utils"
+  "github.com/google/uuid"
+  "go.mongodb.org/mongo-driver/bson"
 )
 
+
 type TokenInfo struct {
-  Token string `bson:"token"`
-  Username string `bson:"username"`
-  Color int `bson:"color"`
+  Token     string  `bson:"token"`
+  Username  string  `bson:"username"`
+  Color     int     `bson:"color"`
 }
+
 
 type UserInfo struct {
-  Username string `bson:"username"`
-  Color int `bson:"color"`
+  Username  string  `bson:"username"`
+  Color     int     `bson:"color"`
 }
 
-// Auth est une interface pour l'authentification des utilisateurs.
-type Auth interface {
-	Register(username string) (string, error)
-	Authenticate(token string) (string, bool)
-}
 
-// AuthManager maintient une liste d'utilisateurs et de jetons d'authentification.
 type AuthManager struct {
-	service    *connector.MongoService
-	collection string
+  service    *connector.MongoService
+  collection string
 }
 
-// NewAuthManager crée un nouveau AuthManager.
+
 func NewAuthManager(db *connector.MongoService) *AuthManager {
-	return &AuthManager{
-		service:    db,
-		collection: "users",
-	}
+  return &AuthManager{
+    service:    db,
+    collection: "users",
+  }
 }
 
-// Register enregistre un nouvel utilisateur et retourne un jeton d'authentification.
-// Si l'utilisateur existe déjà, une erreur est retournée. Si l'enregistrement est
-// réussi, le jeton d'authentification est retourné.
+
 func (am *AuthManager) Register(username string) (string, error) {
-	filter := bson.M{"username": username}
+  filter := bson.M{"username": username}
 
-	if v, _ := am.service.FindOne(am.collection, filter); v != nil {
-		return "", errors.New("user already exist")
-	}
+  if v, _ := am.service.FindOne(am.collection, filter); v != nil {
+    return "", errors.New("user already exist")
+  }
 
-	token := am.uuid()
+  token := am.uuid()
   user := bson.M{"username": username, "token": token, "color": utils.NameColor(username)}
 
-	_, err := am.service.Insert(am.collection, user)
-	if err != nil {
-		return "", errors.New("error inserting user")
-	}
+  _, err := am.service.Insert(am.collection, user)
+  if err != nil {
+    return "", errors.New("error inserting user")
+  }
 
-	return token, nil
+  return token, nil
 }
 
-// Authenticate retourne vrai si le jeton d'authentification existe. Sinon, retourne faux.
+
 func (am *AuthManager) Authenticate(token string) (string, int, bool) {
-	filter := bson.M{"token": token}
-	v, err := am.service.FindOne(am.collection, filter)
+  filter := bson.M{"token": token}
+  v, err := am.service.FindOne(am.collection, filter)
   if v == nil || err != nil {
     return "", 0, false
   }
- 
+
   var result TokenInfo
   if err = v.Decode(&result); err != nil {
     return "", 0, false
@@ -77,23 +71,23 @@ func (am *AuthManager) Authenticate(token string) (string, int, bool) {
   return result.Username, result.Color, true
 }
 
-// uuid génère un nouvel identifiant unique universel.
+
 func (am *AuthManager) uuid() string {
-	return uuid.NewString()
+  return uuid.NewString()
 }
 
-// Users retourne une liste de tous les utilisateurs enregistrés.
+
 func (am *AuthManager) Users() ([]UserInfo, error) {
   bsonUsers, err := am.service.FindKeep(am.collection, bson.M{}, &bson.M{"username": 1, "color": 1})
-	if err != nil {
-		return []UserInfo{}, err
-	}
+  if err != nil {
+    return []UserInfo{}, err
+  }
 
 
-	users := make([]UserInfo, len(bsonUsers))
-	for i, user := range bsonUsers {
+  users := make([]UserInfo, len(bsonUsers))
+  for i, user := range bsonUsers {
     users[i] = UserInfo{Username: user["username"].(string), Color: user["color"].(int)}
-	}
+  }
 
-	return users, nil
+  return users, nil
 }
