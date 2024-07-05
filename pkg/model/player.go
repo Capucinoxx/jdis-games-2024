@@ -113,10 +113,7 @@ func (p *Player) Update(players []*Player, game *GameState, dt float64) {
 	p.HandleMovement(players, game.Map, dt)
 	p.HandleWeapon(players, game.Map, dt)
 	p.blade.Update(players, game.Map, dt)
-
-	for _, coin := range game.coins {
-		coin.IsCollidingWithPlayer(p)
-	}
+	p.HandleCoinCollision(game.coins)
 }
 
 func (p *Player) HandleCoinCollision(coins []*Scorer) {
