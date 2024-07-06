@@ -7,7 +7,10 @@ const (
 	// Tickrate defines the number of ticks per second.
 	Tickrate = 30
 
-	TicksPerRound       = 5 * 60 * 3
+	// TicksPerRound defines the number of ticks per round.
+	TicksPerRound = 5 * 60 * 3
+
+	// TicksPointRushStage defines the number of ticks for the point rush stage.
 	TicksPointRushStage = 4 * 60 * 3
 
 	// --- MAP CONSTANTS
@@ -19,7 +22,11 @@ const (
 	// CellWidth defines width of cell
 	CellWidth = 10
 
-	SubsquareRatio (float64) = 1.0 / 9.0
+	// NumSubsquare defines the number of subsquares within a cell.
+	NumSubsquare = 9.0
+
+	// SubsquareRatio defines the ratio of subsquare to the cell.
+	SubsquareRatio (float64) = 1.0 / NumSubsquare
 
 	// SubsquareWidth defines width of sub square
 	SubsquareWidth (float64) = 10.0 * SubsquareRatio
@@ -36,6 +43,7 @@ const (
 	// PlayerSpeed defines the distance travelled per tick.
 	PlayerSpeed = 1.15
 
+	// RespawnTime defines the time (in seconds) for a player to respawn after being eliminated.
 	RespawnTime = 5
 
 	// --- PORJECTILE CONSTANTS
@@ -74,6 +82,7 @@ const (
 	// CoinValue defines the value when player take a coin.
 	CoinValue (int32) = 50
 
+	// NumCoins defines the total number of coins available in the game.
 	NumCoins = 30
 
 	// BigCoinSize defines the size of big coin.
