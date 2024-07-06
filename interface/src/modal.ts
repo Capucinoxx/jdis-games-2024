@@ -4,8 +4,7 @@ const handle_modal_interraction = () => {
   let active = false;
 
   const navbar = document.querySelector('nav');
-  if (!navbar)
-    return;
+  if (!navbar) return;
 
   const nav_els = navbar!.querySelectorAll('li');
   const btn = document.querySelector('.nav-btn');
@@ -17,8 +16,6 @@ const handle_modal_interraction = () => {
   const title_sections = Array.from(nav_els)
     .map((el) => el.querySelector("input[type='checkbox']"))
     .filter((el) => el !== null && el !== undefined) as HTMLInputElement[];
-
-
 
   title_sections.forEach(s => 
     s.addEventListener('click', (e) => {
@@ -50,10 +47,17 @@ const handle_modal_interraction = () => {
     .to(btn_open,   { opacity: 1, yPercent: 0, duration: 1, ease: 'power4.out' }, 0)
     .set(btn,       { pointerEvents: 'all' });
 
-  btn?.addEventListener('click', () => { 
+  const toggle_menu = () => {
     if (active) close.seek(0).play();
-    else open.seek(0).play(); 
-    active = !active; 
+    else open.seek(0).play();
+    active = !active;
+  };
+
+  btn?.addEventListener('click', toggle_menu);
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.key =='m' && !active) || (e.key === 'Escape' && active))
+      toggle_menu();
   });
 };
 

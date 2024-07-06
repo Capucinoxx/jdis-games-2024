@@ -6,6 +6,7 @@ class MainScene extends Phaser.Scene {
   private manager: GameManager | undefined;
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys | undefined;
   private wasd_keys: { w: Phaser.Input.Keyboard.Key, a: Phaser.Input.Keyboard.Key, s: Phaser.Input.Keyboard.Key, d: Phaser.Input.Keyboard.Key } | undefined;
+  private shift_key: Phaser.Input.Keyboard.Key | undefined;
 
   constructor() { super({ key: 'MainScene' }); }
 
@@ -25,6 +26,7 @@ class MainScene extends Phaser.Scene {
       s: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
       d: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
     };
+    this.shift_key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
 
     this.input.on('wheel', (_: Phaser.Input.Pointer, __: any, ___: number, dy: number, ____: number) => {
       if (dy > 0) cam.zoom = Math.max(0.5, cam.zoom - 0.1);
@@ -33,11 +35,11 @@ class MainScene extends Phaser.Scene {
   }
 
   private handle_input(dt: number) {
-    if (!this.cursors || !this.wasd_keys)
+    if (!this.cursors || !this.wasd_keys || !this.shift_key) 
       return;
   
     const cam = this.cameras.main;
-    const speed = 500;
+    const speed = 500 * (this.shift_key.isDown ? 2 : 1);
 
     if (this.cursors.left.isDown || this.wasd_keys.a.isDown) cam.scrollX -= speed * (dt / 1000);
     else if (this.cursors.right.isDown || this.wasd_keys.d.isDown) cam.scrollX += speed * (dt / 1000);
