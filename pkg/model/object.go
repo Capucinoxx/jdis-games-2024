@@ -91,17 +91,23 @@ type Scorers struct {
 }
 
 func NewScorers() *Scorers {
-	return &Scorers{}
+	return &Scorers{scorers: []*Scorer{}}
 }
 
-func (s *Scorers) Add(scorer *Scorer) {
-	s.scorers = append(s.scorers, scorer)
+func (s *Scorers) Add(scorers ...*Scorer) {
+	s.scorers = append(s.scorers, scorers...)
+}
+
+func (s *Scorers) Set(scorers []*Scorer) {
+	s.scorers = scorers
 }
 
 func (s *Scorers) Update(players []*Player) {
 	for _, scorer := range s.scorers {
 		for _, player := range players {
-			scorer.IsCollidingWithPlayer(player)
+			if player.IsAlive() {
+				scorer.IsCollidingWithPlayer(player)
+			}
 		}
 	}
 
@@ -110,4 +116,8 @@ func (s *Scorers) Update(players []*Player) {
 			s.scorers[i] = NewCoin()
 		}
 	}
+}
+
+func (s *Scorers) List() []*Scorer {
+	return s.scorers
 }

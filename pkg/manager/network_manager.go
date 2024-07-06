@@ -173,7 +173,7 @@ func (nm *NetworkManager) BroadcastGameState(state *model.GameState, tick int32,
 			CurrentTick:  tick,
 			CurrentRound: round,
 			Players:      state.Players(),
-			Coins:        state.Coins(),
+			Coins:        state.Coins().List(),
 		},
 	})
 }
