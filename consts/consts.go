@@ -19,7 +19,9 @@ const (
 	// CellWidth defines width of cell
 	CellWidth = 10
 
-	SubsquareRatio (float64) = 1.0 / 9.0
+	NumSubsquare = 9.0
+
+	SubsquareRatio (float64) = 1.0 / NumSubsquare
 
 	// SubsquareWidth defines width of sub square
 	SubsquareWidth (float64) = 10.0 * SubsquareRatio
