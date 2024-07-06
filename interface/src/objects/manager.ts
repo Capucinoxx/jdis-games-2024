@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GameObject, Bullet, Coin, Player, Payload } from './object';
 import '../types/index.d.ts';
+import { CameraController } from '../lib';
 
 interface Constructor<T> {
   new(...args: any[]): T;
@@ -10,7 +11,7 @@ const create_instance = <T>(ctor: Constructor<T>, ...args: any[]): T  => new cto
 
 
 class Manager<T extends GameObject> {
-  private scene: Phaser.Scene;
+  protected scene: Phaser.Scene;
   private objects: Phaser.Physics.Arcade.Group;
   protected cache: Map<string, T>;
   private ctor: Constructor<T>;
@@ -38,9 +39,12 @@ class Manager<T extends GameObject> {
         const obj = create_instance(this.ctor, this.scene, value);
         this.objects.add(obj);
         this.cache.set(key, obj);
+        this.handle_new_entry(key);
       }
     }); 
   }
+
+  protected handle_new_entry(id: string) {}
 
   public clear(): void {
     this.cache.forEach((obj, _) => obj.destroy());
@@ -49,10 +53,8 @@ class Manager<T extends GameObject> {
   }
 
   private get_key(p: Payload): string {
-    
-
     return 'id' in p ? p.id : (p as PlayerObject).name;
-  } 
+  }
 };
 
 
@@ -74,8 +76,13 @@ class CoinManager extends Manager<Coin> {
 };
 
 class PlayerManager extends Manager<Player> {
-  constructor(scene: Phaser.Scene) {
+  private container: HTMLElement;
+  private cam: CameraController;
+
+  constructor(scene: Phaser.Scene, cam: CameraController) {
     super(scene, Player);
+    this.container = document.querySelector('#players-list')!;
+    this.cam = cam;
   }
 
   public sync(payloads: Payload[]) {
@@ -90,6 +97,27 @@ class PlayerManager extends Manager<Player> {
 
   public move(dt: number) {
     this.cache.forEach((p, _) => p.move(dt));
+  }
+
+  protected handle_new_entry(id: string): void {
+    const li = document.createElement('li');
+    li.textContent = id;
+
+    const target = this.cache.get(id);
+    if (!target)
+      return;
+
+    li.addEventListener('click', () => {
+      this.cam.follow(target);
+    });
+
+    this.container.appendChild(li);
+  }
+
+  public clear(): void {
+    super.clear();
+
+    this.container.innerHTML = '';
   }
 };
 

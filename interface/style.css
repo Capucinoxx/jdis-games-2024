@@ -207,3 +207,10 @@ nav .hidden {
   height: 53px;
   background-color: white;
 }
+
+#players-list {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 400px;
+}

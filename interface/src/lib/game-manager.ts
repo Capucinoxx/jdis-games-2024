@@ -4,6 +4,7 @@ import { GridManager } from './grid-manager';
 import { BulletManager, CoinManager, PlayerManager } from '../objects';
 import '../types/index.d.ts';
 import { Coin } from '../objects/object';
+import { CameraController } from './camera-controller';
 
 class GameManager {
   private ws: WebSocket;
@@ -13,11 +14,11 @@ class GameManager {
   private bullets: BulletManager;
   private coins: CoinManager;
 
-  constructor(scene: Phaser.Scene) {
+  constructor(scene: Phaser.Scene, cam: CameraController) {
     this.grid = new GridManager(scene);
     this.bullets = new BulletManager(scene);
     this.coins = new CoinManager(scene);
-    this.players = new PlayerManager(scene);
+    this.players = new PlayerManager(scene, cam);
 
     this.ws = new WebSocket(WS_URL);
     this.ws.binaryType = 'arraybuffer';

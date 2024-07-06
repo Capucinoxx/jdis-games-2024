@@ -13,7 +13,6 @@ class MovableObject extends Phaser.GameObjects.Container {
     scene.add.existing(this);
   }
 
-
   public move(dt: number): void {
     const dist = this.speed * (dt / 1000);
     const direction = new Phaser.Math.Vector2(this.destination.x - this.x, this.destination.y - this.y);
