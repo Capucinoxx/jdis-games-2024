@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { PROJECTILE_SIZE, PROJECTILE_SPEED, COIN_SIZE, PLAYER_SPEED, PLAYER_SIZE, BLADE_ROTATION_SPEED, BLADE_DISTANCE, BLADE_LENGTH } from '../config'; 
-import { MovableObject } from '../lib/movable';
+import { MovableObject } from './movable';
 import '../types/index.d.ts';
 
 type Payload = ProjectileObject | PlayerObject | ScorerObject;
@@ -24,7 +24,6 @@ class Coin extends Phaser.GameObjects.Container implements GameObject {
   constructor(scene: Phaser.Scene, payload: Payload) {
     const { pos } = payload as ScorerObject;
     const circle = scene.add.circle(0, 0, Coin.size / 2, 0x131313);
-
     super(scene, pos.x, pos.y, [circle]);
 
     this.scene.physics.world.enable(this);
