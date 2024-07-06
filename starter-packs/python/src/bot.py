@@ -1,4 +1,4 @@
-import random
+import json
 # from core.action import Action, Direction, Pattern, Teleport
 # from core.game_state import GameState
 
@@ -35,10 +35,17 @@ class MyBot:
             state (GameState):  (fr) L'état du jeu.
                                 (en) The state of the game.
         """
-        print("Tick")
+        # print("Tick")
         # if self.__first_turn:
         #     self.__first_turn = False
         #     return Action(Pattern([Direction.UP, Direction.RIGHT]))
        
 
         # return self.__random_action()
+        json_message = json.dumps({
+        'dest': { 'x': 10.0, 'y': 11.34 },
+        'shoot': { 'x': 11.2222, 'y': 13.547 }
+        })
+
+        return json_message
+        

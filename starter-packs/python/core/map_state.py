@@ -63,21 +63,16 @@ class MapState:
         cls.spawns = []
         cls.walls = []
 
-        print(cls.size)
-
         # decode discrete grid
         cls.discrete_grid = [
             list(struct.unpack_from('<' + 'B' * cls.size, data, i * cls.size + 1)) for i in range(cls.size)
         ]
-
-        print(cls.discrete_grid)
 
         # decode walls
         offset = cls.size * cls.size + 1
         walls_len = struct.unpack_from('<i', data, offset)[0]
         # cls.walls = [Collider.decode(data[cls.size * cls.size + 5 + i * 16:]) for i in range(walls_len)]
         
-        print(f'walls_len {walls_len}')
         offset += 4
         for i in range(walls_len):
             pos_size = struct.unpack_from('<B', data, offset)[0]

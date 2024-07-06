@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from typing import List, Tuple
+from typing import List
 
 from core.map_state import Point
-from utils.utils import read_string_until_null as read_str
+from utils.utils import read_string_until_null as read_str, read_uuid
 
 import struct
 
@@ -12,17 +12,41 @@ class Projectile:
     pos: Point
     dest: Point
 
+    def __init__(self):
+        self.uid = ''
+        self.pos = Point()
+        self.dest = Point()
+
+    def __str__(self) -> str:
+        return f'Projectile(uid={self.uid}, pos={self.pos}, dest={self.dest})'
+
 @dataclass
 class Blade:
     start: Point
     end: Point
     rotation: float
 
+    def __init__(self):
+        self.start = Point()
+        self.end = Point()
+        self.rotation = 0
+
+    def __str__(self) -> str:
+        return f'Blade(start={self.start}, end={self.end}, rotation={self.rotation})'
+
 @dataclass
 class Coin:
     uid: str
     value: int
     pos: Point
+
+    def __init__(self):
+        self.uid = ''
+        self.value = 0
+        self.pos = Point()
+
+    def __str__(self) -> str:
+        return f'Coin(uid={self.uid}, value={self.value}, pos={self.pos})'
 
 @dataclass
 class PlayerInfo:
@@ -34,7 +58,6 @@ class PlayerInfo:
     projectiles: List[Projectile]
     blade: Blade
 
-
     def __init__(self):
         self.name = ''
         self.color = 0
@@ -44,7 +67,8 @@ class PlayerInfo:
 
     def decode(self, data:bytes):
         self.name, end_index = read_str(data)
-        offset = end_index
+        offset = end_index + 1
+
         self.color, self.health = struct.unpack_from('<ii', data, offset)
         offset += 8
 
@@ -52,7 +76,7 @@ class PlayerInfo:
         
         has_dest = struct.unpack_from('<?', data, offset)[0]
         offset += 1
-    
+
         if has_dest:
             offset += self.dest.decode(data[offset:])
 
@@ -62,19 +86,18 @@ class PlayerInfo:
         self.projectiles = []
         for i in range(projectile_size):
             projectile = Projectile()
-            projectile.uid, end_index = read_str(data[offset:], 16)
-            offset += end_index
+            projectile.uid = read_uuid(data[offset:], 16)
+            offset += 16
 
             offset += projectile.pos.decode(data[offset:])
-
             offset += projectile.dest.decode(data[offset:])
-            
+
             self.projectiles.append(projectile)
 
         self.blade = Blade()
         offset += self.blade.start.decode(data[offset:])
         offset += self.blade.end.decode(data[offset:])
-        
+
         self.blade.rotation = struct.unpack_from('<d', data, offset)[0]
         offset += 8
 
@@ -94,12 +117,11 @@ class GameInfo:
 
         player_size = struct.unpack_from('<i', data, offset)[0]
         offset += 4
-
-
+        
         cls.players = []
         for i in range(player_size):
             player = PlayerInfo()
-            offset = player.decode(data[offset:])
+            offset += player.decode(data[offset:])
 
             cls.players.append(player)
 
@@ -109,14 +131,13 @@ class GameInfo:
         cls.coins = []
         for i in range(coin_size):
             coin = Coin()
-            coin.uid, end_index = read_str(data[offset:], 16)
-            offset += end_index
+            coin.uid = read_uuid(data[offset:], 16)
+            offset += 16
+
+            offset += coin.pos.decode(data[offset:])
 
             coin.value = struct.unpack_from('<i', data, offset)[0]
             offset += 4
 
-            offset += coin.pos.decode(data[offset:])
-
             cls.coins.append(coin)
 
-        print(f'current_tick {cls.current_tick} current_round {cls.current_round}')

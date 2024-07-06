@@ -1,7 +1,7 @@
 import websocket
 import json
 
-import struct
+import time
 
 from src.bot import MyBot
 from core.map_state import MapState
@@ -40,21 +40,25 @@ class Socket:
     # TODO : put this somewhere else
     def handle_message(self,  message:bytes):
         message_type = int(message[0])
-        print(message_type)
+        # print(message_type)
         if message_type == 4:
-            print(message_type)
+            # print(message_type)
 
             # MapState
             # size = struct.unpack_from('<B', message[1:], 0)
             # print(size)
+            # start_time = time.time()
             state = MapState.decode(message[1:])
+            # print(" MapState --- %s ms ---\n" % (time.time() - start_time) * 1000)
             # self.bot.on_tick(state)
             
 
             # pass
         elif message_type == 1:
             # GameState
+            start_time = time.time()
             game_info = GameInfo.decode(message[1:])
+            # print(" GameInfo --- %s ms ---\n" % (time.time() - start_time) * 1000)
             
             pass
         # elif message_type == 2:
@@ -76,7 +80,7 @@ class Socket:
         # print("Message received from server: ", message)
         self.handle_message(message)
         # self.bot.on_tick()
-        # self.send_message(ws)
+        self.send_message(ws)
         
     def on_error(self, ws, error):
         print("Error: ", error)
