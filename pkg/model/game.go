@@ -10,7 +10,7 @@ type GameState struct {
 	inProgress bool
 
 	players map[string]*Player
-	coins   []*Scorer
+	coins   *Scorers
 
 	Map        Map
 	spawns     []*Point
@@ -23,7 +23,7 @@ func NewGameState(m Map) *GameState {
 		spawns:     []*Point{},
 		spawnIndex: 0,
 		inProgress: false,
-		coins:      []*Scorer{},
+		coins:      NewScorers(),
 		players:    make(map[string]*Player),
 		Map:        m,
 		mu:         &sync.RWMutex{},
@@ -43,7 +43,7 @@ func (gs *GameState) SetSpawns(spawns []*Point) {
 }
 
 func (gs *GameState) SetCoins(coins []*Scorer) {
-	gs.coins = coins
+	gs.coins.Add(coins...)
 }
 
 func (gs *GameState) InProgess() bool {
@@ -65,7 +65,7 @@ func (gd *GameState) Players() []*Player {
 	return players
 }
 
-func (gs *GameState) Coins() []*Scorer {
+func (gs *GameState) Coins() *Scorers {
 	gs.mu.RLock()
 	defer gs.mu.RUnlock()
 	return gs.coins
@@ -109,7 +109,7 @@ func (gs *GameState) Reset(scorers []*Scorer) {
 		p.Respawn(gs)
 	}
 
-	gs.coins = scorers
+	gs.coins.Set(scorers)
 }
 
 func (gs *GameState) Stop() {
