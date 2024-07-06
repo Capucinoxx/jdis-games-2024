@@ -359,7 +359,7 @@ func (m *Map) Setup() {
 		m.countWallsInSubsquares(2)
 
 		m.start = model.Point{X: float64(start.y*consts.CellWidth + consts.CellWidth/2), Y: float64(start.x*consts.CellWidth + consts.CellWidth/2)}
-		distances := m.dijkstra(point{x: start.x * 10, y: start.y * 10}, m.subdivise(10))
+		distances := m.dijkstra(point{x: start.x * 10, y: start.y * 10}, m.subdivise(9))
 		m.getSpawnPoints(distances, 40)
 		spawns = len(m.spawns[1])
 	}
