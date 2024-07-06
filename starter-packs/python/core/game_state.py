@@ -104,7 +104,7 @@ class PlayerInfo:
         return offset
 
 @dataclass
-class GameInfo:
+class GameState:
     current_tick: int
     current_round: int
     players: List[PlayerInfo]

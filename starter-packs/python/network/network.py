@@ -1,11 +1,11 @@
 import websocket
 import json
 
-import time
-
 from src.bot import MyBot
 from core.map_state import MapState
-from core.game_state import GameInfo
+from core.game_state import GameState
+from core.message import MessageType
+
 
 class Socket:  
     def __init__(self, url: str, token: str):
@@ -29,71 +29,53 @@ class Socket:
         
         ws.run_forever()
 
-    # def decode(self, data:bytes):
-    #     # little indian byte order
-    #     message_type = int(data[0])
 
-    #     # message = struct.unpack_from('<I', message[1:], 0)
-    #     self.handle_message(message_type, data[1:])
-
-
-    # TODO : put this somewhere else
-    def handle_message(self,  message:bytes):
+    def handle_message(self, message: bytes):
         message_type = int(message[0])
-        # print(message_type)
-        if message_type == 4:
-            # print(message_type)
+        response = None
 
-            # MapState
-            # size = struct.unpack_from('<B', message[1:], 0)
-            # print(size)
-            # start_time = time.time()
-            state = MapState.decode(message[1:])
-            # print(" MapState --- %s ms ---\n" % (time.time() - start_time) * 1000)
-            # self.bot.on_tick(state)
-            
+        if message_type == MessageType.GameStart.value:
+            map_state = MapState.decode(message[1:])
+            self.bot.on_start(map_state)
 
-            # pass
-        elif message_type == 1:
-            # GameState
-            start_time = time.time()
-            game_info = GameInfo.decode(message[1:])
-            # print(" GameInfo --- %s ms ---\n" % (time.time() - start_time) * 1000)
-            
-            pass
-        # elif message_type == 2:
-        #     # PlayerAction
-        #     pass
-        # elif message_type == 3:
-        #     # GameStart
-        #     pass
-        # else:
-            # print("Unknown message type")
+        elif message_type == MessageType.GameState.value:
+            game_state = GameState.decode(message[1:])
+            response = self.bot.on_tick(game_state)
 
-        
-    def on_open(self, ws):
+        elif message_type == MessageType.GameState.GameEnd.value:
+            self.bot.on_end()
+
+        else:
+            print("Unknown message type")
+
+        return response
+
+
+    def on_open(self, ws: websocket.WebSocketApp):
         print("Connection opened")
-        # self.send_message(ws)
         print("Message sent")
         
-    def on_message(self, ws, message):
-        # print("Message received from server: ", message)
-        self.handle_message(message)
-        # self.bot.on_tick()
-        self.send_message(ws)
+
+    def on_message(self, ws: websocket.WebSocketApp, message: bytes):
+        response = self.handle_message(message)
+        if response:
+            self.send_message(ws, response)
         
-    def on_error(self, ws, error):
+
+    def on_error(self, ws: websocket.WebSocketApp, error: str):
         print("Error: ", error)
         
-    def on_close(self, ws, close_status_code, close_msg):
+
+    def on_close(self, ws: websocket.WebSocketApp, close_status_code, close_msg):
         print("Connection closed")
         
-    def send_message(self, ws):
-        json_message = json.dumps({
-            'dest': { 'x': 10.0, 'y': 11.34 },
-            'shoot': { 'x': 11.2222, 'y': 13.547 }
-        })
-        # Préfixer le message avec le byte ayant la valeur 3
-        prefixed_message = bytearray([3]) + json_message.encode('utf-8')
 
+    def send_message(self, ws: websocket.WebSocketApp, actions: list):
+        
+        json_message = json.dumps({
+            'actions': [action.serialize() for action in actions]
+        })
+
+        print(f"Sending message: {json_message}")
+        prefixed_message = bytearray([3]) + json_message.encode('utf-8')
         ws.send(prefixed_message)

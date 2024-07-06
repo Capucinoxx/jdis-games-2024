@@ -1,6 +1,9 @@
 import json
-# from core.action import Action, Direction, Pattern, Teleport
-# from core.game_state import GameState
+
+from core.map_state import MapState
+from core.game_state import GameState
+from core.action import MoveAction, ShootAction
+
 
 class MyBot:
     """
@@ -12,16 +15,14 @@ class MyBot:
     This class represents your bot. You can define attributes and methods in it that will be kept 
     between each call of the `tick` method.
     """
-    def __init__(self):
-        self.__name = "name_of_my_super_cool_bot"
-        # self.__first_turn = True
+
+    map_state: MapState
+
+    # def __init__(self):
+    #     self.__map_state = MapState()
 
 
-    # def __random_action(self) -> Action:
-    #     return random.choice(list(Direction))
-
-
-    def on_tick(self):
+    def on_tick(self, game_state: GameState) -> list:
         """
         (fr)
         Cette méthode est appelée à chaque tick de jeu. Vous pouvez y définir le comportement de
@@ -32,20 +33,47 @@ class MyBot:
         return an instance of `Action` which will be executed by the server.
 
         Args:
-            state (GameState):  (fr) L'état du jeu.
-                                (en) The state of the game.
+            game_state (GameState): (fr) L'état du jeu.
+                                    (en) The state of the game.
         """
-        # print("Tick")
-        # if self.__first_turn:
-        #     self.__first_turn = False
-        #     return Action(Pattern([Direction.UP, Direction.RIGHT]))
-       
+        # json_message = json.dumps({
+        # 'dest': { 'x': 10.0, 'y': 11.34 },
+        # 'shoot': { 'x': 11.2222, 'y': 13.547 }
+        # })
 
-        # return self.__random_action()
-        json_message = json.dumps({
-        'dest': { 'x': 10.0, 'y': 11.34 },
-        'shoot': { 'x': 11.2222, 'y': 13.547 }
-        })
+        actions = [
+            MoveAction((10.0, 11.34)), 
+            ShootAction((11.2222, 13.547))
+        ]
 
-        return json_message
+        return actions
+    
+    def on_start(self, map_state: MapState):
+        """
+        (fr)
+        Cette méthode est appelée une seule fois au début de la partie. Vous pouvez y définir des
+        actions à effectuer au début de la partie.
+
+        (en)
+        This method is called once at the beginning of the game. You can define actions to be 
+        performed at the beginning of the game.
+
+        Args:
+            map_state (MapState): (fr) L'état de la carte.
+                                  (en) The state of the map.
+        """
+        self.__map_state = map_state
+        pass
+
+    def on_end(self):
+        """
+        (fr)
+        Cette méthode est appelée une seule fois à la fin de la partie. Vous pouvez y définir des
+        actions à effectuer à la fin de la partie.
+
+        (en)
+        This method is called once at the end of the game. You can define actions to be performed 
+        at the end of the game.
+        """
+        pass
         
