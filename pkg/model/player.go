@@ -34,14 +34,21 @@ type Connection interface {
 	Ping(time.Duration)
 }
 
+type PlayerWeapon = uint8
+
 // Controls struct represents the player's controls.
 // When a control is activated, the player performs the corresponding action.
 type Controls struct {
-	Dest *Point `json:"dest,omitempty"`
-
-	// Shoot is the target point to shoot at, if any.
-	Shoot *Point `json:"shoot,omitempty"`
+	Dest         *Point        `json:"dest,omitempty"`
+	Shoot        *Point        `json:"shoot,omitempty"`
+	SwitchWeapon *PlayerWeapon `json:"switch,omitempty"`
 }
+
+const (
+	PlayerWeaponNone (PlayerWeapon) = iota
+	PlayerWeaponCanon
+	PlayerWeaponBlade
+)
 
 type Player struct {
 	Object
@@ -54,9 +61,11 @@ type Player struct {
 	respawnCountdown float64
 
 	Controls Controls
-	cannon   *Cannon
-	blade    *Blade
-	score    int
+
+	currentWeapon PlayerWeapon
+	cannon        *Cannon
+	blade         *Blade
+	score         int
 }
 
 func NewPlayer(name string, color int, pos *Point, conn Connection) *Player {
@@ -68,6 +77,7 @@ func NewPlayer(name string, color int, pos *Point, conn Connection) *Player {
 			In:         make(chan ClientMessage, 10),
 			Connection: conn,
 		},
+		currentWeapon: PlayerWeaponNone,
 
 		health: 100,
 	}
@@ -112,7 +122,6 @@ func (p *Player) Update(players []*Player, game *GameState, dt float64) {
 
 	p.HandleMovement(players, game.Map, dt)
 	p.HandleWeapon(players, game.Map, dt)
-	p.blade.Update(players, game.Map, dt)
 	p.HandleCoinCollision(game.coins.List())
 }
 
@@ -176,20 +185,30 @@ func (p *Player) moveToDestination(dt float64) {
 }
 
 func (p *Player) HandleWeapon(players []*Player, m Map, dt float64) {
+	if p.Controls.SwitchWeapon != nil {
+		p.currentWeapon = *p.Controls.SwitchWeapon
+	}
+
 	p.cannon.Update(players, m, dt)
 
-	if p.Controls.Shoot != nil {
-		p.cannon.ShootAt(*p.Controls.Shoot)
+	switch p.currentWeapon {
+	case PlayerWeaponBlade:
+		p.blade.Update(players, m, dt)
+	case PlayerWeaponCanon:
+		if p.Controls.Shoot != nil {
+			p.cannon.ShootAt(*p.Controls.Shoot)
+		}
 	}
 }
 
 type PlayerInfo struct {
-	Nickname    string
-	Color       int32
-	Health      int32
-	Pos         Point
-	Dest        *Point
-	Projectiles []struct {
+	Nickname      string
+	Color         int32
+	Health        int32
+	Pos           Point
+	Dest          *Point
+	CurrentWeapon PlayerWeapon
+	Projectiles   []struct {
 		Uuid [16]byte
 		Pos  Point
 		Dest Point
@@ -230,6 +249,10 @@ func (p *Player) Encode(w codec.Writer) (err error) {
 		if err = w.WriteBool(false); err != nil {
 			return
 		}
+	}
+
+	if err = w.WriteUint8(p.currentWeapon); err != nil {
+		return
 	}
 
 	bullets := p.cannon.Projectiles
@@ -293,6 +316,10 @@ func (p *PlayerInfo) Decode(r codec.Reader) (err error) {
 		if err = p.Dest.Decode(r); err != nil {
 			return
 		}
+	}
+
+	if p.CurrentWeapon, err = r.ReadUint8(); err != nil {
+		return
 	}
 
 	var length int32

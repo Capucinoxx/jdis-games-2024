@@ -24,6 +24,7 @@ type PlayerObject = {
   color: number;
   pos: Position;
   dest: Position;
+  current_weapon: number;
   blade: BladeObject;
 };
 
@@ -33,6 +34,7 @@ type PlayerData = {
   health: number;
   pos: Position;
   dest: Position;
+  current_weapon: number;
   blade: BladeObject;
   projectiles: Array<Projectile>
 };

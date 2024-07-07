@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GameObject, Bullet, Coin, Player, Payload } from './object';
 import '../types/index.d.ts';
 import { CameraController } from '../lib';
+import { PLAYER_WEAPON } from '../config';
 
 interface Constructor<T> {
   new(...args: any[]): T;
@@ -91,7 +92,10 @@ class PlayerManager extends Manager<Player> {
     payloads.forEach((p) => {
       const pp = p as PlayerObject;
       const player = this.cache.get((p as PlayerObject).name);
-      player?.set_movement(new Phaser.Math.Vector2(pp.pos.x, pp.pos.y), new Phaser.Math.Vector2(pp.dest!.x, pp.dest!.y));
+      if (player) {
+        player.set_movement(new Phaser.Math.Vector2(pp.pos.x, pp.pos.y), new Phaser.Math.Vector2(pp.dest!.x, pp.dest!.y));
+        player.blade_visibility = (pp.current_weapon === PLAYER_WEAPON.Blade);
+      }
     });
   }
 
