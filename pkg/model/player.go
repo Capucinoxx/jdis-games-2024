@@ -202,12 +202,13 @@ func (p *Player) HandleWeapon(players []*Player, m Map, dt float64) {
 }
 
 type PlayerInfo struct {
-	Nickname    string
-	Color       int32
-	Health      int32
-	Pos         Point
-	Dest        *Point
-	Projectiles []struct {
+	Nickname      string
+	Color         int32
+	Health        int32
+	Pos           Point
+	Dest          *Point
+	CurrentWeapon PlayerWeapon
+	Projectiles   []struct {
 		Uuid [16]byte
 		Pos  Point
 		Dest Point
@@ -248,6 +249,10 @@ func (p *Player) Encode(w codec.Writer) (err error) {
 		if err = w.WriteBool(false); err != nil {
 			return
 		}
+	}
+
+	if err = w.WriteUint8(p.currentWeapon); err != nil {
+		return
 	}
 
 	bullets := p.cannon.Projectiles
@@ -311,6 +316,10 @@ func (p *PlayerInfo) Decode(r codec.Reader) (err error) {
 		if err = p.Dest.Decode(r); err != nil {
 			return
 		}
+	}
+
+	if p.CurrentWeapon, err = r.ReadUint8(); err != nil {
+		return
 	}
 
 	var length int32
