@@ -31,7 +31,8 @@ class GameManager {
     const payload_players: PlayerObject[] = [];
 
     payload.players.forEach((data: PlayerData) => {
-      payload_players.push({ name: data.name, pos: data.pos, color: data.color, dest: data.dest, blade: data.blade });
+      const { name, pos, color, dest, blade, current_weapon } = data;
+      payload_players.push({ name, pos, color, dest, blade, current_weapon });
       payload_bullets.push(...data.projectiles);
     });
 
