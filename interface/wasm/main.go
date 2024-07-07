@@ -86,6 +86,7 @@ func getInformations(this js.Value, args []js.Value) interface{} {
 			} else {
 				player.Set("dest", position(*data.Dest))
 			}
+			player.Set("current_weapon", int(data.CurrentWeapon))
 
 			projectiles := js.Global().Get("Array").New()
 			for _, projectile := range data.Projectiles {
