@@ -24,6 +24,7 @@ type PlayerObject = {
   color: number;
   pos: Position;
   dest: Position;
+  current_weapon: number;
   blade: BladeObject;
 };
 

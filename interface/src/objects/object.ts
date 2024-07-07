@@ -46,6 +46,14 @@ class Player extends MovableObject implements GameObject {
 
   }
 
+  public set blade_visibility(visibility: boolean) {
+    const curr_visibility = this.blade.visibility;
+    if (curr_visibility != visibility) {
+      this.blade.visible = visibility;
+      this.blade.visibility = visibility;
+    }
+  }
+
   public set_movement(pos: Phaser.Math.Vector2, dest: Phaser.Math.Vector2): void {
     this.destination = dest;
 
@@ -57,6 +65,7 @@ class Player extends MovableObject implements GameObject {
 
   public update(time: number, delta: number): void {
     super.update(time, delta);
+
 
     this.blade.update(delta);
   }
@@ -71,10 +80,12 @@ class Blade extends Phaser.GameObjects.Container {
   private blade: Phaser.GameObjects.Rectangle;
   private owner: Player;
   private speed: number;
+  public visibility: boolean = false; 
 
   constructor(scene: Phaser.Scene, player: Player) {
     super(scene, player.x, player.y);
     const blade = scene.add.rectangle(0, 0, 4, BLADE_LENGTH, 0x0000);
+    this.visible = false;
 
     this.add(blade);
 
@@ -86,6 +97,9 @@ class Blade extends Phaser.GameObjects.Container {
   }
 
   public update(dt: number): void {
+    if (!this.visibility)
+      return;
+
     this.angle += (this.speed * (dt / 1000));
     this.angle %= (Math.PI * 2);
 
