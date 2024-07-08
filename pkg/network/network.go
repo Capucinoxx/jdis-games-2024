@@ -87,7 +87,7 @@ func (n *Network) Register(conn model.Connection) error {
 		return n.register(conn)
 	}
 
-  return nil
+	return nil
 }
 
 // Unregister deregisters a connection by invoking the specified unregister function.
@@ -97,8 +97,7 @@ func (n *Network) Unregister(conn model.Connection) {
 		n.uregister(conn)
 	}
 
-
-  n.connected.Delete(conn.Identifier())
+	n.connected.Delete(conn.Identifier())
 }
 
 // Init initializes the network server by listening for HTTP requests and upgrading
@@ -114,19 +113,19 @@ func (n *Network) Init() {
 			}
 			n.connected.Store(token, true)
 		}
-    
+
 		ws, err := n.upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			http.Error(w, "failed to upgrade", http.StatusInternalServerError)
 			return
 		}
 
-    if err := n.register(NewConnection(ws, token)); err != nil {
-      ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.ClosePolicyViolation, "Unhautorized"))
-      http.Error(w, "Unhautorized", http.StatusUnauthorized)
-      n.connected.Delete(token)
-      return
-    }
+		if err := n.register(NewConnection(ws, token)); err != nil {
+			ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.ClosePolicyViolation, "Unhautorized"))
+			http.Error(w, "Unhautorized", http.StatusUnauthorized)
+			n.connected.Delete(token)
+			return
+		}
 	})
 }
 
@@ -154,17 +153,27 @@ type Connection struct {
 	// token associatedwith the connection for authentication.
 	// If the token is empty, it represents a read-only connection.
 	token string
+
+	isAdmin bool
 }
 
 // NewConnection creates a new WebSocket connection instance.
 func NewConnection(conn *websocket.Conn, token string) *Connection {
-	return &Connection{conn: conn, token: token}
+	return &Connection{conn: conn, token: token, isAdmin: false}
 }
 
 // Identifier returns a string representing the token associated with the connection,
 // which is used as a unique identifier for managing connections.
 func (c *Connection) Identifier() string {
 	return c.token
+}
+
+func (c *Connection) IsAdmin() bool {
+	return c.isAdmin
+}
+
+func (c *Connection) SetAdmin(isAdmin bool) {
+	c.isAdmin = isAdmin
 }
 
 // Close closes the connection by sending a close message and then closing the underlying

@@ -32,6 +32,10 @@ type Connection interface {
 
 	// Ping sends a ping to check the connectivity and latency.
 	Ping(time.Duration)
+
+	IsAdmin() bool
+
+	SetAdmin(bool)
 }
 
 type PlayerWeapon = uint8

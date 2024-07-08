@@ -87,10 +87,11 @@ func (gm *GameManager) addSpectator(conn model.Connection) {
 
 // addPlayer adds a new player to the game. A player is a client that is authenticated and can interact with the game.
 func (gm *GameManager) addPlayer(conn model.Connection) error {
-	username, color, ok := gm.am.Authenticate(conn.Identifier())
+	username, color, isAdmin, ok := gm.am.Authenticate(conn.Identifier())
 	if !ok {
 		return fmt.Errorf("unknown token")
 	}
+	conn.SetAdmin(isAdmin)
 
 	spawn := &model.Point{X: 0, Y: 0}
 
