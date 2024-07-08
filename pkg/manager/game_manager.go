@@ -60,9 +60,9 @@ func NewGameManager(am *AuthManager, nm *NetworkManager, rm RoundManager, m mode
 }
 
 // RegisterConnection registers a new connection, either as a player or a spectator.
-func (gm *GameManager) RegisterConnection(conn model.Connection) error {
+func (gm *GameManager) RegisterConnection(conn model.Connection, adminToken string) error {
 	if conn.Identifier() == "" {
-		gm.addSpectator(conn)
+		gm.addSpectator(conn, adminToken)
 		return nil
 	} else {
 		return gm.addPlayer(conn)
@@ -71,11 +71,17 @@ func (gm *GameManager) RegisterConnection(conn model.Connection) error {
 
 // addSpectator adds a new spectator to the game. A spectator is a client that is not authenticated as a player.
 // Spectators receive game state updates but cannot interact with the game.
-func (gm *GameManager) addSpectator(conn model.Connection) {
+func (gm *GameManager) addSpectator(conn model.Connection, token string) {
 	client := &model.Client{
 		Out:        make(chan []byte, 10),
 		Connection: conn,
 	}
+
+	if token != "" {
+		_, _, isAdmin, _ := gm.am.Authenticate(token)
+		conn.SetAdmin(isAdmin)
+	}
+
 	gm.nm.Register(client)
 	if gm.state.InProgess() {
 		gm.nm.Send(client, gm.nm.protocol.Encode(0, 0, &model.ClientMessage{

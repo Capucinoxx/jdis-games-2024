@@ -29,7 +29,7 @@ type Network struct {
 	upgrader websocket.Upgrader
 
 	// register is a function called when a new connection is established.
-	register func(conn model.Connection) error
+	register func(conn model.Connection, token string) error
 
 	// uregister is a function called when a connection is closed.
 	uregister func(conn model.Connection)
@@ -72,7 +72,7 @@ func (n *Network) Address() string {
 }
 
 // SetRegisterFunc sets the function to be called when a new connection is established.
-func (n *Network) SetRegisterFunc(f func(conn model.Connection) error) {
+func (n *Network) SetRegisterFunc(f func(conn model.Connection, token string) error) {
 	n.register = f
 }
 
@@ -82,9 +82,9 @@ func (n *Network) SetUnregisterFunc(f func(conn model.Connection)) {
 }
 
 // Register registers a new connection by invoking the specified register function.
-func (n *Network) Register(conn model.Connection) error {
+func (n *Network) Register(conn model.Connection, token string) error {
 	if n.register != nil {
-		return n.register(conn)
+		return n.register(conn, token)
 	}
 
 	return nil
@@ -114,13 +114,15 @@ func (n *Network) Init() {
 			n.connected.Store(token, true)
 		}
 
+		adminToken := r.Header.Get("AdminToken")
+
 		ws, err := n.upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			http.Error(w, "failed to upgrade", http.StatusInternalServerError)
 			return
 		}
 
-		if err := n.register(NewConnection(ws, token)); err != nil {
+		if err := n.register(NewConnection(ws, token), adminToken); err != nil {
 			ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.ClosePolicyViolation, "Unhautorized"))
 			http.Error(w, "Unhautorized", http.StatusUnauthorized)
 			n.connected.Delete(token)
