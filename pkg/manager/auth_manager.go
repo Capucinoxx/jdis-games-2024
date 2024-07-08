@@ -16,10 +16,10 @@ import (
 
 // TokenInfo represents the structure of a user's token information stored in MongoDB.
 type TokenInfo struct {
-	Token    string `bson:"token"`
-	Username string `bson:"username"`
-	Color    int    `bson:"color"`
-	IsAdmin  bool   `bson:"is_admin"`
+	Token    string `bson:"token" json:"token"`
+	Username string `bson:"username" json:"username"`
+	Color    int    `bson:"color" json:"color"`
+	IsAdmin  bool   `bson:"is_admin" json:"is_admin"`
 }
 
 // UserInfo represents the structure of a user's basic information retrieved from MongoDB.
@@ -99,4 +99,23 @@ func (am *AuthManager) Users() ([]UserInfo, error) {
 	}
 
 	return users, nil
+}
+
+func (am *AuthManager) SetupAdmins(admins []TokenInfo) {
+	count := 0
+	for _, admin := range admins {
+		filter := bson.M{"username": admin.Username}
+
+		if v, _ := am.service.FindOne(am.collection, filter); v != nil {
+			continue
+		}
+
+		user := bson.M{"username": admin.Username, "token": admin.Token, "color": admin.Color, "is_admin": true}
+		_, err := am.service.Insert(am.collection, user)
+		if err == nil {
+			count++
+		}
+	}
+
+	utils.Log("config", "admins", "%d admins have been configured", count)
 }

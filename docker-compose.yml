@@ -19,6 +19,8 @@ services:
 
       REDIS_ADDR: redis:6379
       REDIS_PASSWORD: long_password
+    env_file:
+      - .env
 
   interface:
     build:
