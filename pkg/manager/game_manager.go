@@ -77,8 +77,9 @@ func (gm *GameManager) addSpectator(conn model.Connection, token string) {
 		Connection: conn,
 	}
 
+	isAdmin := false
 	if token != "" {
-		_, _, isAdmin, _ := gm.am.Authenticate(token)
+		_, _, isAdmin, _ = gm.am.Authenticate(token)
 		conn.SetAdmin(isAdmin)
 	}
 
@@ -86,7 +87,10 @@ func (gm *GameManager) addSpectator(conn model.Connection, token string) {
 	if gm.state.InProgess() {
 		gm.nm.Send(client, gm.nm.protocol.Encode(&model.ClientMessage{
 			MessageType: model.MessageMapState,
-			Body:        gm.state.Map,
+			Body: model.MessageMapStateToEncode{
+				Map:     gm.state.Map,
+				IsAdmin: isAdmin,
+			},
 		}))
 	}
 }
@@ -112,7 +116,10 @@ func (gm *GameManager) addPlayer(conn model.Connection) error {
 	if gm.state.InProgess() {
 		gm.nm.Send(player.Client, gm.nm.protocol.Encode(&model.ClientMessage{
 			MessageType: model.MessageMapState,
-			Body:        gm.state.Map,
+			Body: model.MessageMapStateToEncode{
+				Map:     gm.state.Map,
+				IsAdmin: isAdmin,
+			},
 		}))
 	}
 

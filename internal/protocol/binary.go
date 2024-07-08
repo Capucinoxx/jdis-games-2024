@@ -34,7 +34,7 @@ func NewBinaryProtocol() *p.BinaryProtocol {
 }
 
 func (b BinaryProtocol) encodeMapState(w *codec.ByteWriter, message *model.ClientMessage) {
-	p := message.Body.(*imodel.Map)
+	p := message.Body.(model.MessageMapStateToEncode)
 
 	_ = p.Encode(w)
 }

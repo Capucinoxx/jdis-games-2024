@@ -187,10 +187,31 @@ func (nm *NetworkManager) BroadcastGameEnd() {
 
 // BroadcastGameStart sends a game start message to all players.
 func (nm *NetworkManager) BroadcastGameStart(state *model.GameState) {
-	nm.broadcast <- nm.protocol.Encode(&model.ClientMessage{
+	players := state.Players()
+
+	msg_admin := nm.protocol.Encode(&model.ClientMessage{
 		MessageType: model.MessageMapState,
-		Body:        state.Map,
+		Body: model.MessageMapStateToEncode{
+			Map:     state.Map,
+			IsAdmin: true,
+		},
 	})
+
+	msg := nm.protocol.Encode(&model.ClientMessage{
+		MessageType: model.MessageMapState,
+		Body: model.MessageMapStateToEncode{
+			Map:     state.Map,
+			IsAdmin: false,
+		},
+	})
+
+	for _, p := range players {
+		if p.Client.Connection.IsAdmin() {
+			p.Client.Out <- msg_admin
+		} else {
+			p.Client.Out <- msg
+		}
+	}
 }
 
 // writer writes outgoing messages to the WebSocket network. If a message cannot be written,
