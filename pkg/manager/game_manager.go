@@ -84,7 +84,7 @@ func (gm *GameManager) addSpectator(conn model.Connection, token string) {
 
 	gm.nm.Register(client)
 	if gm.state.InProgess() {
-		gm.nm.Send(client, gm.nm.protocol.Encode(0, 0, &model.ClientMessage{
+		gm.nm.Send(client, gm.nm.protocol.Encode(&model.ClientMessage{
 			MessageType: model.MessageMapState,
 			Body:        gm.state.Map,
 		}))
@@ -110,7 +110,7 @@ func (gm *GameManager) addPlayer(conn model.Connection) error {
 	gm.state.AddPlayer(player)
 
 	if gm.state.InProgess() {
-		gm.nm.Send(player.Client, gm.nm.protocol.Encode(0, 0, &model.ClientMessage{
+		gm.nm.Send(player.Client, gm.nm.protocol.Encode(&model.ClientMessage{
 			MessageType: model.MessageMapState,
 			Body:        gm.state.Map,
 		}))

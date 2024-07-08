@@ -45,7 +45,7 @@ const (
 
 // Protocol is an interface to encode and decode network messages.
 type Protocol interface {
-	Encode(id uint8, currentGameTime uint32, message *model.ClientMessage) []byte
+	Encode(message *model.ClientMessage) []byte
 	Decode(data []byte) model.ClientMessage
 }
 
@@ -167,7 +167,7 @@ func (nm *NetworkManager) Send(client *model.Client, message []byte) {
 // BroadcastGameState sends the current state of the game to all players.
 // This involves sending the positions of all players and coins in the game.
 func (nm *NetworkManager) BroadcastGameState(state *model.GameState, tick int32, round int8) {
-	nm.broadcast <- nm.protocol.Encode(0, 0, &model.ClientMessage{
+	nm.broadcast <- nm.protocol.Encode(&model.ClientMessage{
 		MessageType: model.MessageGameState,
 		Body: model.MessageGameStateToEncode{
 			CurrentTick:  tick,
@@ -180,14 +180,14 @@ func (nm *NetworkManager) BroadcastGameState(state *model.GameState, tick int32,
 
 // BroadcastGameEnd sends a game end message to all players.
 func (nm *NetworkManager) BroadcastGameEnd() {
-	nm.broadcast <- nm.protocol.Encode(0, 0, &model.ClientMessage{
+	nm.broadcast <- nm.protocol.Encode(&model.ClientMessage{
 		MessageType: model.MessageGameEnd,
 	})
 }
 
 // BroadcastGameStart sends a game start message to all players.
 func (nm *NetworkManager) BroadcastGameStart(state *model.GameState) {
-	nm.broadcast <- nm.protocol.Encode(0, 0, &model.ClientMessage{
+	nm.broadcast <- nm.protocol.Encode(&model.ClientMessage{
 		MessageType: model.MessageMapState,
 		Body:        state.Map,
 	})
