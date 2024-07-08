@@ -19,12 +19,14 @@ type TokenInfo struct {
 	Token    string `bson:"token"`
 	Username string `bson:"username"`
 	Color    int    `bson:"color"`
+	IsAdmin  bool   `bson:"is_admin"`
 }
 
 // UserInfo represents the structure of a user's basic information retrieved from MongoDB.
 type UserInfo struct {
 	Username string `bson:"username"`
 	Color    int    `bson:"color"`
+	IsAdmin  bool   `bson:"is_admin"`
 }
 
 // AuthManager handles user authentication and registration.
@@ -44,7 +46,7 @@ func NewAuthManager(db *connector.MongoService) *AuthManager {
 // Register registers a new user with the specified username. It generates a unique token
 // for the user and stores their information in the MongoDB collection. If the user already
 // exists, an error is returned.
-func (am *AuthManager) Register(username string) (string, error) {
+func (am *AuthManager) Register(username string, isAdmin bool) (string, error) {
 	filter := bson.M{"username": username}
 
 	if v, _ := am.service.FindOne(am.collection, filter); v != nil {
@@ -52,7 +54,7 @@ func (am *AuthManager) Register(username string) (string, error) {
 	}
 
 	token := am.uuid()
-	user := bson.M{"username": username, "token": token, "color": utils.NameColor(username)}
+	user := bson.M{"username": username, "token": token, "color": utils.NameColor(username), "is_admin": isAdmin}
 
 	_, err := am.service.Insert(am.collection, user)
 	if err != nil {
@@ -64,19 +66,19 @@ func (am *AuthManager) Register(username string) (string, error) {
 
 // Authenticate authenticates a user based on their token. It retrieves the user's information
 // from the MongoDB collection and returns their username, color, and a boolean indicating success.
-func (am *AuthManager) Authenticate(token string) (string, int, bool) {
+func (am *AuthManager) Authenticate(token string) (string, int, bool, bool) {
 	filter := bson.M{"token": token}
 	v, err := am.service.FindOne(am.collection, filter)
 	if v == nil || err != nil {
-		return "", 0, false
+		return "", 0, false, false
 	}
 
 	var result TokenInfo
 	if err = v.Decode(&result); err != nil {
-		return "", 0, false
+		return "", 0, false, false
 	}
 
-	return result.Username, result.Color, true
+	return result.Username, result.Color, result.IsAdmin, true
 }
 
 // uuid generates a new unique identifier for user tokens.
