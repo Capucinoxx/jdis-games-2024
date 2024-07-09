@@ -12,6 +12,7 @@ class MainScene extends Phaser.Scene {
   create() {
     this.cam = new CameraController(this.cameras.main, this.input);
     this.manager = new GameManager(this, this.cam);
+    this.manager.generate_admin_form(document.body);
   }
 
   update(_: number, delta: number) {
