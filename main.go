@@ -41,6 +41,8 @@ func main() {
 	transport := network.NewNetwork("0.0.0.0", 8087)
 
 	am := manager.NewAuthManager(mongo)
+	am.SetupAdmins(config.RequiredAdmins())
+
 	nm := manager.NewNetworkManager(transport, protocol.NewBinaryProtocol())
 	rm := iManager.NewRoundManager()
 	gm := manager.NewGameManager(am, nm, rm, &iModel.Map{})

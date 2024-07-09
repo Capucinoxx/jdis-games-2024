@@ -7,7 +7,7 @@ import { Coin } from '../objects/object';
 import { CameraController } from './camera-controller';
 
 class GameManager {
-  private ws: WebSocket;
+  private ws: WebSocket | undefined;
   private grid: GridManager;
   
   private players: PlayerManager;
@@ -20,10 +20,33 @@ class GameManager {
     this.coins = new CoinManager(scene);
     this.players = new PlayerManager(scene, cam);
 
-    this.ws = new WebSocket(WS_URL);
+    this.ws_connection = '';
+  }
+
+  public set ws_connection(token: string) {
+    const conn = WS_URL + (token === '' ? '' : `?token=${token}`);
+    if (this.ws && this.ws.readyState !== WebSocket.CLOSED)
+      this.ws.close();
+
+    this.ws = new WebSocket(conn);
     this.ws.binaryType = 'arraybuffer';
 
     this.handle_ws_messages();
+}
+
+  public generate_admin_form(container: HTMLElement) {
+    const input = document.createElement('input');
+    const btn = document.createElement('button');
+    btn.textContent = 'reload';
+
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.ws_connection = input.value;      
+      input.value = '';
+    });
+
+    container.appendChild(input);
+    container.appendChild(btn);
   }
 
   public handle_game_state(payload: ServerGameState): void {
@@ -49,6 +72,9 @@ class GameManager {
 
 
   private handle_ws_messages(): void {
+    if (!this.ws)
+      return;
+
     this.ws.onmessage = (event: MessageEvent<ArrayBuffer>) => {
       const data = window.getInformations(event.data);
       if (!('type' in data))

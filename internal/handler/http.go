@@ -49,7 +49,7 @@ func (h *HttpHandler) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, _ := h.am.Register(payload.Username)
+	token, _ := h.am.Register(payload.Username, false)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"type": "success", "message": fmt.Sprintf("Token: %s", token)})
 }

@@ -384,13 +384,17 @@ func (m *Map) DiscreteMap() [][]uint8 {
 	return m.discreteGrid
 }
 
-func (m *Map) Encode(w codec.Writer) error {
+func (m *Map) Encode(w codec.Writer, withWalls bool) error {
 	w.WriteInt8(int8(len(m.discreteGrid)))
 
 	for _, row := range m.discreteGrid {
 		for _, cell := range row {
 			w.WriteUint8(cell)
 		}
+	}
+
+	if !withWalls {
+		return w.WriteInt32(0)
 	}
 
 	w.WriteInt32(int32(len(m.walls)))

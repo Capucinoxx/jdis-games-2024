@@ -73,4 +73,5 @@ type Map interface {
 	Spawns(int) []*Point
 	Size() int
 	DiscreteMap() [][]uint8
+	Encode(codec.Writer, bool) error
 }

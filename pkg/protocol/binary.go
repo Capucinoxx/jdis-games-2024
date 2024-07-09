@@ -12,7 +12,7 @@ type BinaryProtocol struct {
 	DecodeHandlers map[model.MessageType]func(r *codec.ByteReader, message *model.ClientMessage)
 }
 
-func (b BinaryProtocol) Encode(id uint8, currentTime uint32, message *model.ClientMessage) []byte {
+func (b BinaryProtocol) Encode(message *model.ClientMessage) []byte {
 	writer := codec.NewByteWriter(binary.LittleEndian)
 
 	_ = writer.WriteUint8(uint8(message.MessageType))

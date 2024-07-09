@@ -1,6 +1,8 @@
 package model
 
-import "github.com/capucinoxx/forlorn/pkg/codec"
+import (
+	"github.com/capucinoxx/forlorn/pkg/codec"
+)
 
 type MessageType uint8
 
@@ -196,4 +198,13 @@ func (m *MessageGameStateToDecode) Decode(r codec.Reader) (err error) {
 	}
 
 	return
+}
+
+type MessageMapStateToEncode struct {
+	Map     Map
+	IsAdmin bool
+}
+
+func (m *MessageMapStateToEncode) Encode(w codec.Writer) (err error) {
+	return m.Map.Encode(w, m.IsAdmin)
 }

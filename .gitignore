@@ -9,3 +9,6 @@ interface/.cache
 interface/dist
 interface/.parcel-cache
 interface/src/wasm/wasm_exec.js
+
+# env 
+.env
