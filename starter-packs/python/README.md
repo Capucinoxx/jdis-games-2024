@@ -19,3 +19,5 @@ Vous pourrez envoyer des actions au serveur à chaque tick.
 Actions disponibles :
 - ShootAction(Tuple(x, y))
 - MoveAction(Tuple(x, y))
+- SwitchWeaponAction(PlayerWeapon)
+- SaveAction(bytearray)

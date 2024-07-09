@@ -1,6 +1,6 @@
 from core.map_state import MapState
 from core.game_state import GameState, PlayerWeapon
-from core.action import MoveAction, ShootAction, SwitchWeaponAction
+from core.action import MoveAction, ShootAction, SwitchWeaponAction, SaveAction
 
 
 class MyBot:
@@ -35,7 +35,8 @@ class MyBot:
         actions = [
             MoveAction((10.0, 11.34)), 
             ShootAction((11.2222, 13.547)),
-            SwitchWeaponAction(PlayerWeapon.PlayerWeaponBlade)
+            SwitchWeaponAction(PlayerWeapon.PlayerWeaponBlade),
+            SaveAction(b'Hello, world!')
         ]
 
         return actions

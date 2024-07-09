@@ -3,6 +3,8 @@ from typing import Tuple
 
 from core.game_state import PlayerWeapon
 
+import base64
+
 @dataclass
 class MoveAction:
 
@@ -52,4 +54,18 @@ class SwitchWeaponAction:
         return {
             'switch': self.weapon.value
         }
+    
+
+@dataclass
+class SaveAction:
+    
+        save: bytearray
+
+        def serialize(self) -> dict:
+            # encode bytearray to base64
+            return {
+                'save': str(base64.b64encode(self.save))
+            }
+            
+            
 

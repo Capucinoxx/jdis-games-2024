@@ -17,7 +17,7 @@ class Point:
         self.x = 0
         self.y = 0
 
-    def decode(self, data:bytes):
+    def decode(self, data: bytes):
         self.x, self.y = struct.unpack_from('<dd', data, 0)
 
         return 16
@@ -34,7 +34,7 @@ class Collider:
         self.positions = []
         self.collider_type = None
 
-    def decode(self, pos_size:int, data:bytes):
+    def decode(self, pos_size: int, data: bytes):
         for i in range(pos_size):
             p = Point()
             p.decode(data[i * 16:])
@@ -54,8 +54,10 @@ class MapState:
     spawns: List[Tuple[Point]]
     walls: List[Collider]
 
+    save: bytearray
+
     @classmethod
-    def decode(cls, data:bytes):
+    def decode(cls, data: bytes):
         cls.size = struct.unpack_from('<B', data, 0)[0]
         cls.discrete_grid = []
         cls.spawns = []
@@ -78,3 +80,5 @@ class MapState:
             collider.decode(pos_size, data[offset:])
             offset += pos_size * 16 + 1
             cls.walls.append(collider)
+
+        cls.save = bytearray(data[offset: offset + 100])

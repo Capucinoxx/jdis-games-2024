@@ -1,8 +1,6 @@
 import uuid
 
 def read_string_until_null(byte_array, end_index=None):
-    print(byte_array[0])
-
     # Trouver l'index du premier caractère nul
     if end_index is None:
         end_index = byte_array.find(b'\0')
