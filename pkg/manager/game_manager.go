@@ -73,9 +73,9 @@ func (gm *GameManager) RegisterConnection(conn model.Connection, adminToken stri
 // Spectators receive game state updates but cannot interact with the game.
 func (gm *GameManager) addSpectator(conn model.Connection, token string) {
 	client := &model.Client{
-		Out:        make(chan []byte, 10),
-		Connection: conn,
+		Out: make(chan []byte, 10),
 	}
+	client.SetConnection(conn)
 
 	isAdmin := false
 	if token != "" {
@@ -103,15 +103,8 @@ func (gm *GameManager) addPlayer(conn model.Connection) error {
 	}
 	conn.SetAdmin(isAdmin)
 
-	spawn := &model.Point{X: 0, Y: 0}
-
-	if gm.state.InProgess() {
-		spawn = gm.state.GetSpawnPoint()
-	}
-	player := model.NewPlayer(username, color, spawn, conn)
-
+	player := gm.state.AddPlayer(username, color, conn)
 	gm.nm.Register(player.Client)
-	gm.state.AddPlayer(player)
 
 	if gm.state.InProgess() {
 		gm.nm.Send(player.Client, gm.nm.protocol.Encode(&model.ClientMessage{

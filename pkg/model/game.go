@@ -58,7 +58,7 @@ func (gd *GameState) Players() []*Player {
 
 	players := make([]*Player, 0, len(gd.players))
 	for _, p := range gd.players {
-		if p.Client.Connection.Identifier() != "" {
+		if p.Client.GetConnection().Identifier() != "" {
 			players = append(players, p)
 		}
 	}
@@ -71,11 +71,28 @@ func (gs *GameState) Coins() *Scorers {
 	return gs.coins
 }
 
-func (gs *GameState) AddPlayer(p *Player) {
-	gs.mu.Lock()
-	defer gs.mu.Unlock()
+func (gs *GameState) AddPlayer(username string, color int, conn Connection) *Player {
+	var player *Player
+	var ok bool
 
-	gs.players[p.Nickname] = p
+	gs.mu.Lock()
+	player, ok = gs.players[username]
+	gs.mu.Unlock()
+
+	if ok {
+		player.Client.SetConnection(conn)
+		return player
+	}
+
+	spawn := &Point{0, 0}
+	if gs.InProgess() {
+		spawn = gs.GetSpawnPoint()
+	}
+	player = NewPlayer(username, color, spawn, conn)
+	gs.mu.Lock()
+	gs.players[username] = player
+	gs.mu.Unlock()
+	return player
 }
 
 func (gs *GameState) RemovePlayer(p *Player) {
