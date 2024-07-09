@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import List
+from enum import IntEnum
 
 from core.map_state import Point
 from utils.utils import read_string_until_null as read_str, read_uuid
@@ -48,6 +49,13 @@ class Coin:
     def __str__(self) -> str:
         return f'Coin(uid={self.uid}, value={self.value}, pos={self.pos})'
 
+
+class PlayerWeapon(IntEnum):
+    PlayerWeaponNone = 0
+    PlayerWeaponCanon = 1
+    PlayerWeaponBlade = 2
+
+
 @dataclass
 class PlayerInfo:
     name: str
@@ -55,6 +63,7 @@ class PlayerInfo:
     health: int
     pos: Point
     dest: Point   
+    playerWeapon : PlayerWeapon
     projectiles: List[Projectile]
     blade: Blade
 
@@ -80,6 +89,9 @@ class PlayerInfo:
         if has_dest:
             offset += self.dest.decode(data[offset:])
 
+        self.playerWeapon = PlayerWeapon(struct.unpack_from('<B', data, offset)[0])
+        offset += 1
+
         projectile_size = struct.unpack_from('<i', data, offset)[0]
         offset += 4
 
@@ -102,6 +114,10 @@ class PlayerInfo:
         offset += 8
 
         return offset
+    
+    def __str__(self) -> str:
+        return f'PlayerInfo(name={self.name}, color={self.color}, health={self.health}, pos={self.pos}, dest={self.dest}, playerWeapon={self.playerWeapon.Name}, projectiles={self.projectiles}, blade={self.blade})'
+
 
 @dataclass
 class GameState:

@@ -71,10 +71,11 @@ class Socket:
         
 
     def send_message(self, ws: websocket.WebSocketApp, actions: list):
-        
-        json_message = json.dumps({
-            'actions': [action.serialize() for action in actions]
-        })
+        json_reponse = {}
+        for action in actions:
+           json_reponse.update(action.serialize())
+    
+        json_message = json.dumps(json_reponse)
 
         print(f"Sending message: {json_message}")
         prefixed_message = bytearray([3]) + json_message.encode('utf-8')

@@ -1,6 +1,7 @@
 from dataclasses import dataclass
-from typing import List, Tuple
+from typing import Tuple
 
+from core.game_state import PlayerWeapon
 
 @dataclass
 class MoveAction:
@@ -35,5 +36,20 @@ class ShootAction:
                 'x': self.target_pos[0],
                 'y': self.target_pos[1]
             }
+        }
+    
+
+@dataclass
+class SwitchWeaponAction:
+
+    weapon: PlayerWeapon
+
+    def __init__(self, weapon: PlayerWeapon):
+        self.weapon = weapon
+
+
+    def serialize(self) -> dict:
+        return {
+            'switch': self.weapon.value
         }
 
