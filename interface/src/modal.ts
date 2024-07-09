@@ -1,6 +1,6 @@
 import { gsap } from 'gsap';
 
-const handle_modal_interraction = () => {
+const handle_modal_interraction = (game: Phaser.Game) => {
   let active = false;
 
   const navbar = document.querySelector('nav');
@@ -50,6 +50,7 @@ const handle_modal_interraction = () => {
   const toggle_menu = () => {
     if (active) close.seek(0).play();
     else open.seek(0).play();
+    game.input.keyboard!.enabled = active;
     active = !active;
   };
 

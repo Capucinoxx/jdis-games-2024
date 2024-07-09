@@ -4,7 +4,7 @@ import { load_wasm } from './wasm/loader';
 import { handle_modal_interraction } from './modal';
 import { handle_forms } from './form';
 
-handle_modal_interraction();
+
 handle_forms();
 
 const config: Phaser.Types.Core.GameConfig = {
@@ -25,4 +25,7 @@ const config: Phaser.Types.Core.GameConfig = {
   }
 };
 
-load_wasm().then(() => new Phaser.Game(config));
+load_wasm().then(() => {
+  const game = new Phaser.Game(config);
+  handle_modal_interraction(game);
+});
