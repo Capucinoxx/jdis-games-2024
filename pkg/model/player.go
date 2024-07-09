@@ -1,7 +1,9 @@
 package model
 
 import (
+	"encoding/base64"
 	"math"
+	"sync"
 	"time"
 
 	"github.com/capucinoxx/forlorn/consts"
@@ -46,6 +48,7 @@ type Controls struct {
 	Dest         *Point        `json:"dest,omitempty"`
 	Shoot        *Point        `json:"shoot,omitempty"`
 	SwitchWeapon *PlayerWeapon `json:"switch,omitempty"`
+	Save         *string       `json:"save,omitempty"`
 }
 
 const (
@@ -70,6 +73,9 @@ type Player struct {
 	cannon        *Cannon
 	blade         *Blade
 	score         int
+
+	storage [100]byte
+	mu      sync.RWMutex
 }
 
 func NewPlayer(name string, color int, pos *Point, conn Connection) *Player {
@@ -127,6 +133,22 @@ func (p *Player) Update(players []*Player, game *GameState, dt float64) {
 	p.HandleMovement(players, game.Map, dt)
 	p.HandleWeapon(players, game.Map, dt)
 	p.HandleCoinCollision(game.coins.List())
+	p.HandleSave()
+}
+
+func (p *Player) HandleSave() {
+	if p.Controls.Save == nil {
+		return
+	}
+
+	bytes, err := base64.StdEncoding.DecodeString(*p.Controls.Save)
+	if err != nil {
+		return
+	}
+
+	p.mu.Lock()
+	copy(p.storage[:], bytes)
+	p.mu.Unlock()
 }
 
 func (p *Player) HandleCoinCollision(coins []*Scorer) {
