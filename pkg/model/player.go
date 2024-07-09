@@ -120,6 +120,18 @@ func (p *Player) Score() int {
 	return p.score
 }
 
+func (p *Player) Storage() [100]byte {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	return p.storage
+}
+
+func (p *Player) ClearStorage() {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	p.storage = [100]byte{}
+}
+
 func (p *Player) IsAlive() bool {
 	return p.health > 0
 }

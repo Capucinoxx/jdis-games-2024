@@ -119,6 +119,7 @@ func (gm *GameManager) addPlayer(conn model.Connection) error {
 			Body: model.MessageMapStateToEncode{
 				Map:     gm.state.Map,
 				IsAdmin: isAdmin,
+				Storage: player.Storage(),
 			},
 		}))
 	}

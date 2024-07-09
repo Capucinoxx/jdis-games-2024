@@ -75,6 +75,10 @@ func (s DiscoveryStage) ChangeStage(state *model.GameState) {
 	spawns := state.Map.Spawns(0)
 	state.SetSpawns(spawns)
 
+	for _, p := range state.Players() {
+		p.ClearStorage()
+	}
+
 	coins := make([]*model.Scorer, 0, consts.NumCoins)
 	for i := 0; i < consts.NumCoins; i++ {
 		coins = append(coins, model.NewCoin())
