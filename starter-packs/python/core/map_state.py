@@ -82,3 +82,5 @@ class MapState:
             cls.walls.append(collider)
 
         cls.save = bytearray(data[offset: offset + 100])
+
+        return cls

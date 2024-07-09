@@ -59,12 +59,12 @@ class SwitchWeaponAction:
 @dataclass
 class SaveAction:
     
-        save: bytearray
+        save: bytes
 
         def serialize(self) -> dict:
             # encode bytearray to base64
             return {
-                'save': str(base64.b64encode(self.save))
+                'save': base64.b64encode(self.save).decode('utf-8')
             }
             
             
