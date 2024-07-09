@@ -203,8 +203,15 @@ func (m *MessageGameStateToDecode) Decode(r codec.Reader) (err error) {
 type MessageMapStateToEncode struct {
 	Map     Map
 	IsAdmin bool
+	Storage [100]byte
 }
 
 func (m *MessageMapStateToEncode) Encode(w codec.Writer) (err error) {
-	return m.Map.Encode(w, m.IsAdmin)
+	err = m.Map.Encode(w, m.IsAdmin)
+	if err != nil {
+		return
+	}
+
+	_, err = w.WriteBytes(m.Storage[:])
+	return
 }

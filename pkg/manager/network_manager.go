@@ -194,6 +194,7 @@ func (nm *NetworkManager) BroadcastGameStart(state *model.GameState) {
 		Body: model.MessageMapStateToEncode{
 			Map:     state.Map,
 			IsAdmin: true,
+			Storage: [100]byte{},
 		},
 	})
 
@@ -202,6 +203,7 @@ func (nm *NetworkManager) BroadcastGameStart(state *model.GameState) {
 		Body: model.MessageMapStateToEncode{
 			Map:     state.Map,
 			IsAdmin: false,
+			Storage: [100]byte{},
 		},
 	})
 

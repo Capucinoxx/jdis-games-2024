@@ -119,6 +119,7 @@ func (gm *GameManager) addPlayer(conn model.Connection) error {
 			Body: model.MessageMapStateToEncode{
 				Map:     gm.state.Map,
 				IsAdmin: isAdmin,
+				Storage: player.Storage(),
 			},
 		}))
 	}
@@ -172,6 +173,10 @@ func (gm *GameManager) process(p *model.Player, players []*model.Player, timeste
 func (gm *GameManager) gameLoop() {
 	interval := time.Duration((int(1000 / consts.Tickrate))) * time.Millisecond
 	timestep := float64(interval/time.Millisecond) / 1000.0
+
+	for _, p := range gm.state.Players() {
+		p.ClearStorage()
+	}
 
 	ticker := time.NewTicker(interval)
 	gm.nm.BroadcastGameStart(gm.state)
