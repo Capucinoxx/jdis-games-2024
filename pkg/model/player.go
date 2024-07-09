@@ -158,6 +158,8 @@ func (p *Player) HandleSave() {
 		return
 	}
 
+	p.Controls.Save = nil
+
 	p.mu.Lock()
 	copy(p.storage[:], bytes)
 	p.mu.Unlock()

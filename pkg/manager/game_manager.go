@@ -103,15 +103,8 @@ func (gm *GameManager) addPlayer(conn model.Connection) error {
 	}
 	conn.SetAdmin(isAdmin)
 
-	spawn := &model.Point{X: 0, Y: 0}
-
-	if gm.state.InProgess() {
-		spawn = gm.state.GetSpawnPoint()
-	}
-	player := model.NewPlayer(username, color, spawn, conn)
-
+	player := gm.state.AddPlayer(username, color, conn)
 	gm.nm.Register(player.Client)
-	gm.state.AddPlayer(player)
 
 	if gm.state.InProgess() {
 		gm.nm.Send(player.Client, gm.nm.protocol.Encode(&model.ClientMessage{
