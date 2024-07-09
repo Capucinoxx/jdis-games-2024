@@ -13,5 +13,6 @@ def read_string_until_null(byte_array, end_index=None):
     string = byte_array[:end_index].decode('utf-8')
     return string, end_index
 
+
 def read_uuid(byte_array, end_index):
     return str(uuid.UUID(bytes=byte_array[:end_index]))

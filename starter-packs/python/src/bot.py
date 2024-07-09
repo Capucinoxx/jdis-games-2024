@@ -1,5 +1,3 @@
-import json
-
 from core.map_state import MapState
 from core.game_state import GameState
 from core.action import MoveAction, ShootAction
@@ -18,9 +16,6 @@ class MyBot:
 
     map_state: MapState
 
-    # def __init__(self):
-    #     self.__map_state = MapState()
-
 
     def on_tick(self, game_state: GameState) -> list:
         """
@@ -36,10 +31,6 @@ class MyBot:
             game_state (GameState): (fr) L'état du jeu.
                                     (en) The state of the game.
         """
-        # json_message = json.dumps({
-        # 'dest': { 'x': 10.0, 'y': 11.34 },
-        # 'shoot': { 'x': 11.2222, 'y': 13.547 }
-        # })
 
         actions = [
             MoveAction((10.0, 11.34)), 
@@ -47,6 +38,7 @@ class MyBot:
         ]
 
         return actions
+    
     
     def on_start(self, map_state: MapState):
         """
@@ -64,6 +56,7 @@ class MyBot:
         """
         self.__map_state = map_state
         pass
+
 
     def on_end(self):
         """
