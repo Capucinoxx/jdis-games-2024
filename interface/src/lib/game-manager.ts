@@ -9,6 +9,7 @@ import { CameraController } from './camera-controller';
 class GameManager {
   private ws: WebSocket;
   private grid: GridManager;
+  private token: string = "";
   
   private players: PlayerManager;
   private bullets: BulletManager;
@@ -20,10 +21,15 @@ class GameManager {
     this.coins = new CoinManager(scene);
     this.players = new PlayerManager(scene, cam);
 
-    this.ws = new WebSocket(WS_URL);
+    this.ws = new WebSocket(WS_URL, [this.token]);
     this.ws.binaryType = 'arraybuffer';
 
     this.handle_ws_messages();
+  }
+
+  public set ws_connection(token: string) {
+    this.token = token;
+    this.ws = new WebSocket(WS_URL, [token]);
   }
 
   public handle_game_state(payload: ServerGameState): void {

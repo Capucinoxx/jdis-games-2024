@@ -114,8 +114,7 @@ func (n *Network) Init() {
 			n.connected.Store(token, true)
 		}
 
-		adminToken := r.Header.Get("AdminToken")
-
+		adminToken := r.Header.Get("Sec-WebSocket-Protocol")
 		ws, err := n.upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			http.Error(w, "failed to upgrade", http.StatusInternalServerError)
