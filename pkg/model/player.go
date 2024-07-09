@@ -85,7 +85,7 @@ func NewPlayer(name string, color int, pos *Point, conn Connection) *Player {
 		Client: &Client{
 			Out:        make(chan []byte, 10),
 			In:         make(chan ClientMessage, 10),
-			Connection: conn,
+			connection: conn,
 		},
 		currentWeapon: PlayerWeaponNone,
 
@@ -108,7 +108,7 @@ func (p *Player) TakeDmg(dmg int) {
 	p.health -= dmg
 
 	if p.health < 0 && alive {
-		p.Client.Blind = true
+		p.Client.SetBlind(true)
 	}
 }
 
@@ -186,7 +186,7 @@ func (p *Player) Respawn(game *GameState) {
 	p.collider.ChangePosition(p.Position.X, p.Position.Y)
 
 	p.blade.collider.Rotation = 0.0
-	p.Client.Blind = false
+	p.Client.SetBlind(false)
 }
 
 func (p *Player) HandleMovement(players []*Player, m Map, dt float64) {
@@ -410,8 +410,33 @@ func (p *PlayerInfo) Decode(r codec.Reader) (err error) {
 type Client struct {
 	Out        chan []byte
 	In         chan ClientMessage
-	Connection Connection
-	Blind      bool
+	connection Connection
+	blind      bool
+	mu         sync.RWMutex
+}
+
+func (c *Client) GetConnection() Connection {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.connection
+}
+
+func (c *Client) SetConnection(conn Connection) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.connection = conn
+}
+
+func (c *Client) IsBlind() bool {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.blind
+}
+
+func (c *Client) SetBlind(b bool) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.blind = b
 }
 
 // ClientMessage représente un message envoyé par un client.

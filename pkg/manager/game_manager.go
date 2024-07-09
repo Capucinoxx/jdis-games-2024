@@ -73,9 +73,9 @@ func (gm *GameManager) RegisterConnection(conn model.Connection, adminToken stri
 // Spectators receive game state updates but cannot interact with the game.
 func (gm *GameManager) addSpectator(conn model.Connection, token string) {
 	client := &model.Client{
-		Out:        make(chan []byte, 10),
-		Connection: conn,
+		Out: make(chan []byte, 10),
 	}
+	client.SetConnection(conn)
 
 	isAdmin := false
 	if token != "" {

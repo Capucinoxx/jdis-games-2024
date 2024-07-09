@@ -118,9 +118,10 @@ func (nm *NetworkManager) run() {
 	for {
 		select {
 		case c := <-nm.register:
-			nm.clients[c.Connection] = c
+			conn := c.GetConnection()
+			nm.clients[conn] = c
 			go nm.writer(c)
-			if c.Connection.Identifier() != "" {
+			if conn.Identifier() != "" {
 				go nm.reader(c)
 			}
 
@@ -133,7 +134,7 @@ func (nm *NetworkManager) run() {
 
 		case message := <-nm.broadcast:
 			for conn, client := range nm.clients {
-				if client.Blind {
+				if client.IsBlind() {
 					continue
 				}
 
@@ -208,7 +209,7 @@ func (nm *NetworkManager) BroadcastGameStart(state *model.GameState) {
 	})
 
 	for _, p := range players {
-		if p.Client.Connection.IsAdmin() {
+		if p.Client.GetConnection().IsAdmin() {
 			p.Client.Out <- msg_admin
 		} else {
 			p.Client.Out <- msg
@@ -224,24 +225,25 @@ func (nm *NetworkManager) writer(client *model.Client) {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
 		ticker.Stop()
-		client.Connection.Close(writeWait)
+		client.GetConnection().Close(writeWait)
 	}()
 
 	for {
 		select {
 		case msg, ok := <-client.Out:
-			client.Connection.PrepareWrite(writeWait)
+			conn := client.GetConnection()
+			conn.PrepareWrite(writeWait)
 			if !ok {
-				client.Connection.Close(writeWait)
+				conn.Close(writeWait)
 				return
 			}
 
-			if err := client.Connection.Write(msg); err != nil {
-				nm.unregister <- client.Connection
+			if err := conn.Write(msg); err != nil {
+				nm.unregister <- conn
 			}
 
 		case <-ticker.C:
-			client.Connection.Ping(writeWait)
+			client.GetConnection().Ping(writeWait)
 		}
 	}
 }
@@ -251,13 +253,13 @@ func (nm *NetworkManager) writer(client *model.Client) {
 // blocking the game loop.
 func (nm *NetworkManager) reader(client *model.Client) {
 	defer func() {
-		client.Connection.Close(writeWait)
-		nm.unregister <- client.Connection
+		client.GetConnection().Close(writeWait)
+		nm.unregister <- client.GetConnection()
 	}()
-	client.Connection.PrepareRead(maxMessageSize, pongWait)
+	client.GetConnection().PrepareRead(maxMessageSize, pongWait)
 
 	for {
-		msg, err := client.Connection.Read()
+		msg, err := client.GetConnection().Read()
 		if err != nil {
 			break
 		}
