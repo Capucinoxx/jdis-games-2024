@@ -3,16 +3,17 @@ import { MainScene } from './scenes';
 import { load_wasm } from './wasm/loader';
 import { handle_modal_interraction } from './modal';
 import { handle_forms } from './form';
+import { generate_particles } from './particle';
 
-
+generate_particles('particles');
 handle_forms();
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   width: 800,
   height: 800,
-  backgroundColor: '#F0F0F0',
-  pixelArt: true,
+  backgroundColor: '#101010',
+  parent: 'game',
   physics: {
     default: 'arcade',
     arcade: {
@@ -20,9 +21,6 @@ const config: Phaser.Types.Core.GameConfig = {
     }
   },
   scene: [MainScene],
-  scale: {
-    autoCenter: Phaser.Scale.CENTER_BOTH
-  }
 };
 
 load_wasm().then(() => {

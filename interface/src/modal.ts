@@ -31,7 +31,7 @@ const handle_modal_interraction = (game: Phaser.Game) => {
 
   open
     .set(btn,       { pointerEvents: 'none' })
-    .to(navbar,     { 'clip-path': 'circle(200% at 60px 60px)', duration: 1.5, ease: 'power4.out' }, 0)
+    .to(navbar,     { 'clip-path': 'circle(200% at 50% 60px)', duration: 1.5, ease: 'power4.out' }, 0)
     .to(nav_els,    { x: 0, opacity: 1, pointerEvents: 'all', duration: 1.25, stagger: 0.1, ease: 'elastic.out(1.15, .95)' }, 0)
     .to(btn_close,  { opacity: 1, yPercent: -125, duration: 1, ease: 'power4.out' }, 0)
     .to(btn_open,   { opacity: 0, yPercent: -125, duration: 1, ease: 'power4.out' }, 0)
@@ -41,7 +41,7 @@ const handle_modal_interraction = (game: Phaser.Game) => {
     .set(btn,       { pointerEvents: 'none' })
     .to(btn_bg,     { scale: 0.9, duration: 0.25, ease: 'elastic.out' }, 0)
     .to(btn_bg,     { scale: 1, duration: 0.25, ease: 'elastic.out' }, '+=0.25')
-    .to(navbar,     { 'clip-path': 'circle(0% at 60px 60px)', duration: 1.2, ease: 'power4.out' }, '-=0.5')
+    .to(navbar,     { 'clip-path': 'circle(0% at 50% 60px)', duration: 1.2, ease: 'power4.out' }, '-=0.5')
     .to(nav_els,    { x: -200, opacity: 0, pointerEvents: 'none', duration: 1, stagger: 0.1, ease: 'power4.out' }, 0)
     .to(btn_close,  { opacity: 0, yPercent: 125, duration: 1, ease: 'power4.out' }, 0)
     .to(btn_open,   { opacity: 1, yPercent: 0, duration: 1, ease: 'power4.out' }, 0)
@@ -50,7 +50,7 @@ const handle_modal_interraction = (game: Phaser.Game) => {
   const toggle_menu = () => {
     if (active) close.seek(0).play();
     else open.seek(0).play();
-    game.input.keyboard!.enabled = active;
+    game && game.input.keyboard && (game.input.keyboard.enabled = active);
     active = !active;
   };
 

@@ -37,8 +37,8 @@ class Toast extends HTMLElement {
     this.classList.add('alert', `${this.type}`);
     this.innerHTML = `
       <h3>${this.subject}</h3>
-      <div>${this.message || msg}</div>
       <button class='alert-close'>x</button>
+      <div>${this.message || msg}</div>
     `;
 
     this.querySelector('.alert-close')?.addEventListener('click', (e) => {
@@ -60,26 +60,30 @@ customElements.define('toast-alert', Toast);
 
 const handle_forms = () => {
   const forms = document.querySelectorAll<HTMLFormElement>('form');
-  forms.forEach(form => form.addEventListener('submit', async (e) => {
-    e.preventDefault();
+  forms.forEach(form => {
+    form.querySelector('button')?.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
 
-    const data = Array.from(new FormData(form))
-      .reduce((acc, [key, val])=> ({ ...acc, [key]: val }), {});
+      const data = Array.from(new FormData(form))
+        .reduce((acc, [key, val]) => ({ ...acc, [key]: val }), {});
 
-    const response = await fetch(form.action, {
-      method: form.method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    
-    if (!response.ok) {
-      flash({ subject: 'error', message: 'Server error' });
-      return;
-    }
+      const response = await fetch(form.action, {
+        method: form.method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
 
-    const result = await response.json();
-    flash(result);
-  }));
+      if (!response.ok) {
+        flash({ subject: 'error', message: 'Server error' });
+        return;
+      }
+
+      const result = await response.json();
+      flash(result);
+    })
+  }
+  );
 };
 
 const flash = (data: { [key: string]: any }) => {
