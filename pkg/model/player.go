@@ -18,7 +18,7 @@ type Connection interface {
 	Identifier() string
 
 	// Close terminates the connection after a specified timeout.
-	Close(time.Duration)
+	Close(time.Duration, bool)
 
 	// PrepareRead prepares the connection to read a specified amount of data within a timeout.
 	PrepareRead(int64, time.Duration)

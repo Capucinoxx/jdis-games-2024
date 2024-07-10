@@ -184,10 +184,14 @@ func (c *Connection) SetAdmin(isAdmin bool) {
 
 // Close closes the connection by sending a close message and then closing the underlying
 // WebSocket connection.
-func (c *Connection) Close(writeWait time.Duration) {
+func (c *Connection) Close(writeWait time.Duration, graceful bool) {
+	if !graceful {
+		c.conn.Close()
+		return
+	}
+
 	c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 	c.conn.WriteMessage(websocket.CloseMessage, []byte{})
-
 }
 
 // PrepareRead configures the connection for reading by setting the maximum message size,

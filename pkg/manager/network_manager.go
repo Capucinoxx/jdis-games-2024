@@ -156,7 +156,7 @@ func (nm *NetworkManager) Register(client *model.Client) {
 
 // ForceDisconnect forcibly disconnects a client from the game.
 func (nm *NetworkManager) ForceDisconnect(conn model.Connection) {
-	conn.Close(writeWait)
+	conn.Close(writeWait, false)
 	nm.unregister <- conn
 }
 
@@ -225,7 +225,7 @@ func (nm *NetworkManager) writer(client *model.Client) {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
 		ticker.Stop()
-		client.GetConnection().Close(writeWait)
+		client.GetConnection().Close(writeWait, false)
 	}()
 
 	for {
@@ -234,7 +234,7 @@ func (nm *NetworkManager) writer(client *model.Client) {
 			conn := client.GetConnection()
 			conn.PrepareWrite(writeWait)
 			if !ok {
-				conn.Close(writeWait)
+				conn.Close(writeWait, true)
 				return
 			}
 
@@ -253,7 +253,7 @@ func (nm *NetworkManager) writer(client *model.Client) {
 // blocking the game loop.
 func (nm *NetworkManager) reader(client *model.Client) {
 	defer func() {
-		client.GetConnection().Close(writeWait)
+		client.GetConnection().Close(writeWait, false)
 		nm.unregister <- client.GetConnection()
 	}()
 	client.GetConnection().PrepareRead(maxMessageSize, pongWait)
