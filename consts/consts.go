@@ -8,10 +8,10 @@ const (
 	Tickrate = 30
 
 	// TicksPerRound defines the number of ticks per round.
-	TicksPerRound = 5 * 60 * 3
+	TicksPerRound = 5 * 60 * 3 * 10
 
 	// TicksPointRushStage defines the number of ticks for the point rush stage.
-	TicksPointRushStage = 4 * 60 * 3
+	TicksPointRushStage = 4 * 60 * 3 * 10
 
 	// --- MAP CONSTANTS
 	// ================================
