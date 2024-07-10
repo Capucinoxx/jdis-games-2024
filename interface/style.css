@@ -177,6 +177,7 @@ nav {
   border: none;
   border-radius: 45%;
   outline: none;
+  cursor: pointer;
 }
 
 .nav-btn .nav-btn--icons {
