@@ -57,12 +57,12 @@ const generate_particles = (canvas_container: string): void => {
 
     public draw(): void {
       ctx!.fillStyle = `rgba(${255 - (Math.random() * 127.5)}, 255, 255, ${this.opacity})`;
-      ctx!.fillRect(this.x, this.y, 0.4, Math.random() * 2 + 1);
+      ctx!.fillRect(this.x, this.y, 1, Math.random() * 2 + 1);
     }
   }
 
   const calculate_particle_count = (): number => {
-    return Math.floor((canvas.width * canvas.height) / 15_000);
+    return Math.floor((canvas.width * canvas.height) / 20_000);
   }
 
   let particles: Particle[] = [];
