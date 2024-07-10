@@ -82,7 +82,7 @@ class PlayerManager extends Manager<Player> {
 
   constructor(scene: Phaser.Scene, cam: CameraController) {
     super(scene, Player);
-    this.container = document.querySelector('#players-list')!;
+    this.container = document.querySelector('#players-list ul')!;
     this.cam = cam;
   }
 
@@ -112,6 +112,14 @@ class PlayerManager extends Manager<Player> {
       return;
 
     li.addEventListener('click', () => {
+      if (li.className === 'active') {
+        li.className = '';
+        this.cam.unfollow();
+        return;
+      }
+
+      this.container.querySelectorAll('li').forEach((el) => el.className = '');
+      li.className = 'active';
       this.cam.follow(target);
     });
 
