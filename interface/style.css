@@ -9,7 +9,7 @@
 body {
   width: 100%;
   height: 100vh;
-  background: #ebebeb;
+  background: #05060f linear-gradient(0deg,rgba(216,236,248,.06),rgba(152,192,239,.06));
   position: relative;
   overflow: hidden;
 }
@@ -27,12 +27,12 @@ button:focus {
 
 .nav-btn {
   position: absolute;
-  left: 60px;
+  left: 50%;
   top: 60px;
   transform: translate(-50%, -50%);
   width: 50px;
   height: 50px;
-  border-radius: 20px;
+  border-radius: 50%;
   z-index: 10;
 }
 
@@ -50,7 +50,7 @@ button:focus {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  fill: #fff;
+  fill: #c2ccff;
 }
 
 .nav-btn .nav-btn--icons svg.close {
@@ -65,8 +65,9 @@ button:focus {
   transform: translate(-50%, -50%);
   width: 100%;
   height: 100%;
-  background: #00A759b1;
-  border-radius: 25%;
+  background: black;
+  box-shadow: 0 0 1em 0 #98c0ef;
+  border-radius: 50%;
 }
 
 nav {
@@ -78,8 +79,8 @@ nav {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #00A759b1;
-  clip-path: circle(0px at 60px 60px);
+  background: #98c0ef30;
+  clip-path: circle(0px at 50% 60px);
   z-index: 10;
 }
 
@@ -157,7 +158,23 @@ nav .hidden {
   width: 400px;
   flex-direction: column;
   z-index: 3000;
-  animation: show-toast 1s ease; 
+  animation: show-toast 1s ease;
+  background-color: #e1e5f9;
+  padding: 12px 0 12px 24px;
+  border-radius: 0.5em;
+  display: grid;
+  grid-template-columns: 1fr 30px;
+}
+
+.alert::after {
+  content: '';
+  position: absolute;
+  width: 1px;
+  top: 5px;
+  bottom: 5px;
+
+  right: 30px;
+  background-color: rgba(182, 185, 191, 0.652);
 }
 
 .alert h3 {
@@ -165,6 +182,12 @@ nav .hidden {
   margin: 0;
   line-height: 1.35rem;
   font-weight: 300;
+  text-transform: capitalize;
+  padding-bottom: 8px;
+}
+
+.alert button {
+  grid-row: span 2;
 }
 
 @keyframes show-toast {
@@ -213,4 +236,69 @@ nav .hidden {
   top: 20px;
   right: 20px;
   width: 400px;
+  color: white;
+}
+
+.game-container {
+  width: 806px;
+  height: 806px;
+  display: flex;
+  position: absolute;
+  justify-content: center;
+  align-items: center;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  overflow: hidden;
+  border-radius: 0.25em;
+}
+
+#game {
+  width: 800px;
+  height: 800px;
+  position: relative;
+  background: #101010;
+  border-radius: 0.25em;
+}
+
+#game > canvas {
+  border-radius: 0.25em;
+}
+
+#game::before {
+  content: '';
+  z-index: -1;
+  position: absolute;
+  top: 340px;
+  left: 15%;
+  width: 70%;
+  height: 70%;
+  background: #da7843;
+  box-shadow: -240px -220px 0 #ba75df;
+  border-radius: 50%;
+  animation: animate 5s linear infinite;
+}
+
+#game::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  bottom: 340px;
+  left: 15%;
+  width: 70%;
+  height: 70%;
+  background: #54e58e;
+  box-shadow: 240px 220px 0 #98c0ef;
+  border-radius: 50%;
+  animation: animate 5s linear infinite;
+}
+
+@keyframes animate {
+  0% { filter: blur(220px) hue-rotate(0deg); }
+  100% { filter: blur(220px) hue-rotate(360deg); }
+}
+
+#particles {
+  z-index: 1;
 }

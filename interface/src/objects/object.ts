@@ -23,7 +23,7 @@ class Coin extends Phaser.GameObjects.Container implements GameObject {
 
   constructor(scene: Phaser.Scene, payload: Payload) {
     const { pos } = payload as ScorerObject;
-    const circle = scene.add.circle(0, 0, Coin.size / 2, 0x131313);
+    const circle = scene.add.circle(0, 0, Coin.size / 2, 0xdee0e9);
     super(scene, pos.x, pos.y, [circle]);
 
     this.scene.physics.world.enable(this);
@@ -34,16 +34,17 @@ class Coin extends Phaser.GameObjects.Container implements GameObject {
 
 class Player extends MovableObject implements GameObject {
   private blade: Blade;
+  public color: number;
 
   constructor(scene: Phaser.Scene, payload: Payload) {
     const { pos, name, color } = payload as PlayerObject;
     const rect = scene.add.rectangle(0, 0, PLAYER_SIZE, PLAYER_SIZE, color).setOrigin(0.5, 0.5);
-    const label = scene.add.text(0, -PLAYER_SIZE / 2 - 10, name, { fontSize: '16px', color: 'red' }).setOrigin(0.5, 0.5);
+    const label = scene.add.text(0, -PLAYER_SIZE / 2 - 10, name, { fontSize: '16px', color: 'white' }).setOrigin(0.5, 0.5);
 
     super(scene, pos.x, pos.y, new Phaser.Math.Vector2(pos.x, pos.y), PLAYER_SPEED, [rect, label]);
 
     this.blade = new Blade(scene, this);
-
+    this.color = color;
   }
 
   public set blade_visibility(visibility: boolean) {
@@ -84,7 +85,7 @@ class Blade extends Phaser.GameObjects.Container {
 
   constructor(scene: Phaser.Scene, player: Player) {
     super(scene, player.x, player.y);
-    const blade = scene.add.rectangle(0, 0, 4, BLADE_LENGTH, 0x0000);
+    const blade = scene.add.rectangle(0, 0, 4, BLADE_LENGTH, player.color);
     this.visible = false;
 
     this.add(blade);

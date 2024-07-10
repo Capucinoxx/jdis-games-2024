@@ -23,7 +23,7 @@ class GridManager {
   }
 
   private draw_walls() {
-    this.grid_graphics.lineStyle(2, 0x050505, 1);
+    this.grid_graphics.lineStyle(2, 0xbad7f7, 1);
 
     if ((!this.walls || this.walls.length === 0) && this.cells) {
       const width = this.cells.length * CELL_WIDTH;
