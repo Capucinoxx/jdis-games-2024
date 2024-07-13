@@ -81,6 +81,8 @@ func (gs *GameState) AddPlayer(username string, color int, conn Connection) *Pla
 
 	if ok {
 		player.Client.SetConnection(conn)
+    player.Client.In = make(chan ClientMessage, 10)
+    player.Client.Out = make(chan []byte, 10)
 		return player
 	}
 
