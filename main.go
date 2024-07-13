@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/capucinoxx/forlorn/consts"
 	"github.com/capucinoxx/forlorn/internal/handler"
 	iManager "github.com/capucinoxx/forlorn/internal/manager"
 	iModel "github.com/capucinoxx/forlorn/internal/model"
@@ -48,7 +49,7 @@ func main() {
 	gm := manager.NewGameManager(am, nm, rm, &iModel.Map{})
 
 	rm.AddChangeStageHandler(0, &iManager.DiscoveryStage{})
-	rm.AddChangeStageHandler(iManager.TicksPointRushStage, &iManager.PointRushStage{})
+	rm.AddChangeStageHandler(consts.TicksPointRushStage, &iManager.PointRushStage{})
 
 	sm := manager.NewScoreManager(redis, mongo)
 

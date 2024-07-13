@@ -126,7 +126,8 @@ func (nm *NetworkManager) run() {
 			}
 
 		case c := <-nm.unregister:
-			if _, ok := nm.clients[c]; ok {
+			if client, ok := nm.clients[c]; ok {
+        client.Disconnect()
 				delete(nm.clients, c)
 
 				nm.transport.Unregister(c)
@@ -188,31 +189,32 @@ func (nm *NetworkManager) BroadcastGameEnd() {
 
 // BroadcastGameStart sends a game start message to all players.
 func (nm *NetworkManager) BroadcastGameStart(state *model.GameState) {
-	players := state.Players()
+	encodeMessage := func(isAdmin bool) []byte {
+		return nm.protocol.Encode(&model.ClientMessage{
+			MessageType: model.MessageMapState,
+			Body: model.MessageMapStateToEncode{
+				Map:     state.Map,
+				IsAdmin: isAdmin,
+				Storage: [100]byte{},
+			},
+		})
+	}
 
-	msg_admin := nm.protocol.Encode(&model.ClientMessage{
-		MessageType: model.MessageMapState,
-		Body: model.MessageMapStateToEncode{
-			Map:     state.Map,
-			IsAdmin: true,
-			Storage: [100]byte{},
-		},
-	})
+	msgAdmin := encodeMessage(true)
+	msg := encodeMessage(false)
 
-	msg := nm.protocol.Encode(&model.ClientMessage{
-		MessageType: model.MessageMapState,
-		Body: model.MessageMapStateToEncode{
-			Map:     state.Map,
-			IsAdmin: false,
-			Storage: [100]byte{},
-		},
-	})
-
-	for _, p := range players {
-		if p.Client.GetConnection().IsAdmin() {
-			p.Client.Out <- msg_admin
+	for conn, client := range nm.clients {
+		var msgToSend []byte
+		if conn.IsAdmin() {
+			msgToSend = msgAdmin
 		} else {
-			p.Client.Out <- msg
+			msgToSend = msg
+		}
+		
+		select {
+		case client.Out <- msgToSend:
+		default:
+			nm.unregister <- conn
 		}
 	}
 }

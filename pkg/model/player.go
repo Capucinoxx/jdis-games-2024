@@ -40,7 +40,7 @@ type Connection interface {
 	SetAdmin(bool)
 }
 
-type PlayerWeapon = uint8
+type PlayerWeapon = int
 
 // Controls struct represents the player's controls.
 // When a control is activated, the player performs the corresponding action.
@@ -291,7 +291,7 @@ func (p *Player) Encode(w codec.Writer) (err error) {
 		}
 	}
 
-	if err = w.WriteUint8(p.currentWeapon); err != nil {
+	if err = w.WriteUint8(uint8(p.currentWeapon)); err != nil {
 		return
 	}
 
@@ -358,9 +358,11 @@ func (p *PlayerInfo) Decode(r codec.Reader) (err error) {
 		}
 	}
 
-	if p.CurrentWeapon, err = r.ReadUint8(); err != nil {
+  var currentWeapon uint8
+	if currentWeapon, err = r.ReadUint8(); err != nil {
 		return
 	}
+  p.CurrentWeapon = PlayerWeapon(currentWeapon)
 
 	var length int32
 	if length, err = r.ReadInt32(); err != nil {
@@ -419,6 +421,11 @@ func (c *Client) GetConnection() Connection {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	return c.connection
+}
+
+func (c *Client) Disconnect() {
+  close(c.Out)
+  close(c.In)
 }
 
 func (c *Client) SetConnection(conn Connection) {

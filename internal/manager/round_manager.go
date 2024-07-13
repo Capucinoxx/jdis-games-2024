@@ -7,11 +7,6 @@ import (
 
 type Stage uint8
 
-const (
-	ticksPerRound       = 5 * 60 * 3
-	TicksPointRushStage = 4 * 60 * 3
-)
-
 type StageHandler interface {
 	ChangeStage(state *model.GameState)
 }
@@ -55,7 +50,7 @@ func (r *RoundManager) CurrentTick() int {
 }
 
 func (r *RoundManager) CurrentRound() int8 {
-	if r.ticks < TicksPointRushStage {
+	if r.ticks < consts.TicksPointRushStage {
 		return 0
 	}
 	return 1
@@ -66,7 +61,7 @@ func (r *RoundManager) AddChangeStageHandler(tick int, cb StageHandler) {
 }
 
 func (r *RoundManager) HasEnded() bool {
-	return r.ticks == ticksPerRound
+	return r.ticks == consts.TicksPerRound
 }
 
 type DiscoveryStage struct{}
