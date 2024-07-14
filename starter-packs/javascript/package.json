@@ -1,0 +1,16 @@
+{
+  "name": "javascript",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "argparse": "^2.0.1",
+    "ws": "^8.18.0"
+  },
+  "types": "./types/type.d.ts"
+}
