@@ -36,7 +36,7 @@ const handle_modal_interraction = (game: Phaser.Game) => {
     .to(btn_close,  { opacity: 1, yPercent: -125, duration: 1, ease: 'power4.out' }, 0)
     .to(btn_open,   { opacity: 0, yPercent: -125, duration: 1, ease: 'power4.out' }, 0)
     .to(btn,        { 'box-shadow': '0 4px 8px #c2ccff33', duration: 1.5, ease: 'power4.out' }, 0)
-    .set(btn,       { pointerEvents: 'all'  });
+    .set(btn,       { pointerEvents: 'all' });
 
   close 
     .set(btn,       { pointerEvents: 'none' })
