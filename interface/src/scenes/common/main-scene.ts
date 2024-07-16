@@ -6,7 +6,6 @@ class MainScene extends Phaser.Scene {
   private manager: GameManager | undefined;
   private cam: CameraController | undefined;
 
-
   constructor() { super({ key: 'MainScene' }); }
 
   create() {
