@@ -59,7 +59,7 @@ class GridManager {
 
     graphics.generateTexture('grid', width, width);
     const sprite = this.scene.add.sprite(0, 0, 'grid');
-    sprite.setOrigin(0, 0);
+    sprite.setOrigin(0, 0);    
   }
 
   private draw_walls() {
