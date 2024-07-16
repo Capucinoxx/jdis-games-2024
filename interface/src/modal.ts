@@ -35,6 +35,7 @@ const handle_modal_interraction = (game: Phaser.Game) => {
     .to(nav_els,    { x: 0, opacity: 1, pointerEvents: 'all', duration: 1.25, stagger: 0.1, ease: 'elastic.out(1.15, .95)' }, 0)
     .to(btn_close,  { opacity: 1, yPercent: -125, duration: 1, ease: 'power4.out' }, 0)
     .to(btn_open,   { opacity: 0, yPercent: -125, duration: 1, ease: 'power4.out' }, 0)
+    .to(btn,        { 'box-shadow': '0 4px 8px #c2ccff33', duration: 1.5, ease: 'power4.out' }, 0)
     .set(btn,       { pointerEvents: 'all' });
 
   close 
@@ -45,6 +46,7 @@ const handle_modal_interraction = (game: Phaser.Game) => {
     .to(nav_els,    { x: -200, opacity: 0, pointerEvents: 'none', duration: 1, stagger: 0.1, ease: 'power4.out' }, 0)
     .to(btn_close,  { opacity: 0, yPercent: 125, duration: 1, ease: 'power4.out' }, 0)
     .to(btn_open,   { opacity: 1, yPercent: 0, duration: 1, ease: 'power4.out' }, 0)
+    .to(btn,        { 'box-shadow': '0 4px 8px #c2ccff00', duration: 1.5, ease: 'power4.out' }, 0)
     .set(btn,       { pointerEvents: 'all' });
 
   const toggle_menu = () => {
