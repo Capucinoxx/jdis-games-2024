@@ -10,7 +10,8 @@ class CameraController {
       throw new Error('');
 
     this.camera = camera;
-    this.camera.setZoom(1);
+    camera.setRoundPixels(false);
+    this.camera.setZoom(0.5);
     
     this.cursors = input.keyboard.createCursorKeys();
     this.wasd = input.keyboard.addKeys('W,S,A,D') as { [key: string]: Phaser.Input.Keyboard.Key };
@@ -23,7 +24,7 @@ class CameraController {
   }
 
   public follow(target: Phaser.GameObjects.GameObject) {
-    this.camera.startFollow(target);
+    this.camera.startFollow(target, false);
     this.current_following = target;
   }
 
