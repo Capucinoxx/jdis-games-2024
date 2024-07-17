@@ -127,7 +127,7 @@ func (nm *NetworkManager) run() {
 
 		case c := <-nm.unregister:
 			if client, ok := nm.clients[c]; ok {
-        client.Disconnect()
+				client.Disconnect()
 				delete(nm.clients, c)
 
 				nm.transport.Unregister(c)
@@ -210,7 +210,7 @@ func (nm *NetworkManager) BroadcastGameStart(state *model.GameState) {
 		} else {
 			msgToSend = msg
 		}
-		
+
 		select {
 		case client.Out <- msgToSend:
 		default:

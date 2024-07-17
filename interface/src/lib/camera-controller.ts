@@ -10,16 +10,15 @@ class CameraController {
       throw new Error('');
 
     this.camera = camera;
-    camera.setRoundPixels(false);
-    this.camera.setZoom(0.5);
     
     this.cursors = input.keyboard.createCursorKeys();
     this.wasd = input.keyboard.addKeys('W,S,A,D') as { [key: string]: Phaser.Input.Keyboard.Key };
     this.shift = input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
 
-    input.on('wheel', (_: Phaser.Input.Pointer, __: any, ___: number, dy: number, ____: number) => {
-      if (dy > 0) this.camera.zoom = Math.max(0.5, this.camera.zoom - 0.1);
-      else if (dy < 0) this.camera.zoom = Math.min(1.1, this.camera.zoom + 0.1);
+    window.addEventListener('wheel', (e: WheelEvent) => {
+      
+      if (e.deltaY > 0) this.camera.zoom = Math.max(0.3, this.camera.zoom - 0.1);
+      else if (e.deltaY < 0) this.camera.zoom = Math.min(1.1, this.camera.zoom + 0.1);
     });
   }
 
