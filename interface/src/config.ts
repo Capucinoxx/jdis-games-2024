@@ -1,4 +1,5 @@
 const WS_URL = 'ws://localhost:8087/echo';
+//const WS_URL = 'ws://149.248.52.100:8087/echo';
 
 const MESSAGE_TYPE = {
   1: 'POSITION',
@@ -25,7 +26,7 @@ const BIG_COIN_SIZE = 4.0 * SCALE;
 const COIN_SIZES = [COIN_SIZE, BIG_COIN_SIZE];
 
 const NUM_CELLS = 10;
-const CELL_WIDTH = 10.0 * SCALE * 2;
+const CELL_WIDTH = 10.0 * SCALE;
 
 
 const BLADE_ROTATION_SPEED = 230;
