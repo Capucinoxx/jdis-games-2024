@@ -14,6 +14,8 @@ class Bullet extends MovableObject implements GameObject {
     const circle = scene.add.circle(0, 0, PROJECTILE_SIZE / 2, 0x00ff00);
 
     super(scene, pos.x, pos.y, new Phaser.Math.Vector2(dest?.x, dest?.y), PROJECTILE_SPEED, [circle]);
+
+    this.setDepth(4);
   };
 };
 
@@ -28,6 +30,8 @@ class Coin extends Phaser.GameObjects.Container implements GameObject {
 
     this.scene.physics.world.enable(this);
     scene.add.existing(this);
+
+    this.setDepth(3);
   }
 };
 
@@ -45,6 +49,8 @@ class Player extends MovableObject implements GameObject {
 
     this.blade = new Blade(scene, this);
     this.color = color;
+
+    this.setDepth(5);
   }
 
   public set blade_visibility(visibility: boolean) {
@@ -75,6 +81,8 @@ class Player extends MovableObject implements GameObject {
     this.blade.destroy();
     super.destroy(); 
   }
+
+  protected on_arrival(): void {}
 };
 
 class Blade extends Phaser.GameObjects.Container {
@@ -85,7 +93,7 @@ class Blade extends Phaser.GameObjects.Container {
 
   constructor(scene: Phaser.Scene, player: Player) {
     super(scene, player.x, player.y);
-    const blade = scene.add.rectangle(0, 0, 4, BLADE_LENGTH, player.color);
+    const blade = scene.add.rectangle(0, 0, 4, BLADE_LENGTH, 0xff0000);
     this.visible = false;
 
     this.add(blade);

@@ -54,7 +54,11 @@ class Manager<T extends GameObject> {
   }
 
   private get_key(p: Payload): string {
-    return 'id' in p ? p.id : (p as PlayerObject).name;
+    if ('id' in p) {
+      return p.id;
+    } else {
+      return p.name;
+    }
   }
 };
 

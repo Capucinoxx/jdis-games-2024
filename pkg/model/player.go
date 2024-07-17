@@ -237,6 +237,7 @@ func (p *Player) HandleWeapon(players []*Player, m Map, dt float64) {
 	case PlayerWeaponCanon:
 		if p.Controls.Shoot != nil {
 			p.cannon.ShootAt(*p.Controls.Shoot)
+			p.Controls.Shoot = nil
 		}
 	}
 }
