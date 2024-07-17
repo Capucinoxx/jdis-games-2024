@@ -24,7 +24,7 @@ class GridManager {
   }
 
   private draw_background() {
-    let graphics = this.scene.make.graphics({ x: 0, y: 0 });
+    let graphics = this.scene.make.graphics();
     const width = CELL_WIDTH * NUM_CELLS;
 
     for (let i = 0; i <= width; i += CELL_WIDTH) {
@@ -58,30 +58,15 @@ class GridManager {
     }
 
     graphics.generateTexture('grid', width, width);
-    const sprite = this.scene.add.sprite(0, 0, 'grid');
-    sprite.setOrigin(0, 0);    
+    const sprite = this.scene.add.sprite(0, 0, 'grid');  
+    sprite.setOrigin(0, 0);
   }
 
   private draw_walls() {
-    this.grid_graphics.lineStyle(2, 0xbad7f7, 1);
-
-    if ((!this.walls || this.walls.length === 0) && this.cells) {
-      const width = this.cells.length * CELL_WIDTH;
-      this.grid_graphics.beginPath();
-      this.grid_graphics.moveTo(0, 0);
-      this.grid_graphics.lineTo(width, 0);
-      this.grid_graphics.lineTo(width, width);
-      this.grid_graphics.lineTo(0, width);
-      this.grid_graphics.lineTo(0, 0);
-      this.grid_graphics.closePath();
-      this.grid_graphics.strokePath();
-    
-      return;
-    }
-
     if (!this.walls)
       return;
 
+    this.grid_graphics.lineStyle(2, 0xbad7f7, 1);
     
     this.walls.forEach((wall) => {
       if (wall.length != 2)
