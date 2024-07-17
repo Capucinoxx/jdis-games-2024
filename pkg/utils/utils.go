@@ -6,6 +6,14 @@ import (
 	"math/rand"
 )
 
+func SafeClose[T any](ch chan T) {
+	defer func() {
+		recover()
+	}()
+
+	close(ch)
+}
+
 func Shuffle[S ~[]E, E any](r *rand.Rand, s S) {
 	r.Shuffle(len(s), func(i, j int) {
 		s[i], s[j] = s[j], s[i]
