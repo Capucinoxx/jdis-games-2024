@@ -1,5 +1,4 @@
 const WS_URL = 'ws://localhost:8087/echo';
-//const WS_URL = 'ws://149.248.52.100:8087/echo';
 
 const MESSAGE_TYPE = {
   1: 'POSITION',
