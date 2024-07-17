@@ -358,11 +358,11 @@ func (p *PlayerInfo) Decode(r codec.Reader) (err error) {
 		}
 	}
 
-  var currentWeapon uint8
+	var currentWeapon uint8
 	if currentWeapon, err = r.ReadUint8(); err != nil {
 		return
 	}
-  p.CurrentWeapon = PlayerWeapon(currentWeapon)
+	p.CurrentWeapon = PlayerWeapon(currentWeapon)
 
 	var length int32
 	if length, err = r.ReadInt32(); err != nil {
@@ -424,8 +424,8 @@ func (c *Client) GetConnection() Connection {
 }
 
 func (c *Client) Disconnect() {
-  close(c.Out)
-  close(c.In)
+	utils.SafeClose(c.Out)
+	utils.SafeClose(c.In)
 }
 
 func (c *Client) SetConnection(conn Connection) {
