@@ -124,8 +124,14 @@ class PlayerManager extends Manager<Player> {
 
       this.container.querySelectorAll('li').forEach((el) => el.className = '');
       li.className = 'active';
-      this.cam.follow(target);
+      this.cam.follow(target, id);
     });
+
+    if (localStorage.getItem('follow') === id) {
+      this.container.querySelectorAll('li').forEach((el) => el.className = '');
+      li.className = 'active';
+      this.cam.follow(target, id);
+    }
 
     this.container.appendChild(li);
   }
