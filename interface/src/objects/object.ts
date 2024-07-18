@@ -31,7 +31,7 @@ class Coin extends Phaser.GameObjects.Container implements GameObject {
     this.scene.physics.world.enable(this);
     scene.add.existing(this);
 
-    this.setDepth(3);
+    this.setDepth(6);
   }
 };
 
