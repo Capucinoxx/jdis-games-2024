@@ -295,8 +295,17 @@ func (m *Map) dijkstra(start point, grid [][]cell) [][]int {
 func (m *Map) getSpawnPoints(distances [][]int, min int) {
 	points := map[int][]*model.Point{}
 	m.spawns[0] = []*model.Point{}
+
+	var isLimit = func(n int) bool {
+		m := n % int(consts.NumSubsquare)
+		return m == 0 || m == int(consts.NumSubsquare)-1
+	}
+
 	for i := 0; i < consts.MapWidth; i++ {
 		for j := 0; j < consts.MapWidth; j++ {
+			if isLimit(i) || isLimit(j) {
+				continue
+			}
 			center := &model.Point{
 				X: float64(j*consts.CellWidth + consts.CellWidth/2),
 				Y: float64(i*consts.CellWidth + consts.CellWidth/2),
