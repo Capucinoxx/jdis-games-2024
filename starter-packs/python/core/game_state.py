@@ -157,3 +157,5 @@ class GameState:
 
             cls.coins.append(coin)
 
+        return cls
+
