@@ -47,6 +47,10 @@ func NewAuthManager(db *connector.MongoService) *AuthManager {
 // for the user and stores their information in the MongoDB collection. If the user already
 // exists, an error is returned.
 func (am *AuthManager) Register(username string, isAdmin bool) (string, error) {
+	if len(username) > 16 || len(username) < 3 {
+		return "", errors.New("username must be between 3 and 16 characters")
+	}
+
 	filter := bson.M{"username": username}
 
 	if v, _ := am.service.FindOne(am.collection, filter); v != nil {
