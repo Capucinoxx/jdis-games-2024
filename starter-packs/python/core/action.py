@@ -7,13 +7,11 @@ import base64
 
 @dataclass
 class MoveAction:
-
     dest_pos: Tuple
 
     def __init__(self, dest_pos: Tuple):
         self.dest_pos = dest_pos
 
-    
     def serialize(self) -> dict:
         return {
             'dest': {
@@ -25,12 +23,10 @@ class MoveAction:
 
 @dataclass
 class ShootAction:
-
     target_pos: Tuple
 
     def __init__(self, target_pos: Tuple):
         self.target_pos = target_pos
-
 
     def serialize(self) -> dict:
         return {
@@ -43,12 +39,10 @@ class ShootAction:
 
 @dataclass
 class SwitchWeaponAction:
-
     weapon: PlayerWeapon
 
     def __init__(self, weapon: PlayerWeapon):
         self.weapon = weapon
-
 
     def serialize(self) -> dict:
         return {
@@ -58,7 +52,6 @@ class SwitchWeaponAction:
 
 @dataclass
 class SaveAction:
-    
         save: bytes
 
         def serialize(self) -> dict:

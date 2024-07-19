@@ -8,6 +8,7 @@ class ColliderType(IntEnum):
     Wall = 0
     Projectile = 1
 
+
 @dataclass
 class Point:
     x: float
@@ -16,11 +17,6 @@ class Point:
     def __init__(self):
         self.x = 0
         self.y = 0
-
-    def decode(self, data: bytes):
-        self.x, self.y = struct.unpack_from('<dd', data, 0)
-
-        return 16
     
     def __str__(self):
         return f'Point(x={self.x}, y={self.y})'
@@ -34,17 +30,11 @@ class Collider:
         self.positions = []
         self.collider_type = None
 
-    def decode(self, pos_size: int, data: bytes):
-        for i in range(pos_size):
-            p = Point()
-            p.decode(data[i * 16:])
-            self.positions.append(p)
-        self.collider_type = ColliderType(struct.unpack_from('<B', data, pos_size * 16)[0])
-    
     def __str__(self):
         str_positions = ' '.join(str(pos) for pos in self.positions)
 
         return f'{self.collider_type.name} {str_positions.__str__(self)}'
+
 
 @dataclass
 class MapState:
@@ -56,31 +46,9 @@ class MapState:
 
     save: bytearray
 
-    @classmethod
-    def decode(cls, data: bytes):
-        cls.size = struct.unpack_from('<B', data, 0)[0]
-        cls.discrete_grid = []
-        cls.spawns = []
-        cls.walls = []
-
-        # decode discrete grid
-        cls.discrete_grid = [
-            list(struct.unpack_from('<' + 'B' * cls.size, data, i * cls.size + 1)) for i in range(cls.size)
-        ]
-
-        # decode walls
-        offset = cls.size * cls.size + 1
-        walls_len = struct.unpack_from('<i', data, offset)[0]
-        
-        offset += 4
-        for i in range(walls_len):
-            pos_size = struct.unpack_from('<B', data, offset)[0]
-            offset += 1
-            collider = Collider()
-            collider.decode(pos_size, data[offset:])
-            offset += pos_size * 16 + 1
-            cls.walls.append(collider)
-
-        cls.save = bytearray(data[offset: offset + 100])
-
-        return cls
+    def __init__(self):
+        self.discrete_grid = []
+        self.size = 0
+        self.spawns = []
+        self.walls = []
+        self.save = bytearray()

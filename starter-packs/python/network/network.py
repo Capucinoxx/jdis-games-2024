@@ -2,9 +2,8 @@ import websocket
 import json
 
 from src.bot import MyBot
-from core.map_state import MapState
-from core.game_state import GameState
 from core.message import MessageType
+from network.decoder import JDISDecoder
 
 
 class Socket:  
@@ -34,12 +33,14 @@ class Socket:
         message_type = int(message[0])
         response = None
 
+        decoder = JDISDecoder() # TODO: staticc method ??
+
         if message_type == MessageType.GameStart.value:
-            map_state = MapState.decode(message[1:])
+            map_state = decoder.decode_map_state(message[1:])
             self.bot.on_start(map_state)
 
         elif message_type == MessageType.GameState.value:
-            game_state = GameState.decode(message[1:])
+            game_state = decoder.decode_game_state(message[1:])
             response = self.bot.on_tick(game_state)
 
         elif message_type == MessageType.GameState.GameEnd.value:
