@@ -399,11 +399,18 @@ footer span {
   padding: 12px 0 12px 24px;
   display: grid;
   grid-template-columns: 1fr 30px;
-  background: #2ee690;
   box-shadow: 0 4px 8px #15151533;
   border-radius: 4px;
   opacity: 1;
   transition: opacity 0.5s, transform 0.5s;
+}
+
+.alert.success {
+  background-color: #3fe396;
+}
+
+.alert.error {
+  background-color: #f9b155;
 }
 
 .alert h3 {
