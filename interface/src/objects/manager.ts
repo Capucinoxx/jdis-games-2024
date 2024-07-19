@@ -116,9 +116,7 @@ class PlayerManager extends Manager<Player> {
   }
 
   private calculate_path(curr: PlayerObject, next: PlayerObject | undefined): { pos: Position, dest: Position } {
-    if (!next)
-      return { pos: curr.pos, dest: curr.pos };
-    if (curr.pos.x === next.pos.x && curr.pos.y === next.pos.y)
+    if (!next || (curr.pos.x === next.pos.x && curr.pos.y === next.pos.y))
       return { pos: curr.pos, dest: curr.pos };
     return { pos: curr.pos, dest: next.dest };
   }
