@@ -15,7 +15,6 @@ type HttpHandler struct {
 	sm *manager.ScoreManager
 }
 
-// NewHttpHandler crée un nouveau gestionnaire HTTP.
 func NewHttpHandler(gm *manager.GameManager, am *manager.AuthManager, sm *manager.ScoreManager) *HttpHandler {
 	return &HttpHandler{
 		gm: gm,
@@ -24,7 +23,6 @@ func NewHttpHandler(gm *manager.GameManager, am *manager.AuthManager, sm *manage
 	}
 }
 
-// Handle commence à écouter les différentes routes HTTP et les associe à des fonctions.
 func (h *HttpHandler) Handle() {
 	network.HandleFunc("/start", h.startGame)
 	network.HandleFunc("/create", h.register)
@@ -33,7 +31,6 @@ func (h *HttpHandler) Handle() {
 	network.HandleFunc("/kill", h.kill)
 }
 
-// register crée un compte utilisateur et retourne un jeton d'authentification.
 func (h *HttpHandler) register(w http.ResponseWriter, r *http.Request) {
 	payload := struct {
 		Username string `json:"username"`
@@ -54,7 +51,6 @@ func (h *HttpHandler) register(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"type": "success", "message": fmt.Sprintf("Token: %s", token)})
 }
 
-// startGame démarre le serveur de jeu.
 func (h *HttpHandler) startGame(w http.ResponseWriter, r *http.Request) {
 	h.gm.Start()
 }
