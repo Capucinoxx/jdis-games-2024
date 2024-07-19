@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/capucinoxx/forlorn/pkg/manager"
@@ -13,6 +12,12 @@ type HttpHandler struct {
 	gm *manager.GameManager
 	am *manager.AuthManager
 	sm *manager.ScoreManager
+}
+
+type HttpResponse struct {
+	Type    string `json:"type"`
+	Subject string `json:"subject"`
+	Message string `json:"message"`
 }
 
 func NewHttpHandler(gm *manager.GameManager, am *manager.AuthManager, sm *manager.ScoreManager) *HttpHandler {
@@ -46,9 +51,18 @@ func (h *HttpHandler) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, _ := h.am.Register(payload.Username, false)
+	token, err := h.am.Register(payload.Username, false)
+	var resp HttpResponse
+	resp.Subject = "Token generation"
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"type": "success", "message": fmt.Sprintf("Token: %s", token)})
+	if err == nil {
+		resp.Type = "success"
+		resp.Message = token
+	} else {
+		resp.Type = "error"
+		resp.Message = err.Error()
+	}
+	json.NewEncoder(w).Encode(resp)
 }
 
 func (h *HttpHandler) startGame(w http.ResponseWriter, r *http.Request) {
