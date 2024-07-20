@@ -112,7 +112,7 @@ func NewBlade(owner *Player) *Blade {
 	return blade
 }
 
-func (b *Blade) Update(players []*Player, m Map, rotation *float64) {
+func (b *Blade) Update(players []*Player, rotation *float64) {
 	pivot := b.owner.Collider().Pivot
 	b.collider.SetPivot(pivot.X, pivot.Y)
 

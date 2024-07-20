@@ -43,7 +43,7 @@ func TestBladeIntersection(t *testing.T) {
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			tt.blade.Update(tt.otherPlayers, nil, &tt.rotation)
+			tt.blade.Update(tt.otherPlayers, &tt.rotation)
 			for i := range tt.otherPlayers {
 				if tt.otherPlayers[i].health != tt.expectedHealth[i] {
 					t.Errorf("Player[%d] health mismatch: got %d, want %d", i, tt.otherPlayers[i].health, tt.expectedHealth[i])
