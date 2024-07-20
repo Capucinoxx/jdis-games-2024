@@ -132,6 +132,7 @@ class PlayerManager extends Manager<Player> {
       if (player && curr_player) {
         const { pos, dest } = this.calculate_path(curr_player, next_player);
         player.set_movement(new Phaser.Math.Vector2(pos.x, pos.y), new Phaser.Math.Vector2(dest.x, dest.y));
+        player.rotate_blade(curr_player.blade.rotation);
       }
     });
   }

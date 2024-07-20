@@ -53,14 +53,6 @@ class Player extends MovableObject implements GameObject {
     this.setDepth(5);
   }
 
-  public set blade_visibility(visibility: boolean) {
-    const curr_visibility = this.blade.visibility;
-    if (curr_visibility != visibility) {
-      this.blade.visible = visibility;
-      this.blade.visibility = visibility;
-    }
-  }
-
   public set_movement(pos: Phaser.Math.Vector2, dest: Phaser.Math.Vector2): void {
     this.destination = dest;
 
@@ -70,11 +62,13 @@ class Player extends MovableObject implements GameObject {
     }
   }
 
+  public rotate_blade(theta: number): void {
+    this.blade.rotate(theta);
+  }
+
   public update(time: number, delta: number): void {
     super.update(time, delta);
-
-
-    this.blade.update(delta);
+    this.blade.update();
   }
 
   public destroy(): void {
@@ -88,38 +82,27 @@ class Player extends MovableObject implements GameObject {
 class Blade extends Phaser.GameObjects.Container {
   private blade: Phaser.GameObjects.Rectangle;
   private owner: Player;
-  private speed: number;
-  public visibility: boolean = false; 
+
 
   constructor(scene: Phaser.Scene, player: Player) {
     super(scene, player.x, player.y);
     const blade = scene.add.rectangle(0, 0, 4, BLADE_LENGTH, 0xff0000);
-    this.visible = false;
 
     this.add(blade);
 
     this.blade = blade;
     this.owner = player;
-    this.speed = Phaser.Math.DegToRad(BLADE_ROTATION_SPEED);
     
     scene.add.existing(this);
   }
 
-  public update(dt: number): void {
-    if (!this.visibility)
-      return;
-
-    this.angle += (this.speed * (dt / 1000));
-    this.angle %= (Math.PI * 2);
-
+  public update(): void {
     this.x = this.owner.x + (BLADE_DISTANCE * Math.cos(this.angle));
     this.y = this.owner.y + (BLADE_DISTANCE * Math.sin(this.angle));
+  }
 
-    const dx = this.owner.x - this.x;
-    const dy = this.owner.y - this.y;
-    const rotation = Math.atan2(dy, dx);
-
-    this.blade.setRotation(rotation + Math.PI / 2);
+  public rotate(theta: number): void {
+    this.rotation = theta;
   }
 };
 
