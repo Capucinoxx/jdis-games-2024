@@ -9,19 +9,27 @@ import (
 // Projectile represents a moving projectile in the game.
 type Projectile struct {
 	Object
+	ttl         float64
 	Destination *Point
 }
 
 func NewProjectile(pos *Point, dest *Point) *Projectile {
-	p := &Projectile{Destination: dest}
-	p.restrictToSquare(pos)
+	p := &Projectile{Destination: dest, ttl: consts.ProjectileTTL}
 	p.setup(pos, consts.ProjectileSize)
 
 	return p
 }
 
-// ApplyMovement updates the projectile's position based on its direction and a delta time.
-func (p *Projectile) moveToDestination(dt float64) bool {
+// reduceTTL decrements the projectile's time to live by a delta time.
+func (p *Projectile) reduceTTL(dt float64) {
+	p.ttl -= dt
+	if p.ttl <= 0 {
+		p.Remove()
+	}
+}
+
+// moveToDestination updates the projectile's position based on its direction and a delta time.
+func (p *Projectile) moveToDestination(dt float64) {
 	dest := p.Destination
 
 	dx := float64(dest.X - p.Position.X)
@@ -35,61 +43,9 @@ func (p *Projectile) moveToDestination(dt float64) bool {
 		p.Position.X = nextX
 		p.Position.Y = nextY
 		p.collider.ChangePosition(nextX, nextY)
-
-		return true
 	} else {
 		p.Remove()
-		return false
 	}
-}
-
-func (p *Projectile) restrictToSquare(pos *Point) {
-	squareSize := 10.0
-
-	left := math.Floor(pos.X/squareSize)*squareSize + (consts.ProjectileSize / 2)
-	right := left + squareSize - consts.ProjectileSize
-	top := math.Floor(pos.Y/squareSize)*squareSize + (consts.ProjectileSize / 2)
-	bottom := top + squareSize - consts.ProjectileSize
-
-	newX := p.Destination.X
-	newY := p.Destination.Y
-
-	originalDestX := p.Destination.X
-	originalDestY := p.Destination.Y
-
-	if originalDestX < left {
-		newX = left
-		newY = pos.Y + (left-pos.X)*(originalDestY-pos.Y)/(originalDestX-pos.X)
-	} else if originalDestX > right {
-		newX = right
-		newY = pos.Y + (right-pos.X)*(originalDestY-pos.Y)/(originalDestX-pos.X)
-	}
-
-	if newY < top {
-		newY = top
-		newX = pos.X + (top-pos.Y)*(originalDestX-pos.X)/(originalDestY-pos.Y)
-	} else if newY > bottom {
-		newY = bottom
-		newX = pos.X + (bottom-pos.Y)*(originalDestX-pos.X)/(originalDestY-pos.Y)
-	}
-
-	p.Destination.X = newX
-	p.Destination.Y = newY
-}
-
-// IsCollidingWithEnvironment checks if the projectile is colliding with any non-projectile colliders in the map.
-func (p *Projectile) IsCollidingWithEnvironment(m Map) bool {
-	for _, collider := range m.Colliders() {
-		if collider.Type == ColliderProjectile {
-			continue
-		}
-
-		if PolygonsIntersect(p.collider.polygon(), collider.polygon()) {
-			return true
-		}
-	}
-
-	return false
 }
 
 // Cannon represents a cannon that can shoot projectiles.
@@ -108,9 +64,8 @@ func NewCanon(owner *Player) *Cannon {
 // Update processes all projectiles for movement and collision detection.
 func (c *Cannon) Update(players []*Player, m Map, dt float64) {
 	for _, p := range c.Projectiles {
-		if !p.moveToDestination(dt) {
-			continue
-		}
+		p.reduceTTL(dt)
+		p.moveToDestination(dt)
 
 		for _, enemy := range players {
 			if c.owner.Nickname == enemy.Nickname {
@@ -122,10 +77,6 @@ func (c *Cannon) Update(players []*Player, m Map, dt float64) {
 				p.Remove()
 				continue
 			}
-		}
-
-		if p.IsCollidingWithEnvironment(m) {
-			p.Remove()
 		}
 	}
 
