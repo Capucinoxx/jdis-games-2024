@@ -32,11 +32,11 @@ func (p *Projectile) reduceTTL(dt float64) {
 func (p *Projectile) moveToDestination(dt float64) {
 	dest := p.Destination
 
-	dx := float64(dest.X - p.Position.X)
-	dy := float64(dest.Y - p.Position.Y)
-	dist := math.Abs(dx) + math.Abs(dy)
+	dx := dest.X - p.Position.X
+	dy := dest.Y - p.Position.Y
+	dist := math.Sqrt(dx*dx + dy*dy)
 
-	if dist > consts.ProjectileSpeed*float64(dt) {
+	if dist > consts.ProjectileSpeed*dt {
 		nextX := p.Position.X + dx/dist*consts.ProjectileSpeed*dt
 		nextY := p.Position.Y + dy/dist*consts.ProjectileSpeed*dt
 
@@ -44,6 +44,9 @@ func (p *Projectile) moveToDestination(dt float64) {
 		p.Position.Y = nextY
 		p.collider.ChangePosition(nextX, nextY)
 	} else {
+		p.Position.X = dest.X
+		p.Position.Y = dest.Y
+		p.collider.ChangePosition(dest.X, dest.Y)
 		p.Remove()
 	}
 }
