@@ -225,11 +225,12 @@ func (p *Player) moveToDestination(dt float64) {
 }
 
 func (p *Player) HandleWeapon(players []*Player, m Map, dt float64) {
+	p.cannon.Update(players, m, dt)
+
 	if p.Controls.SwitchWeapon != nil {
 		p.currentWeapon = *p.Controls.SwitchWeapon
+		return
 	}
-
-	p.cannon.Update(players, m, dt)
 
 	switch p.currentWeapon {
 	case PlayerWeaponBlade:
