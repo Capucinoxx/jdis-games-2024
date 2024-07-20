@@ -20,6 +20,13 @@ func Shuffle[S ~[]E, E any](r *rand.Rand, s S) {
 	})
 }
 
+func NilIf[T any](v *T, b bool) *T {
+	if b {
+		return nil
+	}
+	return v
+}
+
 func Round(f float64, decimals int) float64 {
 	pow := math.Pow(10, float64(decimals))
 	return math.Round(f*pow) / pow

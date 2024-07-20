@@ -45,10 +45,12 @@ type PlayerWeapon = int
 // Controls struct represents the player's controls.
 // When a control is activated, the player performs the corresponding action.
 type Controls struct {
-	Dest         *Point        `json:"dest,omitempty"`
-	Shoot        *Point        `json:"shoot,omitempty"`
+	Dest *Point  `json:"dest,omitempty"`
+	Save *string `json:"save,omitempty"`
+
 	SwitchWeapon *PlayerWeapon `json:"switch,omitempty"`
-	Save         *string       `json:"save,omitempty"`
+	Shoot        *Point        `json:"shoot,omitempty"`
+	RotateBlade  *float64      `json:"rotate_blade,omitempty"`
 }
 
 const (
@@ -226,21 +228,19 @@ func (p *Player) moveToDestination(dt float64) {
 
 func (p *Player) HandleWeapon(players []*Player, m Map, dt float64) {
 	p.cannon.Update(players, m, dt)
+	p.blade.Update(players, m, utils.NilIf(p.Controls.RotateBlade, p.Controls.SwitchWeapon != nil))
 
 	if p.Controls.SwitchWeapon != nil {
 		p.currentWeapon = *p.Controls.SwitchWeapon
 		return
 	}
 
-	switch p.currentWeapon {
-	case PlayerWeaponBlade:
-		p.blade.Update(players, m, dt)
-	case PlayerWeaponCanon:
-		if p.Controls.Shoot != nil {
-			p.cannon.ShootAt(*p.Controls.Shoot)
-			p.Controls.Shoot = nil
-		}
+	if p.currentWeapon == PlayerWeaponCanon && p.Controls.Shoot != nil {
+		p.cannon.ShootAt(*p.Controls.Shoot)
+		p.Controls.Shoot = nil
 	}
+
+	p.Controls.RotateBlade = nil
 }
 
 type PlayerInfo struct {

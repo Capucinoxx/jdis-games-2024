@@ -38,7 +38,6 @@ class Coin extends Phaser.GameObjects.Container implements GameObject {
 
 class Player extends MovableObject implements GameObject {
   private blade: Blade;
-  public color: number;
 
   constructor(scene: Phaser.Scene, payload: Payload) {
     const { pos, name, color } = payload as PlayerObject;
@@ -47,18 +46,8 @@ class Player extends MovableObject implements GameObject {
 
     super(scene, pos.x, pos.y, new Phaser.Math.Vector2(pos.x, pos.y), PLAYER_SPEED, [rect, label]);
 
-    this.blade = new Blade(scene, this);
-    this.color = color;
-
+    this.blade = new Blade(scene, this, color);
     this.setDepth(5);
-  }
-
-  public set blade_visibility(visibility: boolean) {
-    const curr_visibility = this.blade.visibility;
-    if (curr_visibility != visibility) {
-      this.blade.visible = visibility;
-      this.blade.visibility = visibility;
-    }
   }
 
   public set_movement(pos: Phaser.Math.Vector2, dest: Phaser.Math.Vector2): void {
@@ -70,11 +59,13 @@ class Player extends MovableObject implements GameObject {
     }
   }
 
+  public rotate_blade(theta: number): void {
+    this.blade.rotate(theta);
+  }
+
   public update(time: number, delta: number): void {
     super.update(time, delta);
-
-
-    this.blade.update(delta);
+    this.blade.update();
   }
 
   public destroy(): void {
@@ -86,40 +77,28 @@ class Player extends MovableObject implements GameObject {
 };
 
 class Blade extends Phaser.GameObjects.Container {
-  private blade: Phaser.GameObjects.Rectangle;
   private owner: Player;
-  private speed: number;
-  public visibility: boolean = false; 
 
-  constructor(scene: Phaser.Scene, player: Player) {
+  constructor(scene: Phaser.Scene, player: Player, color: number) {
     super(scene, player.x, player.y);
-    const blade = scene.add.rectangle(0, 0, 4, BLADE_LENGTH, 0xff0000);
-    this.visible = false;
-
-    this.add(blade);
-
-    this.blade = blade;
     this.owner = player;
-    this.speed = Phaser.Math.DegToRad(BLADE_ROTATION_SPEED);
+
+    const graphics = scene.add.graphics();
+    graphics.fillStyle(color, 1);
+    graphics.fillRect(-BLADE_LENGTH / 2, -2, BLADE_LENGTH, 4);
+
+    this.add(graphics);
     
     scene.add.existing(this);
   }
 
-  public update(dt: number): void {
-    if (!this.visibility)
-      return;
-
-    this.angle += (this.speed * (dt / 1000));
-    this.angle %= (Math.PI * 2);
-
+  public update(): void {
     this.x = this.owner.x + (BLADE_DISTANCE * Math.cos(this.angle));
     this.y = this.owner.y + (BLADE_DISTANCE * Math.sin(this.angle));
+  }
 
-    const dx = this.owner.x - this.x;
-    const dy = this.owner.y - this.y;
-    const rotation = Math.atan2(dy, dx);
-
-    this.blade.setRotation(rotation + Math.PI / 2);
+  public rotate(theta: number): void {
+    this.rotation = theta;
   }
 };
 
