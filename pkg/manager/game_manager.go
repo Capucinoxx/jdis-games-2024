@@ -191,7 +191,7 @@ func (gm *GameManager) gameLoop() {
 			count = 0
 		}
 
-		gm.state.Coins().Update(players)
+		gm.state.Coins().Update()
 
 		count++
 		if gm.rm.HasEnded() {

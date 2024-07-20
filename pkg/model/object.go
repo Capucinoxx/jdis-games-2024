@@ -7,6 +7,7 @@ import (
 
 	"github.com/capucinoxx/forlorn/consts"
 	"github.com/capucinoxx/forlorn/pkg/codec"
+	"github.com/capucinoxx/forlorn/pkg/utils"
 )
 
 type Object struct {
@@ -37,14 +38,16 @@ type Scorer struct {
 	Value int32
 }
 
-func NewCoin() *Scorer {
-	s := &Scorer{Value: consts.CoinValue}
-	pos := &Point{
-		X: rand.Float64() * float64(consts.MapWidth*consts.CellWidth),
-		Y: rand.Float64() * float64(consts.MapWidth*consts.CellWidth),
+func NewCoin(pos ...*Point) *Scorer {
+	if len(pos) == 0 {
+		pos = []*Point{{
+			X: rand.Float64() * float64(consts.MapWidth*consts.CellWidth),
+			Y: rand.Float64() * float64(consts.MapWidth*consts.CellWidth),
+		}}
 	}
+	s := &Scorer{Value: consts.CoinValue}
 
-	s.setup(pos, consts.CoinSize)
+	s.setup(pos[0], consts.CoinSize)
 
 	return s
 }
@@ -102,18 +105,11 @@ func (s *Scorers) Set(scorers []*Scorer) {
 	s.scorers = scorers
 }
 
-func (s *Scorers) Update(players []*Player) {
-	for _, scorer := range s.scorers {
-		for _, player := range players {
-			if player.IsAlive() {
-				scorer.IsCollidingWithPlayer(player)
-			}
-		}
-	}
-
+func (s *Scorers) Update() {
 	for i := 0; i < len(s.scorers); i++ {
 		if !s.scorers[i].IsAlive() {
 			s.scorers[i] = NewCoin()
+			utils.Log("coin", "score", "new coin spawn position (%f, %f)", s.scorers[i].Position.X, s.scorers[i].Position.Y)
 		}
 	}
 }
