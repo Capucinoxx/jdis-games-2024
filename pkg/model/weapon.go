@@ -77,6 +77,7 @@ func (c *Cannon) Update(players []*Player, dt float64) {
 
 			if p.IsCollidingWithPlayer(enemy) {
 				enemy.TakeDmg(consts.ProjectileDmg)
+				c.owner.score += consts.ScoreOnHitWithProjectile
 				p.Remove()
 				continue
 			}
@@ -130,6 +131,7 @@ func (b *Blade) Update(players []*Player, rotation *float64) {
 
 		if PolygonsIntersect(b.collider.polygon(), enemy.Collider().polygon()) {
 			enemy.TakeDmg(consts.BladeDmg)
+			b.owner.score += consts.ScoreOnHitWithBlade
 		}
 	}
 }

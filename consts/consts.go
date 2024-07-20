@@ -80,7 +80,7 @@ const (
 	CoinSize = 0.5
 
 	// CoinValue defines the value when player take a coin.
-	CoinValue (int32) = 50
+	CoinValue (int32) = 40
 
 	// NumCoins defines the total number of coins available in the game.
 	NumCoins = 30
@@ -89,5 +89,12 @@ const (
 	BigCoinSize = 4
 
 	// BigCoinValue defines the value when player take a big coin.
-	BigCoinValue (int32) = 500
+	BigCoinValue (int32) = NumCoins * CoinValue
+
+	// --- SCORE CONSTANTS
+	// ================================
+
+	ScoreOnHitWithProjectile = 15
+
+	ScoreOnHitWithBlade = 40
 )
