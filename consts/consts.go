@@ -16,20 +16,20 @@ const (
 	// --- MAP CONSTANTS
 	// ================================
 
-	// MapWidth defines CELLS in x and y.
+	// MapWidth defines the width of the map in cells.
 	MapWidth = 10
 
-	// CellWidth defines width of cell
+	// CellWidth defines the width of each cell.
 	CellWidth = 10
 
 	// NumSubsquare defines the number of subsquares within a cell.
 	NumSubsquare = 9.0
 
-	// SubsquareRatio defines the ratio of subsquare to the cell.
-	SubsquareRatio (float64) = 1.0 / NumSubsquare
+	// SubsquareRatio defines the ratio of a subsquare to the cell.
+	SubsquareRatio float64 = 1.0 / NumSubsquare
 
-	// SubsquareWidth defines width of sub square
-	SubsquareWidth (float64) = 10.0 * SubsquareRatio
+	// SubsquareWidth defines the width of a subsquare.
+	SubsquareWidth float64 = 10.0 * SubsquareRatio
 
 	// --- PLAYER CONSTANTS
 	// ================================
@@ -40,25 +40,25 @@ const (
 	// PlayerHealth is the starting health of a player.
 	PlayerHealth = 100
 
-	// PlayerSpeed defines the distance travelled per tick.
+	// PlayerSpeed defines the distance traveled per tick.
 	PlayerSpeed = 1.15
 
 	// RespawnTime defines the time (in seconds) for a player to respawn after being eliminated.
 	RespawnTime = 5
 
-	// --- PORJECTILE CONSTANTS
+	// --- PROJECTILE CONSTANTS
 	// ================================
 
-	// ProjectileSize defines the sizes of a projectile.
+	// ProjectileSize defines the size of a projectile.
 	ProjectileSize = 0.35
 
-	// ProjectileDmg defines the damage suffered by a player when hit by a projectile
+	// ProjectileDmg defines the damage suffered by a player when hit by a projectile.
 	ProjectileDmg = 30
 
-	// ProjectileSpeed defines
+	// ProjectileSpeed defines the speed of a projectile.
 	ProjectileSpeed = 3.0
 
-	// ProjectileTTL defines time to live of projectile (in seconds).
+	// ProjectileTTL defines the time to live of a projectile (in seconds).
 	ProjectileTTL = 5.0
 
 	// --- BLADE CONSTANTS
@@ -70,24 +70,33 @@ const (
 	// BladeDmg defines the damage suffered by a player when hit by a blade.
 	BladeDmg = 20
 
-	// BladeRotationSpeed defines the speed of rotation of a blade (in deg).
+	// BladeRotationSpeed defines the speed of rotation of a blade (in degrees).
 	BladeRotationSpeed = 230
 
 	// --- SCORER CONSTANTS
 	// ================================
 
-	// CoinSize defines the size of coin.
+	// CoinSize defines the size of a coin.
 	CoinSize = 0.5
 
-	// CoinValue defines the value when player take a coin.
-	CoinValue (int32) = 50
+	// CoinValue defines the value when a player collects a coin.
+	CoinValue int32 = 40
 
 	// NumCoins defines the total number of coins available in the game.
 	NumCoins = 30
 
-	// BigCoinSize defines the size of big coin.
+	// BigCoinSize defines the size of a big coin.
 	BigCoinSize = 4
 
-	// BigCoinValue defines the value when player take a big coin.
-	BigCoinValue (int32) = 500
+	// BigCoinValue defines the value when a player collects a big coin.
+	BigCoinValue int32 = NumCoins * CoinValue
+
+	// --- SCORE CONSTANTS
+	// ================================
+
+	// ScoreOnHitWithProjectile defines the score awarded when hitting an opponent with a projectile.
+	ScoreOnHitWithProjectile = 15
+
+	// ScoreOnHitWithBlade defines the score awarded when hitting an opponent with a blade.
+	ScoreOnHitWithBlade = 40
 )
