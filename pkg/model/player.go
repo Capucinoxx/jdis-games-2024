@@ -214,7 +214,7 @@ func (p *Player) moveToDestination(dt float64) {
 
 	dx := float64(dest.X - p.Position.X)
 	dy := float64(dest.Y - p.Position.Y)
-	dist := math.Abs(dx) + math.Abs(dy)
+	dist := math.Sqrt(dx*dx + dy*dy)
 
 	if dist > consts.PlayerSpeed*float64(dt) {
 		nextX := p.Position.X + dx/dist*consts.PlayerSpeed*dt
@@ -227,8 +227,8 @@ func (p *Player) moveToDestination(dt float64) {
 }
 
 func (p *Player) HandleWeapon(players []*Player, m Map, dt float64) {
-	p.cannon.Update(players, m, dt)
-	p.blade.Update(players, m, utils.NilIf(p.Controls.RotateBlade, p.Controls.SwitchWeapon != nil))
+	p.cannon.Update(players, dt)
+	p.blade.Update(players, utils.NilIf(p.Controls.RotateBlade, p.Controls.SwitchWeapon != nil))
 
 	if p.Controls.SwitchWeapon != nil {
 		p.currentWeapon = *p.Controls.SwitchWeapon

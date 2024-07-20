@@ -56,7 +56,10 @@ const (
 	ProjectileDmg = 30
 
 	// ProjectileSpeed defines
-	ProjectileSpeed = 1.75
+	ProjectileSpeed = 3.0
+
+	// ProjectileTTL defines time to live of projectile (in seconds).
+	ProjectileTTL = 5.0
 
 	// --- BLADE CONSTANTS
 	// ================================

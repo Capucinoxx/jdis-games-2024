@@ -1,11 +1,116 @@
 package model
 
 import (
+	"fmt"
 	"math"
 	"testing"
 
 	"github.com/capucinoxx/forlorn/consts"
 )
+
+func TestCannonShootAt(t *testing.T) {
+	owner := NewPlayer("owner", 0, &Point{X: 5, Y: 5}, nil)
+
+	tests := map[string]struct {
+		projectileTarget Point
+		expectedPosition Point
+	}{
+		"Shoot positive destination": {
+			projectileTarget: Point{X: 10, Y: 10},
+			expectedPosition: Point{
+				X: 5.0 + consts.ProjectileSpeed/math.Sqrt(2),
+				Y: 5.0 + consts.ProjectileSpeed/math.Sqrt(2),
+			},
+		},
+		"Shoot negative destination": {
+			projectileTarget: Point{X: -10, Y: -10},
+			expectedPosition: Point{
+				X: 5.0 - consts.ProjectileSpeed/math.Sqrt(2),
+				Y: 5.0 - consts.ProjectileSpeed/math.Sqrt(2),
+			},
+		},
+	}
+
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			cannon := NewCanon(owner)
+
+			cannon.ShootAt(tt.projectileTarget)
+
+			cannon.Update([]*Player{}, 1.0)
+
+			pos := cannon.Projectiles[0].Position
+			expected := tt.expectedPosition
+			if math.Abs(pos.X-expected.X) > 0.0001 || math.Abs(pos.Y-expected.Y) > 0.0001 {
+				t.Errorf("Projectile position (%v, %v) != expected position (%v, %v)", pos.X, pos.Y, expected.X, expected.Y)
+			}
+		})
+	}
+}
+
+func TestCannonCollisionCases(t *testing.T) {
+	owner := NewPlayer("owner", 0, &Point{X: 0, Y: 0}, nil)
+
+	tests := map[string]struct {
+		enemyPositions   []*Point
+		expectedHealths  []int
+		projectileTarget Point
+	}{
+		"Single enemy hit": {
+			enemyPositions:   []*Point{{X: 5, Y: 5}},
+			expectedHealths:  []int{100 - consts.ProjectileDmg},
+			projectileTarget: Point{X: 5, Y: 5},
+		},
+		"Multiple enemies hit": {
+			enemyPositions:   []*Point{{X: 5, Y: 5}, {X: 6, Y: 5}},
+			expectedHealths:  []int{100 - consts.ProjectileDmg, 100},
+			projectileTarget: Point{X: 5, Y: 5},
+		},
+		"No enemies hit": {
+			enemyPositions:   []*Point{{X: 15, Y: 15}, {X: 16, Y: 16}},
+			expectedHealths:  []int{100, 100},
+			projectileTarget: Point{X: 5, Y: 5},
+		},
+		"Enemy outside of range": {
+			enemyPositions:   []*Point{{X: 100, Y: 100}},
+			expectedHealths:  []int{100},
+			projectileTarget: Point{X: 5, Y: 5},
+		},
+		"Projectile timed out before reach cible": {
+			enemyPositions:   []*Point{{X: consts.ProjectileSpeed * (consts.ProjectileTTL + 0.3), Y: consts.ProjectileSpeed * (consts.ProjectileTTL + 0.3)}},
+			expectedHealths:  []int{100},
+			projectileTarget: Point{X: 1000, Y: 1000},
+		},
+	}
+
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			cannon := NewCanon(owner)
+			enemies := make([]*Player, len(tt.enemyPositions))
+			for i, pos := range tt.enemyPositions {
+				enemies[i] = NewPlayer("enemy"+fmt.Sprint(i), 100, pos, nil)
+			}
+
+			cannon.ShootAt(tt.projectileTarget)
+
+			for dt := 0.3; dt < 2.0; dt += 0.3 {
+				cannon.Update(enemies, dt)
+			}
+
+			for i, enemy := range enemies {
+				if enemy.health != tt.expectedHealths[i] {
+					t.Errorf("Enemy[%d] health incorrect after being hit, got %d, want %d", i, enemy.health, tt.expectedHealths[i])
+				}
+			}
+
+			for _, p := range cannon.Projectiles {
+				if p.IsAlive() {
+					t.Errorf("Expected projectile to be removed, but it is still alive")
+				}
+			}
+		})
+	}
+}
 
 func TestBladeIntersection(t *testing.T) {
 
@@ -43,7 +148,7 @@ func TestBladeIntersection(t *testing.T) {
 
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			tt.blade.Update(tt.otherPlayers, nil, &tt.rotation)
+			tt.blade.Update(tt.otherPlayers, &tt.rotation)
 			for i := range tt.otherPlayers {
 				if tt.otherPlayers[i].health != tt.expectedHealth[i] {
 					t.Errorf("Player[%d] health mismatch: got %d, want %d", i, tt.otherPlayers[i].health, tt.expectedHealth[i])
