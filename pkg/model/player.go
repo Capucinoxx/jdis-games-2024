@@ -227,7 +227,7 @@ func (p *Player) moveToDestination(dt float64) {
 }
 
 func (p *Player) HandleWeapon(players []*Player, m Map, dt float64) {
-	p.cannon.Update(players, m, dt)
+	p.cannon.Update(players, dt)
 	p.blade.Update(players, m, utils.NilIf(p.Controls.RotateBlade, p.Controls.SwitchWeapon != nil))
 
 	if p.Controls.SwitchWeapon != nil {

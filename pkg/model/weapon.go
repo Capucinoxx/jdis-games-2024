@@ -62,7 +62,7 @@ func NewCanon(owner *Player) *Cannon {
 }
 
 // Update processes all projectiles for movement and collision detection.
-func (c *Cannon) Update(players []*Player, m Map, dt float64) {
+func (c *Cannon) Update(players []*Player, dt float64) {
 	for _, p := range c.Projectiles {
 		p.reduceTTL(dt)
 		p.moveToDestination(dt)
