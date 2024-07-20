@@ -170,7 +170,8 @@ func (p *Player) HandleSave() {
 func (p *Player) HandleCoinCollision(coins []*Scorer) {
 	for _, coin := range coins {
 		if coin.IsCollidingWithPlayer(p) {
-			utils.Log("player", p.Nickname, "Score +%d, total: %d", coin.Value, p.score)
+			utils.Log(p.Nickname, "score", "take coin +%d total: %d",
+				coin.Value, p.score)
 		}
 	}
 }
