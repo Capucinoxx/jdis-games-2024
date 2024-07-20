@@ -156,7 +156,7 @@ type Blade struct {
 func NewBlade(owner *Player) *Blade {
 	blade := &Blade{owner: owner}
 	pivot := owner.Collider().Pivot
-	blade.collider = NewRectLineCollider(pivot.X, pivot.Y+consts.BladeDistance, consts.BladeSize)
+	blade.collider = NewRectLineCollider(pivot.X, pivot.Y, consts.BladeSize, consts.PlayerSize/4.0)
 	blade.collider.SetPivot(pivot.X, pivot.Y)
 	return blade
 }

@@ -166,13 +166,13 @@ func NewRectCollider(x, y, size float64) *RectCollider {
 	}
 }
 
-func NewRectLineCollider(x, y, height float64) *RectCollider {
+func NewRectLineCollider(x, y, width, height float64) *RectCollider {
 	return &RectCollider{
 		rect: &Rect{
-			a: &Point{X: x, Y: y},
-			b: &Point{X: x, Y: y + height},
-			c: &Point{X: x, Y: y + height},
-			d: &Point{X: x, Y: y},
+			a: &Point{X: x, Y: y + height/2},
+			b: &Point{X: x + width, Y: y + height/2},
+			c: &Point{X: x + width, Y: y - height/2},
+			d: &Point{X: x, Y: y - height/2},
 		},
 
 		Pivot:    &Point{X: x, Y: y},
