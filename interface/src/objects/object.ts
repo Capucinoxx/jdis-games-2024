@@ -98,7 +98,7 @@ class Blade extends Phaser.GameObjects.Container {
   }
 
   public rotate(theta: number): void {
-    this.rotation = theta;11
+    this.rotation = theta;
   }
 };
 
