@@ -1,14 +1,9 @@
-version: '3.8'
-
 services:
-  app:
+  server:
     build:
-      context: .
-      dockerfile: Dockerfile.server
+      context: server
     ports:
       - '8087:8087'
-    volumes:
-      - .:/app
     environment:
       PORT: 7855
       MONGO_USERNAME: admin
@@ -16,18 +11,12 @@ services:
       MONGO_HOST: mongodb
       MONGO_PORT: 27017
       MONGO_DB: db
+      DOMAIN: localhost
 
       REDIS_ADDR: redis:6379
       REDIS_PASSWORD: long_password
     env_file:
       - .env
-
-  interface:
-    build:
-      context: .
-      dockerfile: Dockerfile.interface
-    ports:
-      - '8086:80'
 
   mongodb:
     image: mongo

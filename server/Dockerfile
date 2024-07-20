@@ -7,13 +7,12 @@ COPY go.sum .
 COPY pkg/ pkg/
 COPY consts/ consts/
 COPY internal/ internal/
-
 COPY interface/wasm/main.go wasm/main.go
 
 RUN GOARCH=wasm GOOS=js go build -o lib.wasm wasm/main.go
 RUN cp "$(go env GOROOT)"/misc/wasm/wasm_exec.js .
 
-
+# ------------------------------
 FROM node:18 as build
 
 WORKDIR /app
@@ -30,11 +29,24 @@ COPY --from=wasm /app/wasm_exec.js src/wasm/wasm_exec.js
 RUN npm install
 RUN npm run build
 
-FROM nginx:alpine
+# ------------------------------
+FROM golang:1.21.6 as server
 
-COPY --from=build /app/dist /usr/share/nginx/html
-COPY --from=wasm /app/lib.wasm /usr/share/nginx/html/lib.wasm
+WORKDIR /app
 
-EXPOSE 80
+COPY go.mod go.sum ./
+RUN go mod download
 
-CMD ["nginx", "-g", "daemon off;"]
+COPY . .
+
+COPY --from=build /app/dist /app/dist
+COPY --from=wasm /app/lib.wasm /app/dist/lib.wasm
+
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+RUN go build -o server /app/main.go
+
+EXPOSE 443
+
+ENTRYPOINT ["/entrypoint.sh"]
