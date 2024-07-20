@@ -38,7 +38,6 @@ class Coin extends Phaser.GameObjects.Container implements GameObject {
 
 class Player extends MovableObject implements GameObject {
   private blade: Blade;
-  public color: number;
 
   constructor(scene: Phaser.Scene, payload: Payload) {
     const { pos, name, color } = payload as PlayerObject;
@@ -47,9 +46,7 @@ class Player extends MovableObject implements GameObject {
 
     super(scene, pos.x, pos.y, new Phaser.Math.Vector2(pos.x, pos.y), PLAYER_SPEED, [rect, label]);
 
-    this.blade = new Blade(scene, this);
-    this.color = color;
-
+    this.blade = new Blade(scene, this, color);
     this.setDepth(5);
   }
 
@@ -80,18 +77,17 @@ class Player extends MovableObject implements GameObject {
 };
 
 class Blade extends Phaser.GameObjects.Container {
-  private blade: Phaser.GameObjects.Rectangle;
   private owner: Player;
 
-
-  constructor(scene: Phaser.Scene, player: Player) {
+  constructor(scene: Phaser.Scene, player: Player, color: number) {
     super(scene, player.x, player.y);
-    const blade = scene.add.rectangle(0, 0, 4, BLADE_LENGTH, 0xff0000);
-
-    this.add(blade);
-
-    this.blade = blade;
     this.owner = player;
+
+    const graphics = scene.add.graphics();
+    graphics.fillStyle(color, 1);
+    graphics.fillRect(-BLADE_LENGTH / 2, -2, BLADE_LENGTH, 4);
+
+    this.add(graphics);
     
     scene.add.existing(this);
   }
@@ -102,7 +98,7 @@ class Blade extends Phaser.GameObjects.Container {
   }
 
   public rotate(theta: number): void {
-    this.rotation = theta;
+    this.rotation = theta;11
   }
 };
 
