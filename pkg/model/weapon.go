@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"github.com/capucinoxx/forlorn/consts"
+	"github.com/capucinoxx/forlorn/pkg/utils"
 )
 
 // Projectile represents a moving projectile in the game.
@@ -79,6 +80,9 @@ func (c *Cannon) Update(players []*Player, dt float64) {
 				enemy.TakeDmg(consts.ProjectileDmg)
 				c.owner.score += consts.ScoreOnHitWithProjectile
 				p.Remove()
+
+				utils.Log(c.owner.Nickname, "score", "hit %s with projectile +%d total: %d",
+					enemy.Nickname, consts.ScoreOnHitWithProjectile, c.owner.score)
 				continue
 			}
 		}
@@ -132,6 +136,9 @@ func (b *Blade) Update(players []*Player, rotation *float64) {
 		if PolygonsIntersect(b.collider.polygon(), enemy.Collider().polygon()) {
 			enemy.TakeDmg(consts.BladeDmg)
 			b.owner.score += consts.ScoreOnHitWithBlade
+
+			utils.Log(b.owner.Nickname, "score", "hit %s with blade +%d total: %d",
+				enemy.Nickname, consts.ScoreOnHitWithBlade, b.owner.score)
 		}
 	}
 }
