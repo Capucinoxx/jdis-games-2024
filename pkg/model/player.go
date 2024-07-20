@@ -228,25 +228,19 @@ func (p *Player) moveToDestination(dt float64) {
 
 func (p *Player) HandleWeapon(players []*Player, m Map, dt float64) {
 	p.cannon.Update(players, m, dt)
+	p.blade.Update(players, m, utils.NilIf(p.Controls.RotateBlade, p.Controls.SwitchWeapon != nil))
 
 	if p.Controls.SwitchWeapon != nil {
 		p.currentWeapon = *p.Controls.SwitchWeapon
 		return
 	}
 
-	switch p.currentWeapon {
-	case PlayerWeaponBlade:
-		if p.Controls.RotateBlade != nil {
-			// p.blade.Update(players, m, dt)
-			p.Controls.RotateBlade = nil
-		}
-
-	case PlayerWeaponCanon:
-		if p.Controls.Shoot != nil {
-			p.cannon.ShootAt(*p.Controls.Shoot)
-			p.Controls.Shoot = nil
-		}
+	if p.currentWeapon == PlayerWeaponCanon && p.Controls.Shoot != nil {
+		p.cannon.ShootAt(*p.Controls.Shoot)
+		p.Controls.Shoot = nil
 	}
+
+	p.Controls.RotateBlade = nil
 }
 
 type PlayerInfo struct {
