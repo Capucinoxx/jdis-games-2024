@@ -214,7 +214,7 @@ func (p *Player) moveToDestination(dt float64) {
 
 	dx := float64(dest.X - p.Position.X)
 	dy := float64(dest.Y - p.Position.Y)
-	dist := math.Abs(dx) + math.Abs(dy)
+	dist := math.Sqrt(dx*dx + dy*dy)
 
 	if dist > consts.PlayerSpeed*float64(dt) {
 		nextX := p.Position.X + dx/dist*consts.PlayerSpeed*dt
