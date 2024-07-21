@@ -34,7 +34,7 @@ class Coin extends Phaser.GameObjects.Container implements GameObject {
     this.scene.physics.world.enable(this);
     scene.add.existing(this);
 
-    this.setDepth(6);
+    this.setDepth(3);
   }
 };
 
@@ -44,10 +44,16 @@ class Player extends MovableObject implements GameObject {
 
   constructor(scene: Phaser.Scene, payload: Payload) {
     const { pos, name, color } = payload as PlayerObject;
-    const rect = scene.add.rectangle(0, 0, PLAYER_SIZE, PLAYER_SIZE, color).setOrigin(0.5, 0.5);
+
+    const circle_size = PLAYER_SIZE / 2 * 0.6;
+    const circle = scene.add.circle(0, 0, circle_size, color).setOrigin(0.5, 0.5);
+
+    const img = scene.add.image(0, 0, 'agent').setOrigin(0.5, 0.5);
+    img.setDisplaySize(PLAYER_SIZE, PLAYER_SIZE);
+    // const rect = scene.add.rectangle(0, 0, PLAYER_SIZE, PLAYER_SIZE, color).setOrigin(0.5, 0.5);
     const label = scene.add.text(0, -PLAYER_SIZE / 2 - 10, name, { fontSize: '16px', color: 'white' }).setOrigin(0.5, 0.5);
 
-    super(scene, pos.x, pos.y, new Phaser.Math.Vector2(pos.x, pos.y), PLAYER_SPEED, [rect, label]);
+    super(scene, pos.x, pos.y, new Phaser.Math.Vector2(pos.x, pos.y), PLAYER_SPEED, [img, circle, label]);
 
     this.blade = new Blade(scene, this, color);
     this.setDepth(5);
