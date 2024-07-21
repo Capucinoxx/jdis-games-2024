@@ -37,6 +37,9 @@ func (h *HttpHandler) Handle() {
 	network.HandleFunc("/leaderboard", h.leaderboard, h.checkLeaderboardAccess)
 	network.HandleFunc("/toggle_leaderboard", h.toggleLeaderboard, h.adminOnly)
 	network.HandleFunc("/kill", h.kill, h.adminOnly)
+
+	network.HandleFunc("/freeze", h.freeze, h.adminOnly)
+	network.HandleFunc("/unfrezze", h.unfreeze, h.adminOnly)
 }
 
 func (h *HttpHandler) register(w http.ResponseWriter, r *http.Request) {
@@ -101,3 +104,7 @@ func (h *HttpHandler) kill(w http.ResponseWriter, r *http.Request) {
 		h.gm.Kill(name)
 	}
 }
+
+func (h *HttpHandler) freeze(w http.ResponseWriter, r *http.Request) {}
+
+func (h *HttpHandler) unfreeze(w http.ResponseWriter, r *http.Request) {}
