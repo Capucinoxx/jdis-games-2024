@@ -29,6 +29,9 @@ func NewHttpHandler(gm *manager.GameManager, am *manager.AuthManager, sm *manage
 }
 
 func (h *HttpHandler) Handle() {
+	fs := http.FileServer(http.Dir("./dist"))
+
+	network.Handle("/", fs)
 	network.HandleFunc("/start", h.startGame)
 	network.HandleFunc("/create", h.register)
 	network.HandleFunc("/leaderboard", h.leaderboard, h.checkLeaderboardAccess)

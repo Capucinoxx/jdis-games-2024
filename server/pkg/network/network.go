@@ -145,7 +145,11 @@ func (n *Network) Run() error {
 	}
 	n.port = listener.Addr().(*net.TCPAddr).Port
 
-	return http.Serve(listener, nil)
+	certDir := "/app/certs"
+	certFile := fmt.Sprintf("%s/server.crt", certDir)
+	keyFile := fmt.Sprintf("%s/server.key", certDir)
+
+	return http.ServeTLS(listener, nil, certFile, keyFile)
 
 }
 

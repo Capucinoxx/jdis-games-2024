@@ -55,3 +55,7 @@ func chain(handler http.HandlerFunc, middlewares ...Middleware) http.HandlerFunc
 func HandleFunc(pattern string, handler func(http.ResponseWriter, *http.Request), middlewares ...Middleware) {
 	http.HandleFunc(pattern, chain(handler, middlewares...))
 }
+
+func Handle(pattern string, handle http.Handler, middlewares ...Middleware) {
+	http.Handle(pattern, chain(handle.ServeHTTP, middlewares...))
+}
