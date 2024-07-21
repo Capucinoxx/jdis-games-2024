@@ -105,6 +105,10 @@ func (h *HttpHandler) kill(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *HttpHandler) freeze(w http.ResponseWriter, r *http.Request) {}
+func (h *HttpHandler) freeze(w http.ResponseWriter, r *http.Request) {
+	h.gm.Freeze(true)
+}
 
-func (h *HttpHandler) unfreeze(w http.ResponseWriter, r *http.Request) {}
+func (h *HttpHandler) unfreeze(w http.ResponseWriter, r *http.Request) {
+	h.gm.Freeze(false)
+}
