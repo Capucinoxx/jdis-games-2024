@@ -133,7 +133,7 @@ func (gm *GameManager) Freeze(b bool) {
 
 // Start starts the game, initializing the game state and starting the game loop.
 func (gm *GameManager) Start() {
-	if !gm.state.IsFreeze() {
+	if !gm.state.IsFreeze() && !gm.state.InProgess() {
 		gm.state.Start()
 
 		gm.rm.Restart()
