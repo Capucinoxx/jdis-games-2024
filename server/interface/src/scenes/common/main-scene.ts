@@ -10,6 +10,7 @@ class MainScene extends Phaser.Scene {
 
   preload() {
     this.load.image('coin', './assets/coin.png');
+    this.load.image('big-coin', './assets/big-coin.png');
   }
 
   create() {
