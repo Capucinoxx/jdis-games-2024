@@ -32,11 +32,11 @@ func (h *HttpHandler) Handle() {
 	fs := http.FileServer(http.Dir("./dist"))
 
 	network.Handle("/", fs)
-	network.HandleFunc("/start", h.startGame)
+	network.HandleFunc("/start", h.startGame, h.adminOnly)
 	network.HandleFunc("/create", h.register)
 	network.HandleFunc("/leaderboard", h.leaderboard, h.checkLeaderboardAccess)
-	network.HandleFunc("/toggle_leaderboard", h.toggleLeaderboard)
-	network.HandleFunc("/kill", h.kill)
+	network.HandleFunc("/toggle_leaderboard", h.toggleLeaderboard, h.adminOnly)
+	network.HandleFunc("/kill", h.kill, h.adminOnly)
 }
 
 func (h *HttpHandler) register(w http.ResponseWriter, r *http.Request) {
