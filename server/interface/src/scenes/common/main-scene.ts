@@ -8,6 +8,10 @@ class MainScene extends Phaser.Scene {
 
   constructor() { super({ key: 'MainScene' }); }
 
+  preload() {
+    this.load.image('coin', './assets/coin.png');
+  }
+
   create() {
     this.cam = new CameraController(this.cameras.main, this.input);
     this.manager = new GameManager(this, this.cam);

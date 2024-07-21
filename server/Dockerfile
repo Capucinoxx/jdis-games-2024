@@ -41,6 +41,7 @@ COPY . .
 
 COPY --from=build /app/dist /app/dist
 COPY --from=wasm /app/lib.wasm /app/dist/lib.wasm
+COPY interface/assets /app/dist/assets
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh

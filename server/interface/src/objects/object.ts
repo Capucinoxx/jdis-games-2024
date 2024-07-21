@@ -25,8 +25,11 @@ class Coin extends Phaser.GameObjects.Container implements GameObject {
 
   constructor(scene: Phaser.Scene, payload: Payload) {
     const { pos } = payload as ScorerObject;
-    const circle = scene.add.circle(0, 0, Coin.size / 2, 0xdee0e9);
-    super(scene, pos.x, pos.y, [circle]);
+    const img = scene.add.image(0, 0, 'coin');
+    img.setOrigin(0.5, 0.5);
+    img.setDisplaySize(Coin.size, Coin.size);
+
+    super(scene, pos.x, pos.y, [img]);
 
     this.scene.physics.world.enable(this);
     scene.add.existing(this);
