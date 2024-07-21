@@ -8,6 +8,7 @@ import (
 type GameState struct {
 	startTime  time.Time
 	inProgress bool
+	freeze     bool
 
 	players map[string]*Player
 	coins   *Scorers
@@ -23,6 +24,7 @@ func NewGameState(m Map) *GameState {
 		spawns:     []*Point{},
 		spawnIndex: 0,
 		inProgress: false,
+		freeze:     false,
 		coins:      NewScorers(),
 		players:    make(map[string]*Player),
 		Map:        m,
@@ -44,6 +46,18 @@ func (gs *GameState) SetSpawns(spawns []*Point) {
 
 func (gs *GameState) SetCoins(coins []*Scorer) {
 	gs.coins.Add(coins...)
+}
+
+func (gs *GameState) SetFreeze(b bool) {
+	gs.mu.RLock()
+	defer gs.mu.RUnlock()
+	gs.freeze = b
+}
+
+func (gs *GameState) IsFreeze() bool {
+	gs.mu.RLock()
+	defer gs.mu.RUnlock()
+	return gs.freeze
 }
 
 func (gs *GameState) InProgess() bool {
@@ -81,8 +95,8 @@ func (gs *GameState) AddPlayer(username string, color int, conn Connection) *Pla
 
 	if ok {
 		player.Client.SetConnection(conn)
-    player.Client.In = make(chan ClientMessage, 10)
-    player.Client.Out = make(chan []byte, 10)
+		player.Client.In = make(chan ClientMessage, 10)
+		player.Client.Out = make(chan []byte, 10)
 		return player
 	}
 

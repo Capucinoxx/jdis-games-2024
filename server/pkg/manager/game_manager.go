@@ -127,12 +127,18 @@ func (gm *GameManager) Initialize() error {
 	return gm.nm.Start()
 }
 
+func (gm *GameManager) Freeze(b bool) {
+	gm.state.SetFreeze(b)
+}
+
 // Start starts the game, initializing the game state and starting the game loop.
 func (gm *GameManager) Start() {
-	gm.state.Start()
+	if !gm.state.IsFreeze() && !gm.state.InProgess() {
+		gm.state.Start()
 
-	gm.rm.Restart()
-	go gm.gameLoop()
+		gm.rm.Restart()
+		go gm.gameLoop()
+	}
 }
 
 // Kill foribly removes a player from the game by setting their health to 0.
