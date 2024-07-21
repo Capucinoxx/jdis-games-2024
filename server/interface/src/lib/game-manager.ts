@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { COIN_SIZES, WS_URL } from '../config';
+import { COIN_SIZES, TICK_ROUND_TWO_START, WS_URL } from '../config';
 import { GridManager } from './grid-manager';
 import { BulletManager, CoinManager, PlayerManager } from '../objects';
 import '../types/index.d.ts';
@@ -15,7 +15,8 @@ class GameManager {
   private bullets: BulletManager;
   private coins: CoinManager;
 
-  private progress: ProgressBar
+  private progress: ProgressBar;
+  private notifier: HTMLElement;
 
   constructor(scene: Phaser.Scene, cam: CameraController) {
     this.grid = new GridManager(scene);
@@ -23,6 +24,7 @@ class GameManager {
     this.coins = new CoinManager(scene);
     this.players = new PlayerManager(scene, cam);
     this.progress = new ProgressBar(document.querySelector('#game rect') as SVGRectElement);
+    this.notifier = document.querySelector('.round-change-notification')!;
 
     this.ws_connection = '';
   }
@@ -95,6 +97,7 @@ class GameManager {
 
         case 1:
           Coin.size = COIN_SIZES[data.round];
+          this.handle_display_round_switching(data.tick);
           this.handle_game_state(data);
           break;
       }
@@ -103,6 +106,18 @@ class GameManager {
     this.ws.onclose = (event: CloseEvent) => {
       console.log('Disconnected from the server', event);
     };
+  }
+
+  private handle_display_round_switching(tick: number): void {
+    if (tick === 1 || tick === TICK_ROUND_TWO_START) {
+      this.notifier.style.display = 'block';
+      this.notifier.classList.add('animate');
+
+      setTimeout(() => {
+        this.notifier.style.display = 'none';
+        this.notifier.classList.remove('animate');
+    }, 1900);
+    }
   }
 
   private clean(): void {

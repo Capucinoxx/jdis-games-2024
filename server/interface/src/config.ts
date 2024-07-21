@@ -1,4 +1,4 @@
-const WS_URL = 'ws://localhost:8087/echo';
+const WS_URL = 'wss://localhost:8087/echo';
 
 const MESSAGE_TYPE = {
   1: 'POSITION',
@@ -13,6 +13,8 @@ const PLAYER_WEAPON = {
 };
 
 const SCALE = 30;
+
+const TICK_ROUND_TWO_START = 4 * 60 * 3;
 
 const PLAYER_SIZE = 1 * SCALE;
 const PLAYER_SPEED = 1.15 * SCALE;
@@ -38,6 +40,7 @@ export {
   BLADE_ROTATION_SPEED, BLADE_DISTANCE, BLADE_LENGTH,
   COIN_SIZE, BIG_COIN_SIZE, COIN_SIZES,
   CELL_WIDTH, NUM_CELLS,
+  TICK_ROUND_TWO_START,
 };
 
 export { WS_URL, MESSAGE_TYPE };
