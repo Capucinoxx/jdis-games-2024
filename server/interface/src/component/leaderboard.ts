@@ -44,7 +44,7 @@ class Leaderboard {
 
     const ranking = document.createElement('div');
     ranking.classList.add('item-ranking');
-    ranking.textContent = `# ${row.ranking}`;
+    ranking.textContent = `${row.ranking}`;
 
     const name = document.createElement('div');
     name.classList.add('item-name');
@@ -70,7 +70,7 @@ class Leaderboard {
       li.dataset.rank = rank.toString();
 
       const el = li.querySelector('.item-ranking')!;
-      el.textContent = `# ${rank}`;
+      el.textContent = `${rank}`;
 
       this.transform_position(li, rank);
     }

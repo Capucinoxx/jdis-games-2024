@@ -62,11 +62,11 @@ const animate_number = (li: HTMLLIElement, finale_score: number): void => {
 
   const run = () => {
     if (count === duration) {
-      el.textContent = `${finale_score}`;
+      el.textContent = finale_score.toLocaleString('fr-FR');
       return;
     }
 
-    el.textContent = `${Math.floor((current_score += step))}`;
+    el.textContent = Math.floor((current_score += step)).toLocaleString('fr-FR');
     count++;
     requestAnimationFrame(run);
   };

@@ -3,7 +3,7 @@ import { Chart, LineController, LineElement, PointElement, LinearScale, Title, C
 Chart.register(LineController, LineElement, PointElement, LinearScale, Title, CategoryScale);
 
 interface UpdateOptions {
-    data?: number[];
+    data?: number[][];
     colors?: string[];
 }
 
@@ -16,12 +16,11 @@ class LineChart {
         this.chart = new Chart(this.ctx, this.getConfig());
     }
 
-    private ddd(): number[] {
-        let v = Math.floor(Math.random() * 1000);
-
+    private generateData(): number[] {
+        let v = Math.floor(Math.random() * 50);
         const data = [];
         for (let i = 0; i < 100; i++) {
-            v += Math.floor(Math.random() * 1000) * i;
+            v += Math.floor(Math.random() * 10) - 5;
             data.push(v);
         }
         return data;
@@ -30,7 +29,7 @@ class LineChart {
     private getConfig(): ChartConfiguration {
         const datasets = Array.from({ length: 10 }, (_, i) => ({
             label: `Dataset ${i + 1}`,
-            data: this.ddd(),
+            data: this.generateData(),
             borderColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 1)`,
             borderWidth: 1,
             fill: false,
@@ -38,7 +37,7 @@ class LineChart {
         }));
 
         const data = {
-            labels: new Array(10).fill(''),
+            labels: Array.from({ length: 100 }, (_, i) => `Point ${i + 1}`), // 100 labels for 100 data points
             datasets: datasets
         };
 
@@ -46,6 +45,8 @@ class LineChart {
             type: 'line',
             data: data,
             options: {
+                responsive: true,
+                maintainAspectRatio: false,
                 scales: {
                     x: {
                         display: false
@@ -56,7 +57,7 @@ class LineChart {
                 },
                 plugins: {
                     legend: {
-                        display: false
+                        display: true
                     }
                 }
             }
@@ -67,7 +68,9 @@ class LineChart {
 
     public update(options: UpdateOptions) {
         if (options.data) {
-            this.chart.data.datasets[0].data = options.data;
+            this.chart.data.datasets.forEach((dataset, index) => {
+                dataset.data = options.data[index] || dataset.data;
+            });
         }
 
         if (options.colors) {

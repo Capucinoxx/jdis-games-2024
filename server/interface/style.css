@@ -522,18 +522,25 @@ footer span {
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
   background-color: var(--color-blue-700);
-  box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+  box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
 }
 
 #leaderboard-graph {
-  height: 250px;
   width: 100%;
+  height: 100%;
+  background-color: var(--color-blue-800);
+}
+
+.leaderboard-graph-container {
+  height: 150px !important;
+  width: 100% !important;
 }
 
 .leaderboard-wrapper {
   position: relative;
-  width: 250px;
-  height: 500px;
+  width: 350px;
+  height: 350px;
+  padding: 0;
 }
 
 .leaderboard-wrapper .item {
@@ -544,13 +551,40 @@ footer span {
   justify-content: space-between;
   gap: 10px;
   width: 100%;
-  padding: 10px;
+  padding: 1px 10px;
   will-change: transform;
   transition: all 0.3s ease-in;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;  background-color: var(--color-blue-800);
+  box-sizing: border-box;
+  font-size: 0.75em;
+}
+
+.leaderboard-wrapper .item > * {
+  font-family: monospace;
+}
+
+.leaderboard-wrapper .item-ranking {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 18px;
+  height: 18px;
+  /* border: 1px solid var(--); */
+  box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+  color: var(--color-blue-400);
+  border-radius: 5px;
+  background-color: var(--color-blue-900);
 }
 
 .leaderboard-wrapper .item-score {
   font-family: monospace;
-  flex: 1;
+  width: 70px;
   text-align: right;
+  color: var(--color-blue-200);
+  font-size: 0.75em;
+}
+
+.leaderboard-wrapper .item-name {
+  color: var(--color-blue-100);
+  flex: 1;
 }
