@@ -1,5 +1,7 @@
 import { animate_number, toggle_btn, toggle_fullscreen, toggle_toast } from "../animation";
 import { LineChart, UpdateOptions } from "../chart";
+import { PlayerManager } from "../objects";
+import { Player } from "../objects/object";
 
 interface GlobalData {
   top: UpdateOptions;
@@ -87,15 +89,46 @@ class Leaderboards {
   private current_leaderboard: Leaderboard | null = null;
   private global_leaderboard: Leaderboard | null = null;
   private chart: LineChart;
+  private interval: number | null = null;
+  private players: PlayerManager;
 
-  constructor(root: HTMLElement, current_root: HTMLUListElement | null, global_root: HTMLUListElement | null) {
+  constructor(root: HTMLElement, current_root: HTMLUListElement | null, global_root: HTMLUListElement | null, player_manager: PlayerManager) {
     if (current_root) this.current_leaderboard = new Leaderboard(current_root);
     if (global_root)  this.global_leaderboard = new Leaderboard(global_root);
+    this.players = player_manager;
 
     this.chart = new LineChart('leaderboard-graph');
 
     this.handle_expansion(root);
     this.handle_open();
+    this.start_fetch_chart();
+  }
+
+  private async start_fetch_chart(): Promise<void> {
+    const fetch_data = async () => {
+      const response = await fetch('https://localhost:8087/leaderboard');
+      if (!response.ok) return;
+
+      const result = (await response.json()) as LeaderboardMessage;
+      console.log(result);
+
+      const histories = Object.keys(result.histories).reduce<UpdateOptions>((acc, key: string) => {
+        const player = this.players.get(key);
+        if (!player)
+          return acc;
+
+        acc.data.push(result.histories[key]);
+        acc.colors.push(player.color);
+        return acc;
+      }, { data: [], colors: [] } as UpdateOptions);
+      
+
+      this.global = { top: histories, leaderboard: result.leaderboard };
+    };
+
+    await fetch_data();
+    if (this.interval === null)
+      this.interval = setInterval(fetch_data, 60_000);
   }
 
   private handle_open(): void {

@@ -62,3 +62,9 @@ type Empty = Record<string, never>;
 
 
 type ServerMessage = ServerMapState | ServerGameState | ServerGameEnd | Empty;
+
+
+type LeaderboardMessage = {
+  leaderboard: Array<{name: string, score: number, ranking: number}>;
+  histories: { [key: string]: Array<number> };
+};

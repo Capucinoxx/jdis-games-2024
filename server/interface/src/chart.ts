@@ -16,50 +16,26 @@ class LineChart {
         this.chart = new Chart(this.ctx, this.getConfig());
     }
 
-    private generateData(): number[] {
-        let v = Math.floor(Math.random() * 50);
-        const data = [];
-        for (let i = 0; i < 100; i++) {
-            v += Math.floor(Math.random() * 10) - 5;
-            data.push(v);
-        }
-        return data;
-    }
-
     private getConfig(): ChartConfiguration {
         const datasets = Array.from({ length: 10 }, (_, i) => ({
             label: `Dataset ${i + 1}`,
-            data: this.generateData(),
-            borderColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 1)`,
+            data: [],
             borderWidth: 1,
             fill: false,
             pointRadius: 0
         }));
 
-        const data = {
-            labels: Array.from({ length: 100 }, (_, i) => `Point ${i + 1}`), // 100 labels for 100 data points
-            datasets: datasets
-        };
-
         const config = {
             type: 'line',
-            data: data,
+            data: { datasets: datasets },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    x: {
-                        display: false
-                    },
-                    y: {
-                        display: false
-                    }
+                    x: { display: false },
+                    y: { display: false }
                 },
-                plugins: {
-                    legend: {
-                        display: true
-                    }
-                }
+                plugins: { legend: { display: true } }
             }
         } as ChartConfiguration;
 

@@ -146,6 +146,10 @@ class PlayerManager extends Manager<Player> {
 
     this.container.innerHTML = '';
   }
+
+  public get(name: string): Player | undefined {
+    return this.cache.get(name);
+  }
 };
 
 export { BulletManager, CoinManager, PlayerManager };
