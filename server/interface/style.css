@@ -13,6 +13,7 @@
   --color-blue-400: #669ad5;
   --color-blue-700: #2a2b38;
   --color-blue-800: #1f2029;
+  --color-blue-900: #0d0f16;
 
   --container-padding: 20px;
   --container-width: calc(100vw - var(--container-padding) * 2);
@@ -149,7 +150,7 @@ h3 {
 /* ================================================================================== * 
                                     MODALS
  * ================================================================================== */
- nav, #leaderboard {
+ nav {
   position: absolute;
   top: 0;
   left: 0;
@@ -163,11 +164,6 @@ h3 {
   clip-path: circle(0px at 100% 20px);
   z-index: 10;
 }
-
-#leaderboard {
-  background-color: #0d0f16BC;
-}
-
 
 .leaderboard-btn, .nav-btn {
   position: absolute;
@@ -498,7 +494,16 @@ footer span {
 /* ================================================================================== * 
                                   LEADERBOARD
  * ================================================================================== */
-.leaderboard {
+#leaderboard {
+  position: fixed;
+  visibility: hidden;
+  bottom: 30px;
+  right: 30px;
+  opacity: 0;
+  z-index: 7;
+}
+
+ .leaderboard {
   padding-left: calc(50% - var(--container-width) / 2);
   padding-right: calc(50% - var(--container-width) / 2);
   font-size: 1.1rem;
@@ -516,13 +521,36 @@ footer span {
   overflow: hidden;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
+  background-color: var(--color-blue-700);
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
 }
 
-.leaderboard-graph {
-  height: 200px;
-  background-color: red;
-}
-
-.leaderboard-container table {
+#leaderboard-graph {
+  height: 250px;
   width: 100%;
+}
+
+.leaderboard-wrapper {
+  position: relative;
+  width: 250px;
+  height: 500px;
+}
+
+.leaderboard-wrapper .item {
+  position: absolute;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  will-change: transform;
+  transition: all 0.3s ease-in;
+}
+
+.leaderboard-wrapper .item-score {
+  font-family: monospace;
+  flex: 1;
+  text-align: right;
 }

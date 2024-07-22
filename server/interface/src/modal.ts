@@ -51,14 +51,7 @@ const handle_modals = (game: Phaser.Game) => {
   const navbar_btn = document.querySelector('.nav-btn') as HTMLElement | undefined;
   if (!navbar_btn) return;
 
-  const leaderboard = document.querySelector('#leaderboard') as HTMLElement | undefined;
-  if (!leaderboard) return;
-
-  const leaderboard_btn = document.querySelector('.leaderboard-btn') as HTMLElement | undefined;
-  if (!leaderboard_btn) return;
-
   handle_modal_animation(game, navbar, navbar_btn, (e, b) => (e.key =='m' && !b) || (e.key === 'Escape' && b));
-  handle_modal_animation(game, leaderboard, leaderboard_btn);
 };
 
 

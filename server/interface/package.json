@@ -10,6 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "@assemblyscript/loader": "^0.27.27",
+    "chart.js": "^4.4.3",
     "gsap": "^3.12.5",
     "parcel": "^2.12.0",
     "phaser": "^3.80.1",
