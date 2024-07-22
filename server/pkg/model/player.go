@@ -248,6 +248,7 @@ type PlayerInfo struct {
 	Nickname      string
 	Color         int32
 	Health        int32
+	Score         int64
 	Pos           Point
 	Dest          *Point
 	CurrentWeapon PlayerWeapon
@@ -273,6 +274,10 @@ func (p *Player) Encode(w codec.Writer) (err error) {
 	}
 
 	if err = w.WriteInt32(int32(p.health)); err != nil {
+		return
+	}
+
+	if err = w.WriteInt64(int64(p.score)); err != nil {
 		return
 	}
 
@@ -342,6 +347,10 @@ func (p *PlayerInfo) Decode(r codec.Reader) (err error) {
 	}
 
 	if p.Health, err = r.ReadInt32(); err != nil {
+		return
+	}
+
+	if p.Score, err = r.ReadInt64(); err != nil {
 		return
 	}
 

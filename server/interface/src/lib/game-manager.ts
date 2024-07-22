@@ -6,10 +6,12 @@ import '../types/index.d.ts';
 import { Coin } from '../objects/object';
 import { CameraController } from './camera-controller';
 import { ProgressBar } from '../progress';
+import { Leaderboards } from '../component/leaderboard';
 
 class GameManager {
   private ws: WebSocket | undefined;
   private grid: GridManager;
+  private leaderboards: Leaderboards;
   
   private players: PlayerManager;
   private bullets: BulletManager;
@@ -26,6 +28,10 @@ class GameManager {
     this.progress = new ProgressBar(document.querySelector('#game rect') as SVGRectElement);
     this.notifier = document.querySelector('.round-change-notification')!;
 
+    this.leaderboards = new Leaderboards(
+      document.getElementById('leaderboard') as HTMLElement,
+      document.getElementById('current-leaderboard') as HTMLUListElement,
+      null);
     this.ws_connection = '';
   }
 
@@ -69,6 +75,8 @@ class GameManager {
     this.players.sync(payload_players);
     this.bullets.sync(payload_bullets);
     this.coins.sync(payload.coins);
+
+    this.leaderboards.current = payload.players;
   }
 
   public update_players_movement(delta: number) {

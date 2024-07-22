@@ -23,7 +23,7 @@ const config: Phaser.Types.Core.GameConfig = {
   scene: [MainScene],
 };
 
-// load_wasm().then(() => {
+load_wasm().then(() => {
   const game = new Phaser.Game(config);
   handle_modals(game);
-// });
+});

@@ -110,8 +110,14 @@ class Leaderboards {
       toggle_fullscreen(root, btn as HTMLElement);
   }
 
-  public set current(data: RowData[]) {
-    if(this.current_leaderboard) this.current_leaderboard.update(data);
+  public set current(players: PlayerData[]) {
+    if(!this.current_leaderboard)
+      return;
+
+    players.sort((a, b) => b.score - a.score);
+
+    const data = players.map((player, i) => ({ name: player.name, score: player.score, ranking: i }));
+    this.current_leaderboard.update(data);
   }
 
   public set global(data: GlobalData) {

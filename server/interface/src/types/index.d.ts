@@ -32,6 +32,7 @@ type PlayerData = {
   name: string;
   color: number;
   health: number;
+  score: number;
   pos: Position;
   dest: Position;
   current_weapon: number;
