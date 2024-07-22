@@ -107,7 +107,7 @@ func (sm *ScoreManager) Persist() error {
 
 	var errs utils.Errors
 	for _, s := range val {
-		if err = sm.mongo.Push("scores", s.Member.(string), "scores", bson.M{"score": s.Score, "time": now}); err != nil {
+		if err = sm.mongo.Push("scores", s.Member.(string), "scores", bson.M{"score": int32(s.Score), "time": now}); err != nil {
 			errs.Append(err)
 		}
 	}
@@ -168,7 +168,7 @@ func (sm *ScoreManager) Rank() ([]PlayerScore, map[string][]int32, error) {
 	}
 
 	histories := make(map[string][]int32)
-	for _, history := range res {
+	for j, history := range res {
 		name := history["_id"].(string)
 		scores, ok := history["scores"].(primitive.A)
 		if !ok {
@@ -176,13 +176,21 @@ func (sm *ScoreManager) Rank() ([]PlayerScore, map[string][]int32, error) {
 			continue
 		}
 
-		histories[name] = make([]int32, len(scores))
+		histories[name] = make([]int32, len(scores)+1)
 		for i, score := range scores {
-			if histories[name][i], ok = score.(bson.M)["score"].(int32); !ok {
-				utils.Log("error", "persist", "error retrieve history")
+			doc, ok := score.(bson.M)
+			if !ok {
+				utils.Log("error", "persist", "error casting score to bson.M")
+				continue
+			}
+
+			histories[name][i], ok = doc["score"].(int32)
+			if !ok {
+				utils.Log("error", "persist", "error retrieving score as int")
 				continue
 			}
 		}
+		histories[name][len(histories[name])-1] = int32(leaderboard[j].Score)
 	}
 	sm.cache.Set(leaderboard, histories)
 
