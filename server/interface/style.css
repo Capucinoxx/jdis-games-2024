@@ -159,7 +159,7 @@ h3 {
   box-sizing: border-box;
   padding-left: calc(50% - var(--container-width) / 2);
   padding-right: calc(50% - var(--container-width) / 2);
-  padding-top: 80px;
+  padding-top: 45px;
   clip-path: circle(0px at 100% 20px);
   z-index: 10;
 }
@@ -491,4 +491,38 @@ footer span {
     opacity: 0;
     transform: scale(.3);
   } 
+}
+
+
+
+/* ================================================================================== * 
+                                  LEADERBOARD
+ * ================================================================================== */
+.leaderboard {
+  padding-left: calc(50% - var(--container-width) / 2);
+  padding-right: calc(50% - var(--container-width) / 2);
+  font-size: 1.1rem;
+	font-family: 'Overpass Mono', system-ui;
+}
+
+@media only screen and (min-width: 670px) {
+  .leaderboard {
+    --container-width: 600px;
+  }
+}
+
+.leaderboard-container {
+  width: 100%;
+  overflow: hidden;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
+.leaderboard-graph {
+  height: 200px;
+  background-color: red;
+}
+
+.leaderboard-container table {
+  width: 100%;
 }
