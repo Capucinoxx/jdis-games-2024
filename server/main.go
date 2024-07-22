@@ -41,17 +41,17 @@ func main() {
 
 	transport := network.NewNetwork("0.0.0.0", 8087)
 
+	sm := manager.NewScoreManager(redis, mongo)
+
 	am := manager.NewAuthManager(mongo)
 	am.SetupAdmins(config.RequiredAdmins())
 
 	nm := manager.NewNetworkManager(transport, protocol.NewBinaryProtocol())
 	rm := iManager.NewRoundManager()
-	gm := manager.NewGameManager(am, nm, rm, &iModel.Map{})
+	gm := manager.NewGameManager(am, nm, rm, sm, &iModel.Map{})
 
 	rm.AddChangeStageHandler(0, &iManager.DiscoveryStage{})
 	rm.AddChangeStageHandler(consts.TicksPointRushStage, &iManager.PointRushStage{})
-
-	sm := manager.NewScoreManager(redis, mongo)
 
 	transport.SetRegisterFunc(gm.RegisterConnection)
 	transport.SetUnregisterFunc(gm.RemoveConnection)

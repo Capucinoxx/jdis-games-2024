@@ -59,6 +59,11 @@ const (
 	PlayerWeaponBlade
 )
 
+type PlayerScore struct {
+	Name  string
+	Score int
+}
+
 type Player struct {
 	Object
 	Destination *Point

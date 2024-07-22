@@ -79,6 +79,20 @@ func (gd *GameState) Players() []*Player {
 	return players
 }
 
+func (gs *GameState) PlayersScore() []PlayerScore {
+	gs.mu.RLock()
+	defer gs.mu.RUnlock()
+
+	players := make([]PlayerScore, 0, len(gs.players))
+	for _, p := range gs.players {
+		if p.Client.GetConnection().Identifier() != "" {
+			players = append(players, PlayerScore{Name: p.Nickname, Score: p.Score()})
+			p.score = 0
+		}
+	}
+	return players
+}
+
 func (gs *GameState) Coins() *Scorers {
 	gs.mu.RLock()
 	defer gs.mu.RUnlock()
