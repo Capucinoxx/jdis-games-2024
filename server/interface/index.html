@@ -27,14 +27,27 @@
     </nav>
 
     <section id="leaderboard">
-      <section class='flex-x-center transparent-blue-bg leaderboard'>
+      <button class='expand'>
+        <div class='btn--bg'></div>
+        <div class='btn--icons'>
+  
+          <svg viewBox="0 0 24 24" class='open'>
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 4H4m0 0v4m0-4 5 5m7-5h4m0 0v4m0-4-5 5M8 20H4m0 0v-4m0 4 5-5m7 5h4m0 0v-4m0 4-5-5"/>
+          </svg>
+          
+  
+          <svg viewBox="0 0 24 24" class='close'>
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 9h4m0 0V5m0 4L4 4m15 5h-4m0 0V5m0 4 5-5M5 15h4m0 0v4m0-4-5 5m15-5h-4m0 0v4m0-4 5 5"/>
+          </svg>
+          
+        </div>
+      </button>
         <div class='leaderboard-container'>
           <div class='leaderboard-graph-container'>
             <canvas id='leaderboard-graph'></canvas>
           </div>
           <ul id='current-leaderboard' class='leaderboard-wrapper'></ul>
         </div>
-      </section>
     </section>
 
     <button class='nav-btn'>

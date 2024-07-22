@@ -1,7 +1,6 @@
 import { gsap } from 'gsap';
 
 const toggle_toast = (el: HTMLElement) => {
-  console.log(el);
   if (el.style.visibility === 'visible') {
     gsap.to(el, {
       duration: 0.5, opacity: 0, y: 20,
@@ -74,4 +73,29 @@ const animate_number = (li: HTMLLIElement, finale_score: number): void => {
   requestAnimationFrame(run);
 };
 
-export { toggle_toast, toggle_btn, animate_number };
+const toggle_fullscreen = (container: HTMLElement, btn: HTMLElement) => {
+  const sub_container = container.children.item(1);
+  console.log(sub_container);
+  toggle_btn(btn, () => {
+    const is_expanded = container.classList.toggle('expanded');
+
+    if (is_expanded) {
+      gsap.to(container, {
+        duration: 0.5,
+        width: '100%',
+        height: '100%',
+        bottom: 0,
+        right: 0,
+        ease: 'power1.inOut'
+      });
+      gsap.to(sub_container, { duration: 0.5, padding: '20px' })
+    } else {
+      gsap.to(container, {
+        duration: 0.5, width: '350px', height: '528px', bottom: '30px', right: '30px'
+      });
+      gsap.to(sub_container, { duration: 0.5, padding: 0 })
+    }
+  });
+};
+
+export { toggle_toast, toggle_btn, animate_number, toggle_fullscreen };

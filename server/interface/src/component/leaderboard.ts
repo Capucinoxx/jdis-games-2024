@@ -1,4 +1,10 @@
-import { animate_number } from "../animation";
+import { animate_number, toggle_btn, toggle_fullscreen, toggle_toast } from "../animation";
+import { LineChart, UpdateOptions } from "../chart";
+
+interface GlobalData {
+  top: UpdateOptions;
+  leaderboard: RowData[];
+};
 
 interface RowData {
   name: string;
@@ -77,4 +83,41 @@ class Leaderboard {
   }
 };
 
-export { Leaderboard };
+class Leaderboards {
+  private current_leaderboard: Leaderboard | null = null;
+  private global_leaderboard: Leaderboard | null = null;
+  private chart: LineChart;
+
+  constructor(root: HTMLElement, current_root: HTMLUListElement | null, global_root: HTMLUListElement | null) {
+    if (current_root) this.current_leaderboard = new Leaderboard(current_root);
+    if (global_root)  this.global_leaderboard = new Leaderboard(global_root);
+
+    this.chart = new LineChart('leaderboard-graph');
+
+    this.handle_expansion(root);
+    this.handle_open();
+  }
+
+  private handle_open(): void {
+    toggle_btn(document.querySelector('.leaderboard-btn')!, () => {
+      toggle_toast(document.getElementById('leaderboard')!);
+    });
+  }
+
+  private handle_expansion(root: HTMLElement) {
+    const btn = root.querySelector('.expand');
+    if (btn)
+      toggle_fullscreen(root, btn as HTMLElement);
+  }
+
+  public set current(data: RowData[]) {
+    if(this.current_leaderboard) this.current_leaderboard.update(data);
+  }
+
+  public set global(data: GlobalData) {
+    if (this.global_leaderboard) this.global_leaderboard.update(data.leaderboard);
+    this.chart.update(data.top);
+  }
+};
+
+export { Leaderboards };

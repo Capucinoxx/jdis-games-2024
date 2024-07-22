@@ -165,7 +165,7 @@ h3 {
   z-index: 10;
 }
 
-.leaderboard-btn, .nav-btn {
+.leaderboard-btn, .nav-btn, .expand {
   position: absolute;
   right: 20px;
   top: 20px;
@@ -178,6 +178,12 @@ h3 {
   border-radius: 45%;
   outline: none;
   cursor: pointer;
+}
+
+.expand {
+  width: 24px;
+  height: 24px;
+  padding: 6px;
 }
 
 .leaderboard-btn {
@@ -284,6 +290,11 @@ footer span {
   font-weight: 800;
 }
 
+/* .expanded {
+  width: calc(100% - 60px) !important;
+  height: calc(100% - 60px) !important;
+} */
+
 /* ================================================================================== * 
                                     UTILITAIRE
  * ================================================================================== */
@@ -291,6 +302,12 @@ footer span {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+button.expand {
+  position: absolute;
+   top: 10px;
+   left: 10px;
 }
 
 
@@ -497,13 +514,17 @@ footer span {
 #leaderboard {
   position: fixed;
   visibility: hidden;
+  width: 350px;
+  height: 528px;
   bottom: 30px;
   right: 30px;
   opacity: 0;
-  z-index: 7;
+  z-index: 12;
+  transition: all 0.5s ease-in-out;
+  overflow: hidden;
 }
 
- .leaderboard {
+.leaderboard {
   padding-left: calc(50% - var(--container-width) / 2);
   padding-right: calc(50% - var(--container-width) / 2);
   font-size: 1.1rem;
@@ -522,6 +543,7 @@ footer span {
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
   background-color: var(--color-blue-700);
+  box-sizing: border-box;
   box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
 }
 
@@ -538,7 +560,6 @@ footer span {
 
 .leaderboard-wrapper {
   position: relative;
-  width: 350px;
   height: 350px;
   padding: 0;
 }
@@ -587,4 +608,8 @@ footer span {
 .leaderboard-wrapper .item-name {
   color: var(--color-blue-100);
   flex: 1;
+}
+
+#leaderboard.expanded .leaderboard-wrapper {
+  height: calc(100vh - 200px);
 }

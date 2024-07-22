@@ -3,8 +3,8 @@ import { Chart, LineController, LineElement, PointElement, LinearScale, Title, C
 Chart.register(LineController, LineElement, PointElement, LinearScale, Title, CategoryScale);
 
 interface UpdateOptions {
-    data?: number[][];
-    colors?: string[];
+    data: number[][];
+    colors: string[];
 }
 
 class LineChart {
@@ -67,22 +67,20 @@ class LineChart {
     }
 
     public update(options: UpdateOptions) {
-        if (options.data) {
-            this.chart.data.datasets.forEach((dataset, index) => {
-                dataset.data = options.data[index] || dataset.data;
-            });
-        }
+        this.chart.data.datasets.forEach((dataset, index) => {
+            dataset.data = options.data[index] || dataset.data;
+        });
 
-        if (options.colors) {
-            options.colors.forEach((color, index) => {
-                if (this.chart.data.datasets[index]) {
-                    this.chart.data.datasets[index].borderColor = color;
-                }
-            });
-        }
+
+        options.colors.forEach((color, index) => {
+            if (this.chart.data.datasets[index]) {
+                this.chart.data.datasets[index].borderColor = color;
+            }
+        });
+
 
         this.chart.update();
     }
 }
 
-export { LineChart };
+export { LineChart, UpdateOptions };
