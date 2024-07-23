@@ -24,6 +24,7 @@ import (
 
 	"github.com/capucinoxx/forlorn/consts"
 	"github.com/capucinoxx/forlorn/pkg/model"
+	"github.com/capucinoxx/forlorn/pkg/utils"
 )
 
 // RoundManager is an interface for managing game rounds and tick.
@@ -42,12 +43,13 @@ type GameManager struct {
 	am        *AuthManager
 	nm        *NetworkManager
 	rm        RoundManager
+	sm        *ScoreManager
 	state     *model.GameState
 }
 
 // NewGameManager creates a new GameManager with the specified authentication, network, and round managers, and initial
 // game map
-func NewGameManager(am *AuthManager, nm *NetworkManager, rm RoundManager, m model.Map) *GameManager {
+func NewGameManager(am *AuthManager, nm *NetworkManager, rm RoundManager, sm *ScoreManager, m model.Map) *GameManager {
 	state := model.NewGameState(m)
 	rm.SetState(state)
 
@@ -55,6 +57,7 @@ func NewGameManager(am *AuthManager, nm *NetworkManager, rm RoundManager, m mode
 		state: state,
 		am:    am,
 		nm:    nm,
+		sm:    sm,
 		rm:    rm,
 	}
 }
@@ -194,7 +197,9 @@ func (gm *GameManager) gameLoop() {
 
 		if count == 10 {
 			gm.nm.BroadcastGameState(gm.state, int32(gm.rm.CurrentTick()), gm.rm.CurrentRound())
+			scores := gm.state.PlayersScore()
 			count = 0
+			gm.sm.Adds(scores)
 		}
 
 		gm.state.Coins().Update()
@@ -208,5 +213,10 @@ func (gm *GameManager) gameLoop() {
 	ticker.Stop()
 
 	gm.nm.BroadcastGameEnd()
+	go func() {
+		if err := gm.sm.Persist(); err != nil {
+			utils.Log("error", "persist", "mongo persistance error %s", err)
+		}
+	}()
 	gm.Start()
 }

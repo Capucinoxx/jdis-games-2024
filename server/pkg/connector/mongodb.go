@@ -104,6 +104,11 @@ func (m *MongoService) Push(collection string, uuid string, arrayField string, e
 	filter := bson.M{"_id": uuid}
 	update := bson.M{"$push": bson.M{arrayField: element}}
 
-	_, err := m.db.Collection(collection).UpdateOne(context.TODO(), filter, update)
+	upsert := true
+	updateOptions := options.UpdateOptions{
+		Upsert: &upsert,
+	}
+
+	_, err := m.db.Collection(collection).UpdateOne(context.TODO(), filter, update, &updateOptions)
 	return err
 }

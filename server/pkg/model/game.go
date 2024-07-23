@@ -10,8 +10,9 @@ type GameState struct {
 	inProgress bool
 	freeze     bool
 
-	players map[string]*Player
-	coins   *Scorers
+	players     map[string]*Player
+	cachedScore map[string]int
+	coins       *Scorers
 
 	Map        Map
 	spawns     []*Point
@@ -21,14 +22,15 @@ type GameState struct {
 
 func NewGameState(m Map) *GameState {
 	return &GameState{
-		spawns:     []*Point{},
-		spawnIndex: 0,
-		inProgress: false,
-		freeze:     false,
-		coins:      NewScorers(),
-		players:    make(map[string]*Player),
-		Map:        m,
-		mu:         &sync.RWMutex{},
+		spawns:      []*Point{},
+		spawnIndex:  0,
+		inProgress:  false,
+		freeze:      false,
+		coins:       NewScorers(),
+		players:     make(map[string]*Player),
+		cachedScore: make(map[string]int),
+		Map:         m,
+		mu:          &sync.RWMutex{},
 	}
 }
 
@@ -74,6 +76,25 @@ func (gd *GameState) Players() []*Player {
 	for _, p := range gd.players {
 		if p.Client.GetConnection().Identifier() != "" {
 			players = append(players, p)
+		}
+	}
+	return players
+}
+
+func (gs *GameState) PlayersScore() []PlayerScore {
+	gs.mu.RLock()
+	defer gs.mu.RUnlock()
+
+	players := make([]PlayerScore, 0, len(gs.players))
+	for _, p := range gs.players {
+		identifier := p.Client.GetConnection().Identifier()
+		if identifier != "" {
+			if v, ok := gs.cachedScore[identifier]; ok {
+				players = append(players, PlayerScore{Name: p.Nickname, Score: p.Score() - v})
+			} else {
+				players = append(players, PlayerScore{Name: p.Nickname, Score: p.Score()})
+			}
+			gs.cachedScore[identifier] = p.score
 		}
 	}
 	return players
@@ -133,6 +154,10 @@ func (gs *GameState) Start() {
 
 	gs.mu.Lock()
 	defer gs.mu.Unlock()
+	for _, p := range gs.players {
+		p.score = 0
+	}
+	clear(gs.cachedScore)
 	gs.inProgress = true
 }
 

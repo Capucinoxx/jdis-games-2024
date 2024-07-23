@@ -32,6 +32,7 @@ type PlayerData = {
   name: string;
   color: number;
   health: number;
+  score: number;
   pos: Position;
   dest: Position;
   current_weapon: number;
@@ -61,3 +62,9 @@ type Empty = Record<string, never>;
 
 
 type ServerMessage = ServerMapState | ServerGameState | ServerGameEnd | Empty;
+
+
+type LeaderboardMessage = {
+  leaderboard: Array<{name: string, score: number, ranking: number, color: number}>;
+  histories: { [key: string]: Array<number> };
+};

@@ -79,6 +79,7 @@ func getInformations(this js.Value, args []js.Value) interface{} {
 			player.Set("name", data.Nickname)
 			player.Set("color", int(data.Color))
 			player.Set("health", int(data.Health))
+			player.Set("score", int(data.Score))
 			player.Set("pos", position(data.Pos))
 
 			if data.Dest == nil {

@@ -41,6 +41,7 @@ class Coin extends Phaser.GameObjects.Container implements GameObject {
 
 class Player extends MovableObject implements GameObject {
   private blade: Blade;
+  private custom_color: number;
 
   constructor(scene: Phaser.Scene, payload: Payload) {
     const { pos, name, color } = payload as PlayerObject;
@@ -50,12 +51,12 @@ class Player extends MovableObject implements GameObject {
 
     const img = scene.add.image(0, 0, 'agent').setOrigin(0.5, 0.5);
     img.setDisplaySize(PLAYER_SIZE, PLAYER_SIZE);
-    // const rect = scene.add.rectangle(0, 0, PLAYER_SIZE, PLAYER_SIZE, color).setOrigin(0.5, 0.5);
     const label = scene.add.text(0, -PLAYER_SIZE / 2 - 10, name, { fontSize: '16px', color: 'white' }).setOrigin(0.5, 0.5);
 
     super(scene, pos.x, pos.y, new Phaser.Math.Vector2(pos.x, pos.y), PLAYER_SPEED, [img, circle, label]);
 
     this.blade = new Blade(scene, this, color);
+    this.custom_color = color;
     this.setDepth(5);
   }
 
@@ -66,6 +67,13 @@ class Player extends MovableObject implements GameObject {
       this.setPosition(pos.x, pos.y);
       this.blade.setPosition(pos.x, pos.y);
     }
+  }
+
+  public get color(): string {
+    const r = (this.custom_color >> 16) & 0xFF;
+    const g = (this.custom_color >> 8) & 0xFF;
+    const b = this.custom_color & 0xFF;
+    return `rgba(${r}, ${g}, ${b}, 1)`
   }
 
   public rotate_blade(theta: number): void {

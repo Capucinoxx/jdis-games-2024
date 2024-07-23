@@ -76,14 +76,22 @@ func (h *HttpHandler) startGame(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *HttpHandler) leaderboard(w http.ResponseWriter, r *http.Request) {
-	l, err := h.sm.Rank()
+	leaderboard, histories, err := h.sm.Rank()
 	if err != nil {
 		http.Error(w, "error", http.StatusInternalServerError)
 		return
 	}
 
+	data := struct {
+		Leaderboard []manager.PlayerScore `json:"leaderboard"`
+		Histories   map[string][]int32    `json:"histories"`
+	}{
+		Leaderboard: leaderboard,
+		Histories:   histories,
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(l)
+	json.NewEncoder(w).Encode(data)
 }
 
 func (h *HttpHandler) toggleLeaderboard(w http.ResponseWriter, r *http.Request) {
