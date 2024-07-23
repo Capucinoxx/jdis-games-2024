@@ -44,8 +44,6 @@ class LineChart {
     }
 
     public update(options: UpdateOptions) {
-        console.log(options);
-
         const length = Math.max(...options.data.map(arr => arr.length));
         this.chart.data.labels = Array.from({ length: length }, (_, i) => i);
 
