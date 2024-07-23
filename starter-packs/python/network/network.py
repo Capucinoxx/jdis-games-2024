@@ -1,5 +1,6 @@
 import websocket
 import json
+import ssl
 
 from src.bot import MyBot
 from core.message import MessageType
@@ -26,7 +27,7 @@ class Socket:
             print("Error: ", e)
             return
         
-        ws.run_forever()
+        ws.run_forever(ping_interval=1, ping_timeout=None, sslopt={"cert_reqs": ssl.CERT_NONE})
 
 
     def handle_message(self, message: bytes):
