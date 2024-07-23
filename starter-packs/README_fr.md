@@ -2,7 +2,7 @@
 
 ## Mise en situation
 
-Ferdinand Magellan était un explorateur portugais connu pour avoir dirigé la première expédition à faire le tour du monde au 16e siècle. Le but principal de l'expédition de Magellan était de trouver une route maritime vers les îles aux épices. À cette époque, les épices étaient extrêmement précieux en Europe. Pour ce diriger, ils utilisaient des astrolabes, des instruments de navigation essentiels pour mesurer l'altitude des étoiles et des planètes au-dessus de l'horizon pour ainsi résoudre des problèmes de navigation.
+Ferdinand Magellan était un explorateur portugais connu pour avoir dirigé la première expédition à faire le tour du monde au 16e siècle. Le but principal de l'expédition de Magellan était de trouver une route maritime vers les îles aux épices. À cette époque, les épices étaient extrêmement précieux en Europe. Pour ce diriger, ils utilisaient des astrolabes ces instruments de navigation essentiels pour mesurer l'altitude des étoiles et des planètes au-dessus de l'horizon pour ainsi résoudre des problèmes de navigation.
 
 ## Votre objectif
 
@@ -48,7 +48,7 @@ Un trésor est placé au centre de la carte, les agents apparaitront à équidis
 
 ### Déplacement
 
-Les déplacements fonctionnent par position, c'est à dire que la position envoyé est celle que l'agent devrait se déplacer vers si aucuns obstacles n'est rencontrée.  
+Les déplacements fonctionnent par position, c'est à dire que la position envoyé est celle que l'agent devrait se déplacer vers. Si aucuns obstacles n'est rencontrée, la nouvelle position vous sera donner. Sinon, la position redonnée ne sera pas changé. 
 
 ###  Attaque
 
@@ -95,4 +95,12 @@ GameState {
         position : { x : Float, y : Float }         // Position de la pièce ou du trésor
     ]
 }
+
+
+MapState {
+    DiscretGrid : [][]Number    // Grille contenant le nombre de murs par 4 cases
+    size: int                   // La taille de la carte
+    spawns: List[Tuple[Point]]  // La liste de tous les points d'apparitions des autres agents
+    walls: List[Collider]       // <mark>La liste des murs, c<est normal que cette valeur soit /gale à 0> ????????????????<mark>
+    save: bytearray             // La mémoire que vous pouvez sauvegarder dans le jeu. (coté serveur) (comme magellan, faite des x sur la carte pour savoir où sont les trésors) 
 ```
