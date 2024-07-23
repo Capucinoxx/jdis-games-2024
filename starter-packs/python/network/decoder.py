@@ -66,8 +66,8 @@ class JDISDecoder:
         p.name, end_index = read_str(data)
         offset = end_index + 1
 
-        p.color, p.health = struct.unpack_from('<ii', data, offset)
-        offset += 8
+        p.color, p.health, p.score = struct.unpack_from('<iiq', data, offset)
+        offset += 16
 
         p.pos, offset = self.decode_point(data, offset)
         

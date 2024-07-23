@@ -58,6 +58,7 @@ class PlayerInfo:
     name: str
     color: int
     health: int
+    score: int
     pos: Point
     dest: Point   
     playerWeapon : PlayerWeapon
