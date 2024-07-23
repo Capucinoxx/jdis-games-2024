@@ -345,8 +345,6 @@ func (m *Map) getSpawnPoints(distances [][]int, min int, focusedRange int) {
 		}
 	}
 
-	fmt.Println("spawning point", len(positions))
-
 	m.spawns[1] = positions
 }
 
