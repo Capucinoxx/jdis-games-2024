@@ -1,6 +1,7 @@
 from core.map_state import MapState
 from core.game_state import GameState, PlayerWeapon
-from core.action import MoveAction, ShootAction, SwitchWeaponAction, SaveAction
+from core.action import MoveAction, ShootAction, RotateBladeAction, SwitchWeaponAction, SaveAction
+from typing import List, Union
 
 
 class MyBot:
@@ -17,7 +18,7 @@ class MyBot:
     map_state: MapState
 
 
-    def on_tick(self, game_state: GameState) -> list:
+    def on_tick(self, game_state: GameState) -> List[Union[MoveAction, SwitchWeaponAction, RotateBladeAction, ShootAction, SaveAction]]:
         """
         (fr)
         Cette méthode est appelée à chaque tick de jeu. Vous pouvez y définir le comportement de
@@ -31,12 +32,11 @@ class MyBot:
             game_state (GameState): (fr) L'état du jeu.
                                     (en) The state of the game.
         """
-
         actions = [
             MoveAction((10.0, 11.34)), 
             ShootAction((11.2222, 13.547)),
             SwitchWeaponAction(PlayerWeapon.PlayerWeaponBlade),
-            SaveAction(b'Hello, world!')
+            SaveAction(b'Hello, world!'),
         ]
 
         return actions

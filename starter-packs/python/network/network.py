@@ -1,9 +1,11 @@
 import websocket
 import json
 import ssl
+from typing import List, Optional
 
 from src.bot import MyBot
 from core.message import MessageType
+from core.action import Action
 from network.decoder import JDISDecoder
 
 
@@ -30,7 +32,7 @@ class Socket:
         ws.run_forever(ping_interval=1, ping_timeout=None, sslopt={"cert_reqs": ssl.CERT_NONE})
 
 
-    def handle_message(self, message: bytes):
+    def handle_message(self, message: bytes) -> Optional[List[Action]]:
         message_type = int(message[0])
         response = None
 
@@ -53,26 +55,26 @@ class Socket:
         return response
 
 
-    def on_open(self, ws: websocket.WebSocketApp):
+    def on_open(self, ws: websocket.WebSocketApp) -> None:
         print("Connection opened")
         print("Message sent")
         
 
-    def on_message(self, ws: websocket.WebSocketApp, message: bytes):
+    def on_message(self, ws: websocket.WebSocketApp, message: bytes) -> None:
         response = self.handle_message(message)
         if response:
             self.send_message(ws, response)
         
 
-    def on_error(self, ws: websocket.WebSocketApp, error: str):
+    def on_error(self, ws: websocket.WebSocketApp, error: str) -> None:
         print("Error: ", error)
         
 
-    def on_close(self, ws: websocket.WebSocketApp, close_status_code, close_msg):
+    def on_close(self, ws: websocket.WebSocketApp, close_status_code, close_msg) -> None:
         print("Connection closed")
         
 
-    def send_message(self, ws: websocket.WebSocketApp, actions: list):
+    def send_message(self, ws: websocket.WebSocketApp, actions: List[Action]) -> None:
         json_reponse = {}
         for action in actions:
            json_reponse.update(action.serialize())

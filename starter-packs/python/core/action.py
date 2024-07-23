@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Tuple
+from typing import Tuple, Union
 
 from core.game_state import PlayerWeapon
 
@@ -60,5 +60,15 @@ class SaveAction:
                 'save': base64.b64encode(self.save).decode('utf-8')
             }
             
-            
 
+@dataclass
+class RotateBladeAction:
+    rad: float
+
+    def serialize(self) -> dict:
+        return {
+            'rotate_blade': self.rad
+        }            
+
+
+Action = Union[MoveAction, ShootAction, SwitchWeaponAction, SaveAction, RotateBladeAction]
