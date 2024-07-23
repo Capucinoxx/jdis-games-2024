@@ -2,6 +2,7 @@ package model
 
 import (
 	"container/heap"
+	"fmt"
 	"math"
 	"math/rand"
 	"time"
@@ -292,7 +293,7 @@ func (m *Map) dijkstra(start point, grid [][]cell) [][]int {
 	return dist
 }
 
-func (m *Map) getSpawnPoints(distances [][]int, min int) {
+func (m *Map) getSpawnPoints(distances [][]int, min int, focusedRange int) {
 	points := map[int][]*model.Point{}
 	m.spawns[0] = []*model.Point{}
 
@@ -303,9 +304,6 @@ func (m *Map) getSpawnPoints(distances [][]int, min int) {
 
 	for i := 0; i < consts.MapWidth; i++ {
 		for j := 0; j < consts.MapWidth; j++ {
-			if isLimit(i) || isLimit(j) {
-				continue
-			}
 			center := &model.Point{
 				X: float64(j*consts.CellWidth + consts.CellWidth/2),
 				Y: float64(i*consts.CellWidth + consts.CellWidth/2),
@@ -324,6 +322,10 @@ func (m *Map) getSpawnPoints(distances [][]int, min int) {
 
 	for i, row := range distances {
 		for j, dist := range row {
+			if isLimit(i) || isLimit(j) {
+				continue
+			}
+
 			if _, ok := points[dist]; !ok {
 				points[dist] = []*model.Point{}
 			}
@@ -335,14 +337,17 @@ func (m *Map) getSpawnPoints(distances [][]int, min int) {
 		}
 	}
 
-	max := -1
-	for dist, pts := range points {
-		if dist > max && len(pts) > min {
-			max = dist
+	positions := make([]*model.Point, 0, min)
+
+	for i := focusedRange - 1; i <= focusedRange+1 || len(positions) < min; i++ {
+		if pts, ok := points[i]; ok {
+			positions = append(positions, pts...)
 		}
 	}
 
-	m.spawns[1] = points[max]
+	fmt.Println("spawning point", len(positions))
+
+	m.spawns[1] = positions
 }
 
 func (m *Map) Setup() {
@@ -369,8 +374,12 @@ func (m *Map) Setup() {
 
 		m.start = model.Point{X: float64(start.x*consts.CellWidth + consts.CellWidth/2), Y: float64(start.y*consts.CellWidth + consts.CellWidth/2)}
 		distances := m.dijkstra(point{x: start.x * consts.NumSubsquare, y: start.y * consts.NumSubsquare}, m.subdivise(consts.NumSubsquare))
-		m.getSpawnPoints(distances, 40)
+		m.getSpawnPoints(distances, 40, 40)
 		spawns = len(m.spawns[1])
+	}
+
+	for _, p := range m.spawns[1] {
+		fmt.Printf("(%v, %v)\n", p.X, p.Y)
 	}
 
 	utils.Shuffle(r, m.spawns[0])
