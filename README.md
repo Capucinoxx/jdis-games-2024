@@ -7,7 +7,7 @@ Cette année, votre agent se fait téléporter dans un labyrinthe inconnu. En es
 
 ## Pour démarrer le projet
 
-Actuellement, le projet fonctionne avec de la cache pour l'authentification et peut donc fonctionner sasn connecter externe.
+Actuellement, le projet fonctionne avec de la cache pour l'authentification et peut donc fonctionner sans <mark>connecter externe<mark>.
 ```
 go run main.go
 ```
