@@ -34,10 +34,13 @@ class Manager<T extends GameObject> {
 
   public sync(payloads: Payload[]): void {
     this.curr_cache = new Map(this.next_cache);
+    console.log(this.cache, this.curr_cache);
+
 
     this.cache.forEach((obj, uuid) => {
       if (!this.curr_cache.has(uuid)) {
-        obj.destroy();
+        console.log(`delete ${uuid}`);
+        obj.destroy(true);
         this.cache.delete(uuid);
       }
     });
@@ -51,6 +54,7 @@ class Manager<T extends GameObject> {
       }
     });
 
+    this.next_cache.clear();
     payloads.forEach((p) => this.next_cache.set(this.get_key(p), p));
   }
 
