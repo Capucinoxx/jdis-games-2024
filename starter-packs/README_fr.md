@@ -6,7 +6,7 @@ Ferdinand Magellan était un explorateur portugais connu pour avoir dirigé la p
 
 ## Votre objectif
 
-Tout comme Magellan, vous serez des explorateurs devant naviguer des terres inconnues pour s'approprier du trésor. Vous connaissez sa coordonnée, mais l'emplacement des obstacles reste floue.
+Tout comme Magellan, vous serez des explorateurs devant naviguer des terres inconnues pour s'approprier d'un précieux trésor. Vous connaissez sa coordonnée, mais l'emplacement des obstacles reste floue. Il y a aura deux phases dans votre aventure : exploration et ...
 
 ## Éléments de la carte
 
@@ -31,17 +31,24 @@ Les éléments suivants se trouveront sur la carte :
 Durée : x temps
 Les agents et les pièces sont placées de manière alétoire sur la carte 🗺️
 
-Lorsqu'un agent prend une pièce, celle-ci reaparrait de manière aléatoire sur a carte.
+Lorsqu'un agent prend une pièce, celle-ci reaparrait de manière aléatoire sur la carte.
 
 ### Tour 2
+
+Durée : x temps
+Un trésor est placé au centre de la carte, les agents apparaitront à équidistance de déplacement du trésor. Dans ce tour, il n'y aura pas de pièces sur la carte.
 
 ## Actions
 
 ### Déplacement
 
+
+
 ###  Attaque
 
 #### Pistolet
+
+
 
 #### Épée
 
@@ -53,9 +60,6 @@ Lorsqu'un agent prend une pièce, celle-ci reaparrait de manière aléatoire sur
 
 L'état de carte est envoyée lors de la connexion au serveur. 
 
-Elle contient :
-- Grille dicrête de la carte
-- Position de joueurs
 
 #### Grille discrète
 
@@ -64,3 +68,13 @@ La grille discrète contient le nombre de murs par 4 cases.
 METTRE IMAGE DE LA MAP AVEC MURS ET SANS MURS
 
 ### État du jeu
+
+```
+GameState {
+    DiscretGrid : [][]Number    // Grille contenant le nombre de murs par 4 cases
+    Players : [                 // Tableau contenant les informations des joueurs 
+        name : String,
+        color : String
+    ] ...
+}
+```
