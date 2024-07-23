@@ -75,7 +75,6 @@ const animate_number = (li: HTMLLIElement, finale_score: number): void => {
 
 const toggle_fullscreen = (container: HTMLElement, btn: HTMLElement) => {
   const sub_container = container.children.item(1);
-  console.log(sub_container);
   toggle_btn(btn, () => {
     const is_expanded = container.classList.toggle('expanded');
 

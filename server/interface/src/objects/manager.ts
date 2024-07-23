@@ -37,7 +37,7 @@ class Manager<T extends GameObject> {
 
     this.cache.forEach((obj, uuid) => {
       if (!this.curr_cache.has(uuid)) {
-        obj.destroy();
+        obj.destroy(true);
         this.cache.delete(uuid);
       }
     });
@@ -51,6 +51,7 @@ class Manager<T extends GameObject> {
       }
     });
 
+    this.next_cache.clear();
     payloads.forEach((p) => this.next_cache.set(this.get_key(p), p));
   }
 
