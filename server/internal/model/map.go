@@ -2,6 +2,7 @@ package model
 
 import (
 	"container/heap"
+	"fmt"
 	"math"
 	"math/rand"
 	"time"
@@ -373,6 +374,10 @@ func (m *Map) Setup() {
 		distances := m.dijkstra(point{x: start.x * consts.NumSubsquare, y: start.y * consts.NumSubsquare}, m.subdivise(consts.NumSubsquare))
 		m.getSpawnPoints(distances, 40, 40)
 		spawns = len(m.spawns[1])
+	}
+
+	for _, p := range m.spawns[1] {
+		fmt.Printf("(%v, %v)\n", p.X, p.Y)
 	}
 
 	utils.Shuffle(r, m.spawns[0])
