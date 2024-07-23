@@ -15,6 +15,12 @@ Les éléments suivants se trouveront sur la carte :
 - Pièces 🪙
 - Trésor 📦
 
+### Grille discrète
+
+La grille discrète contient le nombre de murs par 4 cases.
+
+METTRE IMAGE DE LA MAP AVEC MURS ET SANS MURS
+
 ### Pointage
 
 | Item       | Points |
@@ -48,8 +54,6 @@ Les déplacements fonctionnent par position, c'est à dire que la position envoy
 
 #### Pistolet
 
-
-
 #### Épée
 
 ### Sauvegarde
@@ -60,21 +64,35 @@ Les déplacements fonctionnent par position, c'est à dire que la position envoy
 
 L'état de carte est envoyée lors de la connexion au serveur. 
 
-
-#### Grille discrète
-
-La grille discrète contient le nombre de murs par 4 cases.
-
-METTRE IMAGE DE LA MAP AVEC MURS ET SANS MURS
-
 ### État du jeu
 
 ```
 GameState {
-    DiscretGrid : [][]Number    // Grille contenant le nombre de murs par 4 cases
-    Players : [                 // Tableau contenant les informations des joueurs 
-        name : String,
-        color : String
-    ] ...
+    currentTick : Integer,                          // Cycle de rafraichissement courant
+    currentRound : Integer,                         // Tour courant
+    Players : [                                     // Liste des informations des joueurs 
+        name : String,                              // Nom du joueur
+        color : String,                             // Couleur du joueur sur la carte
+        health : Integer,                           // Quantité de vie du joueur
+        score : Integer,                            // Nombre de points du joueur
+        position : { x : Float, y : Float },        // Position actuelle
+        destination : { x : Float, y : Float },     // Position de destination
+        playerWeapon : Integer,                     // Type d'arme équipée, aucune(0), pistolet(1), épée(2) 
+        Projectiles: [                              // Informations des projectiles du pistolet
+            uid : String,                           // Identifiant du projectile
+            position : { x : Float, y : Float },    // Position actuelle
+            destination : { x : Float, y : Float }, // Position de destination
+        ],
+        Blade: {                                    // Informations sur l'épée
+            start : { x : Float, y : Float },       // Position du début de l'épée
+            end : { x : Float, y : Float },         // Position de fin de l'épée
+            rotation : Integer                      // Angle En degrés
+        }
+    ],
+    Coins : [                                       // Liste des pièces ou trésor
+        uid : String,                               // Identifiant de la pièce
+        value : Integer,                            // Valeur de la pièce ou du trésor
+        position : { x : Float, y : Float }         // Position de la pièce ou du trésor
+    ]
 }
 ```
