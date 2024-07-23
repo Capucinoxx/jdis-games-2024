@@ -98,4 +98,28 @@ const toggle_fullscreen = (container: HTMLElement, btn: HTMLElement) => {
   });
 };
 
-export { toggle_toast, toggle_btn, animate_number, toggle_fullscreen };
+const switch_button = (container: HTMLElement, cb: ((lr: string) => void) | null = null) => {
+  const active = container.querySelector('.active')! as HTMLElement;
+  const left = container.querySelector('.left')!;
+  const right = container.querySelector('.right')!;
+
+  left.addEventListener('click', () => {
+    if (left.classList.contains('active-case')) return;
+    left.classList.add('active-case');
+    active.style.left = '0%';
+    right.classList.remove('active-case');
+
+    if (cb) cb('left');
+  });
+
+  right.addEventListener('click', () => {
+    if (right.classList.contains('active-case')) return;
+    right.classList.add('active-case');
+    active.style.left = '50%';
+    left.classList.remove('active-case');
+
+    if (cb) cb('right');
+  });
+};
+
+export { toggle_toast, toggle_btn, animate_number, toggle_fullscreen, switch_button };

@@ -31,7 +31,7 @@ class GameManager {
     this.leaderboards = new Leaderboards(
       document.getElementById('leaderboard') as HTMLElement,
       document.getElementById('current-leaderboard') as HTMLUListElement,
-      null);
+      document.getElementById('global-leaderboard') as HTMLUListElement);
     this.ws_connection = '';
   }
 

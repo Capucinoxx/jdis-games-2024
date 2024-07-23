@@ -20,19 +20,20 @@ class LineChart {
         const datasets = Array.from({ length: 10 }, (_, i) => ({
             label: `Dataset ${i + 1}`,
             data: [],
-            borderWidth: 1,
+            borderColor: 'rgba(0,0,0,1)',
+            borderWidth: 2,
             fill: false,
             pointRadius: 0
         }));
 
         const config = {
             type: 'line',
-            data: { datasets: datasets },
+            data: { datasets: datasets, labels: [] },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    x: { display: false },
+                    x: { display: false, type: 'linear' },
                     y: { display: false }
                 },
                 plugins: { legend: { display: true } }
@@ -43,18 +44,20 @@ class LineChart {
     }
 
     public update(options: UpdateOptions) {
+        console.log(options);
+
+        const length = Math.max(...options.data.map(arr => arr.length));
+        this.chart.data.labels = Array.from({ length: length }, (_, i) => i);
+
         this.chart.data.datasets.forEach((dataset, index) => {
             dataset.data = options.data[index] || dataset.data;
         });
 
 
         options.colors.forEach((color, index) => {
-            if (this.chart.data.datasets[index]) {
+            if (this.chart.data.datasets[index])
                 this.chart.data.datasets[index].borderColor = color;
-            }
         });
-
-
         this.chart.update();
     }
 }

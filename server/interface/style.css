@@ -290,10 +290,78 @@ footer span {
   font-weight: 800;
 }
 
-/* .expanded {
-  width: calc(100% - 60px) !important;
-  height: calc(100% - 60px) !important;
-} */
+
+
+/* ================================================================================== * 
+                                    UTILITAIRE
+ * ================================================================================== */
+.container-button-switch {
+  display: grid;
+  grid-template-columns: 1fr;
+  position: relative;
+}
+
+.switch-button {
+  border-radius: 4px;
+  margin: 0 auto;
+  width: 200px;
+  height: 30px;
+  text-align: center;
+  position: relative;
+  will-change: transform;
+  cursor: pointer;
+  transition: 0.3s ease all;
+  display: inline-block;
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-blue-800);
+  box-shadow: rgba(86, 84, 84, 0.05) 0px 6px 24px 0px, rgba(69, 69, 71, 0.08) 0px 0px 0px 1px;
+}
+
+.switch-button-case {
+  display: inline-block;
+  background: none;
+  width: 48%;
+  height: 100%;
+  position: relative;
+  border: none;
+  transition: 0.3s ease all;
+  text-transform: uppercase;
+  padding-bottom: 1px;
+  font-weight: 600;
+  color: var(--color-blue-400);
+  box-sizing: border-box;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.switch-button-case:hover {
+  cursor: pointer;
+}
+
+.switch-button-case:focus {
+  outline: none;
+}
+
+.switch-button .active {
+  position: absolute;
+  left: 0;
+  top: -2px;
+  z-index: -1;
+  width: 50%;
+  height: calc(100% + 4px);
+  transition: .3s ease-out all;
+  background-color: var(--color-grey-200);
+  border-radius: 5px;
+}
+
+.switch-button-case.active-case {
+  color: #151515;
+}
+
+
 
 /* ================================================================================== * 
                                     UTILITAIRE
@@ -562,6 +630,11 @@ button.expand {
   position: relative;
   height: 350px;
   padding: 0;
+  margin-top: 50px;
+  box-sizing: border-box;
+  margin-bottom: 0;
+  overflow: hidden;
+  overflow-y:scroll;
 }
 
 .leaderboard-wrapper .item {

@@ -46,7 +46,15 @@
           <div class='leaderboard-graph-container'>
             <canvas id='leaderboard-graph'></canvas>
           </div>
+          <div class='container-button-switch'>
+            <div class='switch-button'>
+              <span class='active'></span>
+              <button class='switch-button-case left active-case'>Current</button>
+              <button class='switch-button-case right'>Global</button>
+            </div>
+          </div>
           <ul id='current-leaderboard' class='leaderboard-wrapper'></ul>
+          <ul id='global-leaderboard' class='leaderboard-wrapper' style='display: none;'></ul>
         </div>
     </section>
 
@@ -71,7 +79,7 @@
     <button class='leaderboard-btn'>
       <div class='btn--bg'></div>
       <div class='btn--icons'>
-        <svg fill="none" viewBox="0 0 24 24" class="open">
+        <svg fill="none" viewBox="0 0 24 24" class="open" style="fill: none !important; stroke: var(--color-blue-100);">
           <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v15a1 1 0 0 0 1 1h15M8 16l2.5-5.5 3 3L17.273 7 20 9.667"/>
         </svg>
         

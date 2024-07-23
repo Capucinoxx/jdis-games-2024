@@ -24,6 +24,7 @@ import (
 type PlayerScore struct {
 	Name    string `json:"name"`
 	Score   int    `json:"score"`
+	Color   int    `json:"color"`
 	Ranking int    `json:"ranking"`
 }
 
@@ -131,6 +132,25 @@ func (sm *ScoreManager) Adds(players []model.PlayerScore) {
 	}()
 }
 
+func (sm *ScoreManager) findColors(names []string) ([]int, error) {
+	filter := bson.M{"username": bson.M{"$in": names}}
+	res, err := sm.mongo.Find("users", filter)
+	if err != nil {
+		return nil, err
+	}
+
+	colors := make([]int, len(res))
+	for _, v := range res {
+		for j, name := range names {
+			if name == v["username"].(string) {
+				colors[j] = int(v["color"].(int32))
+				break
+			}
+		}
+	}
+	return colors, nil
+}
+
 // Rank retrieves the ranked player scores from the Redis leaderboard.
 // It returns a map of player UUIDs to their respective scores and positions.
 func (sm *ScoreManager) Rank() ([]PlayerScore, map[string][]int32, error) {
@@ -159,6 +179,14 @@ func (sm *ScoreManager) Rank() ([]PlayerScore, map[string][]int32, error) {
 		if i < 10 {
 			names[i] = uuid
 		}
+	}
+	colors, err := sm.findColors(names)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	for i := range leaderboard {
+		leaderboard[i].Color = colors[i]
 	}
 
 	filter := bson.M{"_id": bson.M{"$in": names}}

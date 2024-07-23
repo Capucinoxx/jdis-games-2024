@@ -1,4 +1,4 @@
-import { animate_number, toggle_btn, toggle_fullscreen, toggle_toast } from "../animation";
+import { animate_number, switch_button, toggle_btn, toggle_fullscreen, toggle_toast } from "../animation";
 import { LineChart, UpdateOptions } from "../chart";
 import { PlayerManager } from "../objects";
 import { Player } from "../objects/object";
@@ -11,7 +11,16 @@ interface GlobalData {
 interface RowData {
   name: string;
   score: number;
+  color: number;
   ranking: number;
+};
+
+const dec_to_rgb = (color: number): string => {
+  const r = (color >> 16) & 0xFF;
+  const g = (color >> 8) & 0xFF;
+  const b = color & 0xFF;
+
+  return `rgb(${r}, ${g}, ${b})`;
 };
 
 class Leaderboard {
@@ -53,6 +62,10 @@ class Leaderboard {
     const ranking = document.createElement('div');
     ranking.classList.add('item-ranking');
     ranking.textContent = `${row.ranking}`;
+    if (row.ranking <= 10) {
+      ranking.style.backgroundColor = dec_to_rgb(row.color);
+      ranking.style.color = `var(--color-blue-900)`;
+    }
 
     const name = document.createElement('div');
     name.classList.add('item-name');
@@ -90,15 +103,25 @@ class Leaderboards {
   private global_leaderboard: Leaderboard | null = null;
   private chart: LineChart;
   private interval: number | null = null;
-  private players: PlayerManager;
 
-  constructor(root: HTMLElement, current_root: HTMLUListElement | null, global_root: HTMLUListElement | null, player_manager: PlayerManager) {
+  constructor(root: HTMLElement, current_root: HTMLUListElement | null, global_root: HTMLUListElement | null) {
     if (current_root) this.current_leaderboard = new Leaderboard(current_root);
-    if (global_root)  this.global_leaderboard = new Leaderboard(global_root);
-    this.players = player_manager;
+    if (global_root)  this.global_leaderboard = new Leaderboard(global_root);;
 
     this.chart = new LineChart('leaderboard-graph');
 
+    switch_button(document.querySelector('.switch-button') as HTMLElement, (side: string) => {
+      if (!current_root || !global_root)
+        return;
+      
+      if (side === 'right') {
+        current_root.style.display = 'none';
+        global_root.style.display = 'block';
+      } else if (side === 'left') {
+        current_root.style.display = 'block';
+        global_root.style.display = 'none';
+      }
+    });
     this.handle_expansion(root);
     this.handle_open();
     this.start_fetch_chart();
@@ -110,15 +133,15 @@ class Leaderboards {
       if (!response.ok) return;
 
       const result = (await response.json()) as LeaderboardMessage;
-      console.log(result);
 
-      const histories = Object.keys(result.histories).reduce<UpdateOptions>((acc, key: string) => {
-        const player = this.players.get(key);
-        if (!player)
-          return acc;
+      const histories = Object.keys(result.histories).reduce<UpdateOptions>((acc, key: string, i) => {
+        const color = result.leaderboard[i].color;
+        const r = (color >> 16) & 0xFF;
+        const g = (color >> 8) & 0xFF;
+        const b = color & 0xFF;
 
         acc.data.push(result.histories[key]);
-        acc.colors.push(player.color);
+        acc.colors.push(`rgba(${r}, ${g}, ${b}, 1)`);
         return acc;
       }, { data: [], colors: [] } as UpdateOptions);
       
@@ -149,7 +172,7 @@ class Leaderboards {
 
     players.sort((a, b) => b.score - a.score);
 
-    const data = players.map((player, i) => ({ name: player.name, score: player.score, ranking: i }));
+    const data = players.map((player, i) => ({ name: player.name, score: player.score, ranking: i + 1, color: player.color }));
     this.current_leaderboard.update(data);
   }
 
