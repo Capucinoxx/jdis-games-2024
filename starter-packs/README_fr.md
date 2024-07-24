@@ -2,13 +2,18 @@
 
 ## Mise en situation
 
-Ferdinand Magellan était un explorateur portugais connu pour avoir dirigé la première expédition à faire le tour du monde au 16e siècle. Le but principal de l'expédition de Magellan était de trouver une route maritime vers les îles aux épices. À cette époque, les épices étaient extrêmement précieuses en Europe. Pour se diriger, ils utilisaient des astrolabes, des instruments de navigation essentiels pour mesurer l'altitude des étoiles et des planètes au-dessus de l'horizon afin de résoudre des problèmes de navigation.
+Imaginez-vous au début du 16e siècle, une époque où les cartes du monde étaient encore remplies de zones inconnues et mystérieuses. Au milieu de cette période de découvertes et d'explorations, Ferdinand Magellan, un explorateur portugais, se préparait. Son objectif : trouver une route maritime vers les îles aux épices dont les richesses étaient convoitées par toute l'Europe.
+
+À bord de son navire, Magellan et son équipage s'aventurèrent dans des eaux inexplorées, armés de patience et de leurs connaissances en navigation. Leur principal allié était l'astrolabe, un instrument capable de mesurer l'altitude des étoiles et des planètes. Cet outil était indispensable pour tracer leur chemin à travers les vastes océans, leur permettant de se frayer un chemin vers l'inconnu.
 
 ## Votre objectif
 
-Tout comme Magellan, vous serez des explorateurs devant naviguer des terres inconnues pour s'approprier d'un précieux trésor. Vous connaissez sa coordonnée, mais l'emplacement des obstacles reste floue. Il y a aura deux phases dans votre aventure : découverte et prise.
+À l'image de Magellan, vous deviendrez des explorateurs naviguant sur des eaux inconnues à la recherche d'un trésor. Vous connaissez sa coordonnée, mais l'emplacement des obstacles reste floue. Il y a aura deux phases dans votre aventure : découverte et prise.
 
 ## Éléments de la carte
+
+Lors des précédentes explorations, certaines informations ont été receuilles 
+
 
 Les éléments suivants se trouveront sur la carte :   
 
