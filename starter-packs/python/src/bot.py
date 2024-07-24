@@ -1,7 +1,9 @@
-from core.map_state import MapState
-from core.game_state import GameState, PlayerWeapon
-from core.action import MoveAction, ShootAction, RotateBladeAction, SwitchWeaponAction, SaveAction
 from typing import List, Union
+
+from core.action import MoveAction, ShootAction, RotateBladeAction, SwitchWeaponAction, SaveAction
+from core.consts import Consts
+from core.game_state import GameState, PlayerWeapon
+from core.map_state import MapState
 
 
 class MyBot:
@@ -32,6 +34,8 @@ class MyBot:
             game_state (GameState): (fr) L'état du jeu.
                                     (en) The state of the game.
         """
+        print(game_state)
+
         actions = [
             MoveAction((10.0, 11.34)), 
             ShootAction((11.2222, 13.547)),
