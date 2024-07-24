@@ -1,8 +1,9 @@
-from dataclasses import dataclass
-from typing import List, Tuple
-
+import json
 import struct
+from dataclasses import dataclass, field
+from typing import List, Tuple
 from enum import IntEnum
+
 
 class ColliderType(IntEnum):
     Wall = 0
@@ -11,44 +12,28 @@ class ColliderType(IntEnum):
 
 @dataclass
 class Point:
-    x: float
-    y: float
-
-    def __init__(self):
-        self.x = 0
-        self.y = 0
+    x: float = 0.0
+    y: float = 0.0
     
     def __str__(self):
-        return f'Point(x={self.x}, y={self.y})'
+        return json.dumps(self.__dict__)
         
+
 @dataclass
 class Collider:
-    collider_type: ColliderType
-    positions: List[Point]
-
-    def __init__(self):
-        self.positions = []
-        self.collider_type = None
+    collider_type: ColliderType = ColliderType.Projectile
+    positions: List[Point] = field(default_factory=list)
 
     def __str__(self):
-        str_positions = ' '.join(str(pos) for pos in self.positions)
-
-        return f'{self.collider_type.name} {str_positions.__str__(self)}'
+        return json.dumps(self.__dict__)
 
 
 @dataclass
 class MapState:
-    discrete_grid: List[List[int]]
-    size: int
+    size: int                       = 0
+    discrete_grid: List[List[int]]  = field(default_factory=list)
+    walls: List[Collider]           = field(default_factory=list)
+    save: bytearray                 = field(default_factory=bytearray)
 
-    spawns: List[Tuple[Point]]
-    walls: List[Collider]
-
-    save: bytearray
-
-    def __init__(self):
-        self.discrete_grid = []
-        self.size = 0
-        self.spawns = []
-        self.walls = []
-        self.save = bytearray()
+    def __str__(self) -> str:
+        return json.dumps(self.__dict__, default=lambda o: o.__dict__, indent=4)

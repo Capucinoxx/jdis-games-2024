@@ -1,92 +1,71 @@
-from dataclasses import dataclass
-from typing import List
+import json
+from dataclasses import dataclass, field
+from typing import List, Optional
 from enum import IntEnum
 
 from core.map_state import Point
 
+
 @dataclass
 class Projectile:
-    uid: str
-    pos: Point
-    dest: Point
-
-    def __init__(self):
-        self.uid = ''
-        self.pos = Point()
-        self.dest = Point()
+    uid: str    = ''
+    pos: Point  = field(default_factory=Point)
+    dest: Point = field(default_factory=Point)
 
     def __str__(self) -> str:
-        return f'Projectile(uid={self.uid}, pos={self.pos}, dest={self.dest})'
+        return json.dumps(self.__dict__)
+
 
 @dataclass
 class Blade:
-    start: Point
-    end: Point
-    rotation: float
-
-    def __init__(self):
-        self.start = Point()
-        self.end = Point()
-        self.rotation = 0
+    start: Point    = field(default_factory=Point)
+    end: Point      = field(default_factory=Point)
+    rotation: float = 0.0
 
     def __str__(self) -> str:
-        return f'Blade(start={self.start}, end={self.end}, rotation={self.rotation})'
+        return json.dumps(self.__dict__)
+
 
 @dataclass
 class Coin:
-    uid: str
-    value: int
-    pos: Point
-
-    def __init__(self):
-        self.uid = ''
-        self.value = 0
-        self.pos = Point()
+    uid: str    = ''
+    value: int  = 0
+    pos: Point  = field(default_factory=Point)
 
     def __str__(self) -> str:
-        return f'Coin(uid={self.uid}, value={self.value}, pos={self.pos})'
+        return json.dumps(self.__dict__)
 
 
 class PlayerWeapon(IntEnum):
-    PlayerWeaponNone = 0
-    PlayerWeaponCanon = 1
-    PlayerWeaponBlade = 2
+    PlayerWeaponNone    = 0
+    PlayerWeaponCanon   = 1
+    PlayerWeaponBlade   = 2
 
+    def __str__(self) -> str:
+        return self.name
 
 @dataclass
 class PlayerInfo:
-    name: str
-    color: int
-    health: int
-    score: int
-    pos: Point
-    dest: Point   
-    playerWeapon : PlayerWeapon
-    projectiles: List[Projectile]
-    blade: Blade
-
-
-    def __init__(self):
-        self.name = ''
-        self.color = 0
-        self.health = 0
-        self.pos = Point()
-        self.dest = Point()
-    
+    name: str                       = ''
+    color: int                      = 0
+    health: int                     = 0
+    score: int                      = 0
+    pos: Point                      = field(default_factory=Point)
+    dest: Point                     = field(default_factory=Point)
+    playerWeapon: PlayerWeapon      = PlayerWeapon.PlayerWeaponNone
+    projectiles: List[Projectile]   = field(default_factory=list)
+    blade: Blade                    = field(default_factory=Blade)
 
     def __str__(self) -> str:
-        return f'PlayerInfo(name={self.name}, color={self.color}, health={self.health}, pos={self.pos}, dest={self.dest}, playerWeapon={self.playerWeapon.Name}, projectiles={self.projectiles}, blade={self.blade})'
+        return json.dumps(self.__dict__, default=lambda o: o.__dict__, indent=4)
 
 
 @dataclass
 class GameState:
-    current_tick: int
-    current_round: int
-    players: List[PlayerInfo]
-    coins: List[Coin]
+    current_tick: int           = 0
+    current_round: int          = 0
+    players: List[PlayerInfo]   = field(default_factory=list)
+    coins: List[Coin]           = field(default_factory=list)
 
-    def __init__(self):
-        self.current_tick = 0
-        self.current_round = 0
-        self.players = []
-        self.coins = []
+    def __str__(self) -> str:
+        return json.dumps(self.__dict__, default=lambda o: o.__dict__, indent=4)
