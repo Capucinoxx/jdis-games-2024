@@ -109,11 +109,18 @@ func (m *MessageGameStateToEncode) Encode(w codec.Writer) (err error) {
 		return
 	}
 
-	if err = w.WriteInt32(int32(len(m.Players))); err != nil {
+	alivePlayers := make([]*Player, 0, len(m.Players))
+	for _, p := range m.Players {
+		if p.IsAlive() {
+			alivePlayers = append(alivePlayers, p)
+		}
+	}
+
+	if err = w.WriteInt32(int32(len(alivePlayers))); err != nil {
 		return
 	}
 
-	for _, p := range m.Players {
+	for _, p := range alivePlayers {
 		if err = p.Encode(w); err != nil {
 			return
 		}
