@@ -72,8 +72,8 @@ func NameColor(name string) int32 {
 
 	hash := (int(hashArray[0]) + int(hashArray[1])*256 + int(hashArray[2])*256*256)
 	hue := hash % 360
-	saturation := 0.6
-	lightness := 0.7
+	saturation := 0.6 + (float64(hash%20) / 10.0)
+	lightness := 0.7 + (float64(hash%10) / 10.0)
 
 	r, g, b := hslToRGB(float64(hue), saturation, lightness)
 	return int32((r << 16) | (g << 8) | b)
