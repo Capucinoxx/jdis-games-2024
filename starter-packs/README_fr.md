@@ -2,11 +2,11 @@
 
 ## Mise en situation
 
-Ferdinand Magellan était un explorateur portugais connu pour avoir dirigé la première expédition à faire le tour du monde au 16e siècle. Le but principal de l'expédition de Magellan était de trouver une route maritime vers les îles aux épices. À cette époque, les épices étaient extrêmement précieuses en Europe. Pour ce diriger, ils utilisaient des astrolabes ces instruments de navigation essentiels pour mesurer l'altitude des étoiles et des planètes au-dessus de l'horizon pour ainsi résoudre des problèmes de navigation.
+Ferdinand Magellan était un explorateur portugais connu pour avoir dirigé la première expédition à faire le tour du monde au 16e siècle. Le but principal de l'expédition de Magellan était de trouver une route maritime vers les îles aux épices. À cette époque, les épices étaient extrêmement précieuses en Europe. Pour se diriger, ils utilisaient des astrolabes, des instruments de navigation essentiels pour mesurer l'altitude des étoiles et des planètes au-dessus de l'horizon afin de résoudre des problèmes de navigation.
 
 ## Votre objectif
 
-Tout comme Magellan, vous serez des explorateurs devant naviguer des terres inconnues pour s'approprier d'un précieux trésor. Vous connaissez sa coordonnée, mais l'emplacement des obstacles reste floue. Il y a aura deux phases dans votre aventure : exploration et ...
+Tout comme Magellan, vous serez des explorateurs devant naviguer des terres inconnues pour s'approprier d'un précieux trésor. Vous connaissez sa coordonnée, mais l'emplacement des obstacles reste floue. Il y a aura deux phases dans votre aventure : découverte et prise.
 
 ## Éléments de la carte
 
@@ -22,9 +22,11 @@ Les éléments suivants se trouveront sur la carte :
 
 ### Grille discrète
 
-La grille discrète contient le nombre de murs par 4 cases.
+La grille discrète contient le nombre de murs par 4 cases. Les murs extérieurs détimitant la carte sont aussi comptés.
 
-METTRE IMAGE DE LA MAP AVEC MURS ET SANS MURS
+<div align="center">
+  <img width="1000" alt="logo" src="./docs/grille_murs.png">
+</div>
 
 ### Pointage
 
@@ -84,7 +86,10 @@ Cette action ne peut pas être accompagnée de l'équipement d'une arme dans le 
 
 Lorsque l'épée est équipée, elle apparait à 0 radians comme illustré à l'image suivante.  
 
-![image](/starter-packs/docs/blade2.png) 
+<div align="center">
+  <img width="200" alt="logo" src="./docs/blade2.png">
+</div>
+
 
 Pour changer la rotation de l'épée, il faut envoyer la nouvelle rotation en radians.
 
