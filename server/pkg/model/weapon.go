@@ -122,7 +122,7 @@ func NewBlade(owner *Player) *Blade {
 
 func (b *Blade) Update(players []*Player, rotation *float64) {
 	pivot := b.owner.Collider().Pivot
-	b.collider.SetPivot(pivot.X, pivot.Y)
+	b.collider.ChangePosition(pivot.X, pivot.Y)
 
 	if rotation != nil {
 		b.collider.Rotate(*rotation)
