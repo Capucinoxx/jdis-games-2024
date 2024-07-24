@@ -2,7 +2,7 @@ import argparse
 
 from network.network import Socket
 
-DEFAULT_BASE_URL = "ws://localhost:8087/echo"
+DEFAULT_BASE_URL = "wss://localhost:8087/echo"
 
 def main():
     parser = argparse.ArgumentParser(description="Starts the bot")
