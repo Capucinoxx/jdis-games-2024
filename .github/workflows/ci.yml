@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-diretory: ./server
+        working-directory: ./server
 
     steps:
       # —— Setup Github Actions      —————————————————————————————————————————————
