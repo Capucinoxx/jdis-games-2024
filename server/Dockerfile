@@ -28,7 +28,7 @@ COPY interface/src/ src/
 
 COPY --from=wasm /app/wasm_exec.js src/wasm/wasm_exec.js
 RUN sed -i "s|const URL_BASE = '';|const URL_BASE = '$API_URL';|g" src/config.ts
-RUN sed -i "s|const TYPE = '';|const TYPE = '$TYPE';|g" src/config.ts
+RUN sed -i "s|let TYPE = '';|let TYPE = '$TYPE';|g" src/config.ts
 
 RUN npm install
 RUN npm run build

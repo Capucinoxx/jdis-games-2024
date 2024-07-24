@@ -1,6 +1,6 @@
 const URL_BASE = '';
 const WS_URL = `wss://${URL_BASE}/echo`;
-const TYPE = '';
+let TYPE = '';
 
 
 const MESSAGE_TYPE = {
@@ -46,4 +46,4 @@ export {
   TICK_ROUND_TWO_START,
 };
 
-export { WS_URL, MESSAGE_TYPE, URL_BASE };
+export { WS_URL, MESSAGE_TYPE, URL_BASE, TYPE as GAME_TYPE };
