@@ -66,13 +66,14 @@ func hslToRGB(h, s, l float64) (int, int, int) {
 func NameColor(name string) int32 {
 	hasher := sha256.New()
 	hasher.Write([]byte(name))
-	hash := hasher.Sum(nil)
 
 	var hashArray [32]byte
-	copy(hashArray[:], hash)
-	hue := (int(hashArray[0]) + int(hashArray[1])*256 + int(hashArray[2])*256*256) % 360
-	saturation := 0.7
-	lightness := 0.5
+	copy(hashArray[:], hasher.Sum(nil))
+
+	hash := (int(hashArray[0]) + int(hashArray[1])*256 + int(hashArray[2])*256*256)
+	hue := hash % 360
+	saturation := 0.6
+	lightness := 0.7
 
 	r, g, b := hslToRGB(float64(hue), saturation, lightness)
 	return int32((r << 16) | (g << 8) | b)
