@@ -1,9 +1,37 @@
 services:
-  server:
+  rank-server:
     build:
       context: server
+      dockerfile: Dockerfile
+      args:
+        - API_URL=localhost:8087
+        - TYPE=rank
     ports:
       - '8087:8087'
+    environment:
+      PORT: 7855
+      MONGO_USERNAME: admin
+      MONGO_PASSWORD: super_long_password
+      MONGO_HOST: mongodb
+      MONGO_PORT: 27017
+      MONGO_DB: db
+      DOMAIN: localhost
+      RANK: RANKED
+
+      REDIS_ADDR: redis:6379
+      REDIS_PASSWORD: long_password
+    env_file:
+      - .env
+
+  unrank-server:
+    build:
+      context: server
+      dockerfile: Dockerfile
+      args:
+        - API_URL=localhost:8088
+        - TYPE=unrank
+    ports:
+      - '8088:8087'
     environment:
       PORT: 7855
       MONGO_USERNAME: admin

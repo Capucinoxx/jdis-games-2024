@@ -1,4 +1,7 @@
-const WS_URL = 'wss://localhost:8087/echo';
+const URL_BASE = '';
+const WS_URL = `wss://${URL_BASE}/echo`;
+const TYPE = '';
+
 
 const MESSAGE_TYPE = {
   1: 'POSITION',
@@ -43,4 +46,4 @@ export {
   TICK_ROUND_TWO_START,
 };
 
-export { WS_URL, MESSAGE_TYPE };
+export { WS_URL, MESSAGE_TYPE, URL_BASE };

@@ -1,7 +1,6 @@
 import { animate_number, switch_button, toggle_btn, toggle_fullscreen, toggle_toast } from "../animation";
 import { LineChart, UpdateOptions } from "../chart";
-import { PlayerManager } from "../objects";
-import { Player } from "../objects/object";
+import { URL_BASE } from "../config";
 
 interface GlobalData {
   top: UpdateOptions;
@@ -129,7 +128,7 @@ class Leaderboards {
 
   private async start_fetch_chart(): Promise<void> {
     const fetch_data = async () => {
-      const response = await fetch('https://localhost:8087/leaderboard');
+      const response = await fetch(`https://${URL_BASE}/leaderboard`);
       if (!response.ok) return;
 
       const result = (await response.json()) as LeaderboardMessage;

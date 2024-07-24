@@ -10,6 +10,7 @@ package manager
 
 import (
 	"context"
+	"os"
 	"sync"
 	"time"
 
@@ -67,6 +68,7 @@ type ScoreManager struct {
 	mu           sync.Mutex
 	visible      bool
 	cache        *Cache
+	persist      bool
 }
 
 // NewScoreManager creates a new ScoreManager with the specified Redis and MongoDB services.
@@ -77,6 +79,7 @@ func NewScoreManager(redis *connector.RedisService, mongo *connector.MongoServic
 		currentScore: make(map[string]int),
 		visible:      true,
 		cache:        NewCache(time.Minute),
+		persist:      os.Getenv("RANK") == "RANKED",
 	}
 }
 
@@ -100,6 +103,10 @@ func (sm *ScoreManager) IsVisible() bool {
 // Persist saves the current scores to MongoDB. It retrieves the ranked scores from Redis,
 // associates them with the current time, and pushes them to the MongoDB collection.
 func (sm *ScoreManager) Persist() error {
+	if !sm.persist {
+		return nil
+	}
+
 	val, err := sm.redis.ZRevRangeWithScores(context.Background(), "leaderboard", 0, -1).Result()
 	if err != nil {
 		return err
@@ -117,6 +124,10 @@ func (sm *ScoreManager) Persist() error {
 
 // Add increments the score of a player identified by UUID in the Redis leaderboard.
 func (sm *ScoreManager) Adds(players []model.PlayerScore) {
+	if !sm.persist {
+		return
+	}
+
 	go func() {
 		ctx := context.Background()
 		pipe := sm.redis.Pipeline()
@@ -154,6 +165,10 @@ func (sm *ScoreManager) findColors(names []string) ([]int, error) {
 // Rank retrieves the ranked player scores from the Redis leaderboard.
 // It returns a map of player UUIDs to their respective scores and positions.
 func (sm *ScoreManager) Rank() ([]PlayerScore, map[string][]int32, error) {
+	if !sm.persist {
+		return []PlayerScore{}, map[string][]int32{}, nil
+	}
+
 	if leaderboard, histories, ok := sm.cache.Get(); ok {
 		return leaderboard, histories, nil
 	}
