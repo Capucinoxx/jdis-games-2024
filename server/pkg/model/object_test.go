@@ -7,10 +7,6 @@ import (
 	"github.com/capucinoxx/forlorn/consts"
 )
 
-func unequidBlade(p *Player) {
-	p.blade.collider = NewRectCollider(-1000, -1000, 0)
-}
-
 func TestScorerCollision(t *testing.T) {
 	tests := map[string]struct {
 		playerPositions []*Point
@@ -39,7 +35,7 @@ func TestScorerCollision(t *testing.T) {
 		"Partial collision": {
 			playerPositions: []*Point{{X: 5, Y: 5}, {X: 15, Y: 15}},
 			expectedScores:  []int{int(consts.CoinValue), 0},
-			scorerPositions: []*Point{{X: 5, Y: 5}, {X: 10, Y: 10}, {X: 1_000, Y: 1_000}, {X: 1_000, Y: 1_000}},
+			scorerPositions: []*Point{{X: 5, Y: 5}, {X: 10, Y: 10}, {X: 1_000, Y: 1_000}},
 			expectedChanges: []bool{true, false},
 		},
 		"two player take in same time coin": {
@@ -55,7 +51,6 @@ func TestScorerCollision(t *testing.T) {
 			players := make([]*Player, len(tt.playerPositions))
 			for i, pos := range tt.playerPositions {
 				players[i] = NewPlayer(fmt.Sprintf("Player%d", i), 0, pos, nil)
-				unequidBlade(players[i])
 			}
 
 			scorers := NewScorers()
@@ -70,7 +65,7 @@ func TestScorerCollision(t *testing.T) {
 			gameState.coins = scorers
 
 			for _, player := range players {
-				player.Update(players, gameState, 0)
+				player.Update([]*Player{}, gameState, 0)
 			}
 			scorers.Update()
 
