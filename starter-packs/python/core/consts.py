@@ -30,16 +30,16 @@ class Consts:
 
         Attributes:
             SIZE         (float) : (fr) La taille du joeur.
-                                (en) The size of the player.
+                                   (en) The size of the player.
 
             SPEED        (float) : (fr) La vitesse du joueur (par seconde).
-                                (en) The speed of the player (per second).
+                                   (en) The speed of the player (per second).
 
             MAX_HEALTH   (int)   : (fr) La vie maximale du joueur.
-                                (en) The maximum health of the player.
+                                   (en) The maximum health of the player.
 
             RESPAWN_TIME (float) : (fr) Le temps nécessaire pour que le joueur réapparaisse après avoir été éliminé.
-                                (en) The time it takes for the player to respawn after being eliminated.
+                                   (en) The time it takes for the player to respawn after being eliminated.
         """
         SIZE         = 1.0
         SPEED        = 1.15
@@ -54,16 +54,16 @@ class Consts:
 
         Attributes:
             SIZE    (float) : (fr) La taille du projectile (rayon = SIZE / 2).
-                            (en) The size of the projectile (radius = SIZE / 2).
+                              (en) The size of the projectile (radius = SIZE / 2).
 
             SPEED   (float) : (fr) La vitesse du projectile (par seconde).
-                            (en) The speed of the projectile (per second).
+                              (en) The speed of the projectile (per second).
                             
             DAMAGE  (int)   : (fr) Les dégats infligés par le projectile.
-                            (en) The damage dealt by the projectile.
+                              (en) The damage dealt by the projectile.
 
             TTL     (float) : (fr) La durée de vie du projectile (en secondes).
-                            (en) The time-to-live of the projectile (in seconds).
+                              (en) The time-to-live of the projectile (in seconds).
         """
         SIZE    = 0.35
         SPEED   = 3.0
@@ -98,13 +98,13 @@ class Consts:
 
         Attributes:
             SIZE     (float) : (fr) La taille d'une pièce (rayon = SIZE / 2).
-                            (en) The size of the coin (radius = SIZE / 2).
+                               (en) The size of the coin (radius = SIZE / 2).
 
             VALUE    (int)   : (fr) La valeur d'une pièce lorsque ramassée.
-                            (en) The value of coin when collected. 
+                               (en) The value of coin when collected. 
 
             QUANTITY (int)   : (fr) La quantité de pièces dans la map.
-                            (en) The quantity of coins in the map.
+                               (en) The quantity of coins in the map.
         """
         SIZE     = 0.5
         VALUE    = 40
@@ -118,12 +118,12 @@ class Consts:
 
         Attributes:
             SIZE     (float) : (fr) La taille d'un trésor (rayon = SIZE / 2).
-                            (en) The size of the treasure (radius = SIZE / 2).
+                               (en) The size of the treasure (radius = SIZE / 2).
 
             VALUE    (int)   : (fr) La valeur du trésor lorsque ramassée.
-                            (en) The value of treasure when collected.   
+                               (en) The value of treasure when collected.   
         """
-        SIZE = 4.0
+        SIZE  = 4.0
         VALUE = 1_200
 
 

@@ -9,7 +9,6 @@ class ColliderType(IntEnum):
     Wall = 0
     Projectile = 1
 
-
 @dataclass
 class Point:
     x: float = 0.0
@@ -17,7 +16,6 @@ class Point:
     
     def __str__(self):
         return json.dumps(self.__dict__)
-        
 
 @dataclass
 class Collider:
@@ -25,8 +23,10 @@ class Collider:
     positions: List[Point] = field(default_factory=list)
 
     def __str__(self):
-        return json.dumps(self.__dict__)
-
+        return json.dumps({
+            'collider_type': self.collider_type,
+            'positions': [json.loads(str(position)) for position in self.positions]
+        })
 
 @dataclass
 class MapState:
@@ -36,4 +36,9 @@ class MapState:
     save: bytearray                 = field(default_factory=bytearray)
 
     def __str__(self) -> str:
-        return json.dumps(self.__dict__, default=lambda o: o.__dict__, indent=4)
+        return json.dumps({
+            'size': self.size,
+            'discrete_grid': self.discrete_grid,
+            'walls': [json.loads(str(wall)) for wall in self.walls],
+            'save': ' '.join([f'0x{byte:02x}' for byte in self.save])
+        }, indent=4)

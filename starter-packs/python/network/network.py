@@ -77,7 +77,10 @@ class Socket:
     def send_message(self, ws: websocket.WebSocketApp, actions: List[Action]) -> None:
         json_reponse = {}
         for action in actions:
-           json_reponse.update(action.serialize())
+            try:
+                json_reponse.update(action.serialize())
+            except e:
+                print(e)
     
         json_message = json.dumps(json_reponse)
 
