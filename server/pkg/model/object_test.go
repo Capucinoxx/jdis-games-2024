@@ -33,19 +33,19 @@ func TestScorerCollision(t *testing.T) {
 		"Multiple players and coins collision": {
 			playerPositions: []*Point{{X: 5, Y: 5}, {X: 10, Y: 10}},
 			expectedScores:  []int{int(consts.CoinValue), int(consts.CoinValue)},
-			scorerPositions: []*Point{{X: 5, Y: 5}, {X: 10, Y: 10}},
+			scorerPositions: []*Point{{X: 5, Y: 5}, {X: 10, Y: 10}, {X: 1_000, Y: 1_000}, {X: 1_000, Y: 1_000}},
 			expectedChanges: []bool{true, true},
 		},
 		"Partial collision": {
 			playerPositions: []*Point{{X: 5, Y: 5}, {X: 15, Y: 15}},
 			expectedScores:  []int{int(consts.CoinValue), 0},
-			scorerPositions: []*Point{{X: 5, Y: 5}, {X: 10, Y: 10}},
+			scorerPositions: []*Point{{X: 5, Y: 5}, {X: 10, Y: 10}, {X: 1_000, Y: 1_000}, {X: 1_000, Y: 1_000}},
 			expectedChanges: []bool{true, false},
 		},
 		"two player take in same time coin": {
 			playerPositions: []*Point{{X: 5, Y: 5}, {X: 5, Y: 5}},
 			expectedScores:  []int{int(consts.CoinValue), 0},
-			scorerPositions: []*Point{{X: 5, Y: 5}},
+			scorerPositions: []*Point{{X: 5, Y: 5}, {X: 1_000, Y: 1_000}},
 			expectedChanges: []bool{true},
 		},
 	}
@@ -78,6 +78,9 @@ func TestScorerCollision(t *testing.T) {
 				hasChanged := string(scorer.uuid[:]) != string(initialUUIDs[i][:])
 				if hasChanged != tt.expectedChanges[i] {
 					t.Errorf("Expected change for scorer %d to be %v, got %v", i, tt.expectedChanges[i], hasChanged)
+				}
+				if i == len(tt.expectedChanges)-1 {
+					break
 				}
 			}
 
