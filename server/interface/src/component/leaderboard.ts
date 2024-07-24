@@ -1,7 +1,6 @@
 import { animate_number, switch_button, toggle_btn, toggle_fullscreen, toggle_toast } from "../animation";
 import { LineChart, UpdateOptions } from "../chart";
-import { PlayerManager } from "../objects";
-import { Player } from "../objects/object";
+import { GAME_TYPE, URL_BASE } from "../config";
 
 interface GlobalData {
   top: UpdateOptions;
@@ -101,35 +100,41 @@ class Leaderboard {
 class Leaderboards {
   private current_leaderboard: Leaderboard | null = null;
   private global_leaderboard: Leaderboard | null = null;
-  private chart: LineChart;
-  private interval: number | null = null;
+  private chart: LineChart | null = null;
+  private interval: NodeJS.Timeout | null = null;
 
   constructor(root: HTMLElement, current_root: HTMLUListElement | null, global_root: HTMLUListElement | null) {
     if (current_root) this.current_leaderboard = new Leaderboard(current_root);
-    if (global_root)  this.global_leaderboard = new Leaderboard(global_root);;
 
-    this.chart = new LineChart('leaderboard-graph');
+    if (GAME_TYPE === 'rank') {
+      if (global_root)  this.global_leaderboard = new Leaderboard(global_root);
+      this.chart = new LineChart('leaderboard-graph');
 
-    switch_button(document.querySelector('.switch-button') as HTMLElement, (side: string) => {
-      if (!current_root || !global_root)
-        return;
-      
-      if (side === 'right') {
-        current_root.style.display = 'none';
-        global_root.style.display = 'block';
-      } else if (side === 'left') {
-        current_root.style.display = 'block';
-        global_root.style.display = 'none';
-      }
-    });
+      switch_button(document.querySelector('.switch-button') as HTMLElement, (side: string) => {
+        if (!current_root || !global_root)
+          return;
+        
+        if (side === 'right') {
+          current_root.style.display = 'none';
+          global_root.style.display = 'block';
+        } else if (side === 'left') {
+          current_root.style.display = 'block';
+          global_root.style.display = 'none';
+        }
+      });
+    }
+    
     this.handle_expansion(root);
     this.handle_open();
     this.start_fetch_chart();
   }
 
   private async start_fetch_chart(): Promise<void> {
+    if (!this.chart)
+      return;
+
     const fetch_data = async () => {
-      const response = await fetch('https://localhost:8087/leaderboard');
+      const response = await fetch(`https://${URL_BASE}/leaderboard`);
       if (!response.ok) return;
 
       const result = (await response.json()) as LeaderboardMessage;
@@ -178,7 +183,7 @@ class Leaderboards {
 
   public set global(data: GlobalData) {
     if (this.global_leaderboard) this.global_leaderboard.update(data.leaderboard);
-    this.chart.update(data.top);
+    if (this.chart) this.chart.update(data.top);
   }
 };
 
