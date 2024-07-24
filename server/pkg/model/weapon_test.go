@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 	"math"
+	"math/rand"
 	"testing"
 
 	"github.com/capucinoxx/forlorn/consts"
@@ -111,7 +112,6 @@ func TestCannonCollisionCases(t *testing.T) {
 		})
 	}
 }
-
 func TestBladeIntersection(t *testing.T) {
 
 	tests := map[string]struct {
@@ -152,6 +152,35 @@ func TestBladeIntersection(t *testing.T) {
 			for i := range tt.otherPlayers {
 				if tt.otherPlayers[i].health != tt.expectedHealth[i] {
 					t.Errorf("Player[%d] health mismatch: got %d, want %d", i, tt.otherPlayers[i].health, tt.expectedHealth[i])
+				}
+			}
+		})
+	}
+}
+
+func TestBladeIntersectoionFuzzing(t *testing.T) {
+	const numTests = 10_000
+
+	const maxDistance = 10.0
+
+	for i := 0; i < numTests; i++ {
+		t.Run(fmt.Sprintf("FuzzTest-%d", i), func(t *testing.T) {
+			ownerPos := &Point{X: rand.Float64() * maxDistance, Y: rand.Float64() * maxDistance}
+			enemyPos := &Point{X: rand.Float64() * maxDistance, Y: rand.Float64() * maxDistance}
+
+			owner := NewPlayer("owner", 0, ownerPos, nil)
+			enemy := NewPlayer("enemy", 0, enemyPos, nil)
+			blade := NewBlade(owner)
+
+			distance := math.Sqrt(math.Pow(ownerPos.X-enemyPos.X, 2) + math.Pow(ownerPos.Y-enemyPos.Y, 2))
+
+			rotation := rand.Float64() * 2 * math.Pi
+			rotation = math.Pi / 4.0
+			blade.Update([]*Player{enemy}, &rotation)
+
+			if distance > ((consts.PlayerSize/2.0 + consts.BladeSize) + math.Cos(math.Pi/4.0)) {
+				if enemy.health != 100 {
+					t.Errorf("Enemy should not take damage when distance > %f, but got health %d", ((consts.PlayerSize/2.0 + consts.BladeSize) + math.Cos(math.Pi/4.0)), enemy.health)
 				}
 			}
 		})

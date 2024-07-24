@@ -238,7 +238,7 @@ func (r *RectCollider) Rotate(theta float64) {
 	r.rotate(theta, r.rect.c)
 	r.rotate(theta, r.rect.d)
 
-	r.Rotation = math.Mod((r.Rotation + theta), 360.0)
+	r.Rotation = theta
 }
 
 func (r *RectCollider) rotate(theta float64, p *Point) {
