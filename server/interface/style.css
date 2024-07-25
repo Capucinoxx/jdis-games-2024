@@ -406,7 +406,7 @@ button.expand {
   color: var(--color-grey-200);
 }
 
-#players-list button:focus .dropdown, #player-list button:active .dropdown {
+#players-list.focus .dropdown {
   transform: translate(0, 20px);
   opacity: 1;
   visibility: visible;
@@ -419,13 +419,15 @@ button.expand {
   width: 100%;
   opacity: 0;
   visibility: hidden;
-  transition: 0.3 ease;
+  transition: 0.3s ease;
   list-style-type: none;
   padding: 0;
   text-align: left;
   z-index: 9;
   margin-top: 0;
   box-shadow: 0 4px 8px #15151533;
+  max-height: 300px;
+  overflow: hidden;
 }
 
 .dropdown li {
