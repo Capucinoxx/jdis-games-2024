@@ -22,8 +22,7 @@ const config: Phaser.Types.Core.GameConfig = {
   },
   scene: [MainScene],
   fps: {
-    min: 10,
-    target: 20,
+    target: 30,
     forceSetTimeOut: true
   }
 };
