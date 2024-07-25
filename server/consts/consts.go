@@ -98,5 +98,5 @@ const (
 	ScoreOnHitWithProjectile = 15
 
 	// ScoreOnHitWithBlade defines the score awarded when hitting an opponent with a blade.
-	ScoreOnHitWithBlade = 10
+	ScoreOnHitWithBlade = 4
 )
