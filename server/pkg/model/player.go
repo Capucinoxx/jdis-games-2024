@@ -234,7 +234,8 @@ func (p *Player) moveToDestination(dt float64) {
 
 func (p *Player) HandleWeapon(players []*Player, m Map, dt float64) {
 	p.cannon.Update(players, dt)
-	p.blade.Update(players, utils.NilIf(p.Controls.RotateBlade, p.Controls.SwitchWeapon != nil))
+	bladeCondition := p.Controls.SwitchWeapon == nil && p.currentWeapon == PlayerWeaponBlade
+	p.blade.Update(players, utils.NilIf(p.Controls.RotateBlade, !bladeCondition))
 
 	if p.Controls.SwitchWeapon != nil {
 		p.currentWeapon = *p.Controls.SwitchWeapon
