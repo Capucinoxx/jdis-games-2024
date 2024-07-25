@@ -116,6 +116,17 @@ class PlayerManager extends Manager<Player> {
     this.container.appendChild(li);
   }
 
+  protected handle_remove_entry(id: string) {
+    this.container.childNodes.forEach((el) => {
+      if ((el as HTMLElement).classList.contains('active'))
+        this.cam.unfollow();
+      
+      if (el.textContent === id)
+        el.remove();
+
+    })
+  }
+
   private calculate_path(curr: PlayerObject, next: PlayerObject | undefined): { pos: Position, dest: Position } {
     if (!next || (curr.pos.x === next.pos.x && curr.pos.y === next.pos.y))
       return { pos: curr.pos, dest: curr.pos };
