@@ -27,6 +27,7 @@ class Manager<T extends GameObject> {
   }
 
   protected handle_new_entry(key: string): void { }
+  protected handle_remove_entry(key: string): void { }
 
   private get_key(p: Payload): string {
     return ('id' in p) ? p.id : p.name;
@@ -39,6 +40,7 @@ class Manager<T extends GameObject> {
       if (!this.curr_cache.has(uuid)) {
         obj.destroy(true);
         this.cache.delete(uuid);
+        this.handle_remove_entry(uuid);
       }
     });
 
@@ -79,12 +81,20 @@ class CoinManager extends Manager<Coin> {
 class PlayerManager extends Manager<Player> {
   private cam: CameraController;
   private container: HTMLElement;
+  private filter: HTMLInputElement;
 
   constructor(scene: Phaser.Scene, cam: CameraController) {
     super(scene, Player);
 
     this.cam = cam;
+    
+    const btn = document.querySelector('#players-list')! as HTMLElement;
+    btn.addEventListener('click', () => btn.classList.toggle('focus'));
+
     this.container = document.querySelector('#players-list ul')!;
+    this.filter = this.container.querySelector('input')!;
+    this.filter.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
+    this.filter.addEventListener('input', this.hande_filter_input.bind(this));
   }
 
   protected handle_new_entry(id: string): void {
@@ -114,6 +124,34 @@ class PlayerManager extends Manager<Player> {
     }
 
     this.container.appendChild(li);
+  }
+
+  protected handle_remove_entry(id: string) {
+    this.container.childNodes.forEach((el) => {
+      if ((el as HTMLElement).classList.contains('active'))
+        this.cam.unfollow();
+      
+      if (el.textContent === id)
+        el.remove();
+
+    })
+  }
+
+  private hande_filter_input(e: Event) {
+    e.preventDefault();
+    e.stopPropagation();
+    const filter = this.filter.value.toLowerCase();
+    const els = this.container.children;
+
+    for (let i = 1; i < els.length; i++) {
+      const el = els.item(i) as HTMLElement;
+
+      if (el.textContent === '' || el.textContent?.toLowerCase().includes(filter)) {
+        el.style.display = '';
+      } else {
+        el.style.display = 'none';
+      }
+    }
   }
 
   private calculate_path(curr: PlayerObject, next: PlayerObject | undefined): { pos: Position, dest: Position } {
@@ -146,6 +184,9 @@ class PlayerManager extends Manager<Player> {
     super.clear();
 
     this.container.innerHTML = '';
+    const li = document.createElement('li');
+    li.append(this.filter);
+    this.container.append(li);
   }
 
   public get(name: string): Player | undefined {
