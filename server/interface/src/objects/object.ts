@@ -11,12 +11,20 @@ interface GameObject extends Phaser.GameObjects.Container { };
 class Bullet extends MovableObject implements GameObject {
   constructor(scene: Phaser.Scene, payload: Payload) {
     const { pos, dest } = payload as ProjectileObject;
-    const circle = scene.add.circle(0, 0, PROJECTILE_SIZE / 2, 0x00ff00);
+    const circle = scene.add.circle(0, 0, PROJECTILE_SIZE / 2, 0xffffff);
 
     super(scene, pos.x, pos.y, new Phaser.Math.Vector2(dest?.x, dest?.y), PROJECTILE_SPEED, [circle]);
 
     this.setDepth(4);
   };
+
+  public set_movement(pos: Phaser.Math.Vector2, dest: Phaser.Math.Vector2): void {
+    this.destination = dest;
+
+    if (Math.abs(this.x - pos.x) > 0.01 || Math.abs(this.y - pos.y) > 0.01) {
+      this.setPosition(pos.x, pos.y);
+    }
+  }
 };
 
 

@@ -69,6 +69,28 @@ class Manager<T extends GameObject> {
 
 class BulletManager extends Manager<Bullet> {
   constructor(scene: Phaser.Scene) { super(scene, Bullet); }
+
+  private calculate_path(curr: ProjectileObject, next: ProjectileObject | undefined): { pos: Position, dest: Position } {
+    if (!next || (curr.pos.x === next.pos.x && curr.pos.y === next.pos.y))
+      return { pos: curr.pos, dest: curr.pos };
+    return { pos: curr.pos, dest: next.dest };
+  }
+
+  public sync(payloads: Payload[]) {
+    super.sync(payloads);
+
+    payloads.forEach((p) => {
+      const bullet = this.cache.get((p as ProjectileObject).id);
+      const curr_bullet = this.curr_cache.get((p as ProjectileObject).id) as ProjectileObject | undefined;
+      const next_bullet = this.next_cache.get((p as ProjectileObject).id) as ProjectileObject | undefined;
+
+      if (bullet && curr_bullet) {
+        const { pos, dest } = this.calculate_path(curr_bullet, next_bullet);
+        bullet.set_movement(new Phaser.Math.Vector2(pos.x, pos.y), new Phaser.Math.Vector2(dest.x, dest.y));
+      }
+    });
+  }
+
   public move(dt: number) { this.cache.forEach((b, _) => b.move(dt)); }
 };
 
@@ -127,14 +149,14 @@ class PlayerManager extends Manager<Player> {
   }
 
   protected handle_remove_entry(id: string) {
-    this.container.childNodes.forEach((el) => {
-      if ((el as HTMLElement).classList.contains('active'))
-        this.cam.unfollow();
-      
-      if (el.textContent === id)
-        el.remove();
+    const els = this.container.children;
+    for (let i = 0; i < els.length; i++) {
+      const el = els.item(i) as HTMLElement | null;
+      if (!el) continue;
 
-    })
+      if (el.classList.contains('actiobe')) this.cam.unfollow();
+      if (el.textContent === id) el.remove();
+    }
   }
 
   private hande_filter_input(e: Event) {
