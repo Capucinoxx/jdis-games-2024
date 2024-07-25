@@ -27,6 +27,7 @@ class Manager<T extends GameObject> {
   }
 
   protected handle_new_entry(key: string): void { }
+  protected handle_remove_entry(key: string): void { }
 
   private get_key(p: Payload): string {
     return ('id' in p) ? p.id : p.name;
@@ -39,6 +40,7 @@ class Manager<T extends GameObject> {
       if (!this.curr_cache.has(uuid)) {
         obj.destroy(true);
         this.cache.delete(uuid);
+        this.handle_remove_entry(uuid);
       }
     });
 
