@@ -94,28 +94,28 @@ class Player extends MovableObject implements GameObject {
 };
 
 class Blade extends Phaser.GameObjects.Container {
-  private owner: Player;
+  private owner: Player;  
+  private graphics: Phaser.GameObjects.Graphics;
 
   constructor(scene: Phaser.Scene, player: Player, color: number) {
     super(scene, player.x, player.y);
     this.owner = player;
 
-    const graphics = scene.add.graphics();
-    graphics.fillStyle(color, 1);
-    graphics.fillRect(-BLADE_LENGTH / 2, -2, BLADE_LENGTH, 4);
+    this.graphics = scene.add.graphics();
+    this.graphics.fillStyle(color, 1);
+    this.graphics.fillRect(-BLADE_LENGTH / 2, -2, BLADE_LENGTH, 4);
 
-    this.add(graphics);
-    
+    this.add(this.graphics);
     scene.add.existing(this);
   }
 
   public update(): void {
-    this.x = this.owner.x + (BLADE_DISTANCE * Math.cos(this.angle));
-    this.y = this.owner.y + (BLADE_DISTANCE * Math.sin(this.angle));
+    this.x = this.owner.x + (BLADE_DISTANCE * Math.cos(this.rotation));
+    this.y = this.owner.y + (BLADE_DISTANCE * Math.sin(this.rotation));
   }
 
   public rotate(theta: number): void {
-    this.rotation = theta;
+    this.setRotation(-theta);
   }
 };
 
