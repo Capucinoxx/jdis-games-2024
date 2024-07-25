@@ -165,6 +165,7 @@ func (gs *GameState) Reset(scorers []*Scorer) {
 	players := gs.Players()
 	for _, p := range players {
 		p.Respawn(gs)
+		p.cannon.Projectiles = []*Projectile{}
 	}
 
 	gs.coins.Set(scorers)
