@@ -53,7 +53,7 @@ const (
 	ProjectileSize = 0.35
 
 	// ProjectileDmg defines the damage suffered by a player when hit by a projectile.
-	ProjectileDmg = 30
+	ProjectileDmg = 15
 
 	// ProjectileSpeed defines the speed of a projectile.
 	ProjectileSpeed = 3.0
@@ -68,7 +68,7 @@ const (
 	BladeSize = PlayerSize/2.0 + 1.5
 
 	// BladeDmg defines the damage suffered by a player when hit by a blade.
-	BladeDmg = 20
+	BladeDmg = 4
 
 	// BladeRotationSpeed defines the speed of rotation of a blade (in degrees).
 	BladeRotationSpeed = 230
@@ -98,5 +98,5 @@ const (
 	ScoreOnHitWithProjectile = 15
 
 	// ScoreOnHitWithBlade defines the score awarded when hitting an opponent with a blade.
-	ScoreOnHitWithBlade = 40
+	ScoreOnHitWithBlade = 10
 )
