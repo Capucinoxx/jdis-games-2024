@@ -127,14 +127,14 @@ class PlayerManager extends Manager<Player> {
   }
 
   protected handle_remove_entry(id: string) {
-    this.container.childNodes.forEach((el) => {
-      if ((el as HTMLElement).classList.contains('active'))
-        this.cam.unfollow();
-      
-      if (el.textContent === id)
-        el.remove();
+    const els = this.container.children;
+    for (let i = 0; i < els.length; i++) {
+      const el = els.item(i) as HTMLElement | null;
+      if (!el) continue;
 
-    })
+      if (el.classList.contains('actiobe')) this.cam.unfollow();
+      if (el.textContent === id) el.remove();
+    }
   }
 
   private hande_filter_input(e: Event) {
