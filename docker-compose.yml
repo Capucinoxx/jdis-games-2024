@@ -10,7 +10,7 @@ services:
     ports:
       - '8087:8087'
     environment:
-      PORT: 7855
+      PORT: 8087
       MONGO_USERNAME: admin
       MONGO_PASSWORD: super_long_password
       MONGO_HOST: localhost
@@ -33,18 +33,18 @@ services:
       dockerfile: Dockerfile
       network: host
       args:
-        - API_URL=jdis-ia.dinf.usherbrooke.ca:8088
+        - API_URL=jdis-ia.dinf.fsci.usherbrooke.ca:8088
         - TYPE=unrank
     ports:
       - '8088:8087'
     environment:
-      PORT: 7855
+      PORT: 8088
       MONGO_USERNAME: admin
       MONGO_PASSWORD: super_long_password
       MONGO_HOST: localhost
       MONGO_PORT: 27017
       MONGO_DB: db
-      DOMAIN: jdis-ia.dinf.usherbrooke.ca
+      DOMAIN: jdis-ia.dinf.fsci.usherbrooke.ca
 
       REDIS_ADDR: localhost:6379
       REDIS_PASSWORD: long_password
@@ -82,12 +82,13 @@ services:
       dockerfile: Dockerfile
       network: host
       args:
-        - DOMAIN=jdis-ia.dinf.usherbrooke.ca
+        - DOMAIN=jdis-ia.dinf.fsci.usherbrooke.ca
     ports:
       - '80:80'
       - '443:443'
     volumes:
       - ssl-certs:/etc/nginx/ssl
+    network_mode: 'host'
 
 volumes:
   data_mongo:
