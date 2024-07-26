@@ -22,6 +22,8 @@ services:
       REDIS_PASSWORD: long_password
     env_file:
       - .env
+    volumes:
+      - ssl-certs:/app/certs
 
   unrank-server:
     build:
@@ -45,6 +47,8 @@ services:
       REDIS_PASSWORD: long_password
     env_file:
       - .env
+    volumes:
+      - ssl-certs:/app/certs
 
   mongodb:
     image: mongo
@@ -66,8 +70,22 @@ services:
     volumes:
       - data_redis:/data
 
+  nginx:
+    build:
+      context: nginx
+      dockerfile: Dockerfile
+      args:
+        - DOMAIN=localhost
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ssl-certs:/etc/nginx/ssl
+
 volumes:
   data_mongo:
     driver: local
   data_redis:
+    driver: local
+  ssl-certs:
     driver: local
