@@ -39,7 +39,7 @@ func main() {
 	mongo := init_mongo()
 	redis := init_redis()
 
-	transport := network.NewNetwork("0.0.0.0", 8087)
+	transport := network.NewNetwork("0.0.0.0", config.Port())
 
 	sm := manager.NewScoreManager(redis, mongo)
 

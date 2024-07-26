@@ -3,8 +3,9 @@ services:
     build:
       context: server
       dockerfile: Dockerfile
+      network: host
       args:
-        - API_URL=localhost:8087
+        - API_URL=jdis-ia.dinf.usherbrooke.ca:8087
         - TYPE=rank
     ports:
       - '8087:8087'
@@ -12,25 +13,27 @@ services:
       PORT: 7855
       MONGO_USERNAME: admin
       MONGO_PASSWORD: super_long_password
-      MONGO_HOST: mongodb
+      MONGO_HOST: localhost
       MONGO_PORT: 27017
       MONGO_DB: db
-      DOMAIN: localhost
+      DOMAIN: jdis-ia.dinf.usherbrooke.ca
       RANK: RANKED
 
-      REDIS_ADDR: redis:6379
+      REDIS_ADDR: localhost:6379
       REDIS_PASSWORD: long_password
     env_file:
       - .env
     volumes:
       - ssl-certs:/app/certs
+    network_mode: 'host'
 
   unrank-server:
     build:
       context: server
       dockerfile: Dockerfile
+      network: host
       args:
-        - API_URL=localhost:8088
+        - API_URL=jdis-ia.dinf.usherbrooke.ca:8088
         - TYPE=unrank
     ports:
       - '8088:8087'
@@ -38,17 +41,18 @@ services:
       PORT: 7855
       MONGO_USERNAME: admin
       MONGO_PASSWORD: super_long_password
-      MONGO_HOST: mongodb
+      MONGO_HOST: localhost
       MONGO_PORT: 27017
       MONGO_DB: db
-      DOMAIN: localhost
+      DOMAIN: jdis-ia.dinf.usherbrooke.ca
 
-      REDIS_ADDR: redis:6379
+      REDIS_ADDR: localhost:6379
       REDIS_PASSWORD: long_password
     env_file:
       - .env
     volumes:
       - ssl-certs:/app/certs
+    network_mode: 'host'
 
   mongodb:
     image: mongo
@@ -59,6 +63,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: super_long_password
     volumes:
       - data_mongo:/data/db
+    network_mode: 'host'
 
   redis:
     image: redis:latest
@@ -69,13 +74,15 @@ services:
       - '6379:6379'
     volumes:
       - data_redis:/data
+    network_mode: 'host'
 
   nginx:
     build:
       context: nginx
       dockerfile: Dockerfile
+      network: host
       args:
-        - DOMAIN=localhost
+        - DOMAIN=jdis-ia.dinf.usherbrooke.ca
     ports:
       - '80:80'
       - '443:443'
