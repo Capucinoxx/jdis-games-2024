@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/capucinoxx/forlorn/pkg/manager"
 	"github.com/capucinoxx/forlorn/pkg/utils"
@@ -35,4 +36,12 @@ func RequiredAdmins() []manager.TokenInfo {
 	_ = json.Unmarshal([]byte(os.Getenv("ADMINS")), &admins)
 	utils.Log("config", "admins", "%d admins have been retrieved", len(admins))
 	return admins
+}
+
+func Port() int {
+	v, err := strconv.Atoi(os.Getenv("PORT"))
+	if err != nil {
+		panic(err)
+	}
+	return v
 }
