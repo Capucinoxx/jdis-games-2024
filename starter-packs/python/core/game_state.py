@@ -56,6 +56,9 @@ class PlayerInfo:
     projectiles: List[Projectile]   = field(default_factory=list)
     blade: Blade                    = field(default_factory=Blade)
 
+    def isAlive(self) -> bool:
+        return self.health > 0
+
     def __str__(self) -> str:
         return json.dumps(self.__dict__, default=lambda o: o.__dict__, indent=4)
 

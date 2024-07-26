@@ -79,7 +79,7 @@ class Socket:
         for action in actions:
             try:
                 json_reponse.update(action.serialize())
-            except e:
+            except Exception as e:
                 print(e)
     
         json_message = json.dumps(json_reponse)
