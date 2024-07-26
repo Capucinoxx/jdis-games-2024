@@ -3,7 +3,7 @@ import { Chart, LineController, LineElement, PointElement, LinearScale, Title, C
 Chart.register(LineController, LineElement, PointElement, LinearScale, Title, CategoryScale);
 
 interface UpdateOptions {
-    data: number[][];
+    data: { x: number, y: number }[][];
     colors: string[];
 }
 
@@ -33,7 +33,17 @@ class LineChart {
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    x: { display: false, type: 'linear' },
+                    x: {
+                        type: 'time',
+                        display: false,
+                        time: {
+                            unit: 'second',
+                            tooltipFormat: 'll HH:mm:ss',
+                            displayFormats: {
+                                second: 'HH:mm:ss'
+                            }
+                        }
+                    },
                     y: { display: false }
                 },
                 plugins: { legend: { display: true } }
