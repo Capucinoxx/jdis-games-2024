@@ -1,23 +1,35 @@
-# Python Starter pack
+# Javascript Starter pack
 
-À noter, le code du starter pack n'est pas final.
 
 ## Lancer votre bot
+
+### partie classée
 ```
-python run_bot.py --token <VOTRE TOKEN>
+npm run start -- -r -t <TOKEN>
+```
+
+### partie non-classée
+```
+npm run start -- -t <TOKEN>
 ```
 
 Vous pourrez ajouter la logique de votre code dans [src/bot.py](src/bot.py). C'est le seul fichier que vous avez besoin de modifier.
 
-## Données reçues du serveur
 
-Vous recevez le `MapState` au début de chaque game et le `GameState` à chaque tick. Vous pouvez voir les dataclass respectives dans [core/map_state.py](core/map_state.py) et [core/game_state.py](core/game_state.py).
+# Javascript Starter Pack
 
-## Données renvoyées au serveur
+## Launching Your Bot
 
-Vous pourrez envoyer des actions au serveur à chaque tick. 
-Actions disponibles :
-- ShootAction(Tuple(x, y))
-- MoveAction(Tuple(x, y))
-- SwitchWeaponAction(PlayerWeapon)
-- SaveAction(bytearray)
+### Ranked Game
+
+```
+npm run start -- -r -s <TOKEN>
+```
+
+### Unranked Game
+
+```
+npm run start -- -s <TOKEN>
+```
+
+You can add your code logic in [src/bot.py](src/bot.py). This is the only file you need to modify.
