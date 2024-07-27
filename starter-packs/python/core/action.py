@@ -59,9 +59,9 @@ class ShootAction:
 class SwitchWeaponAction:
     """
     (fr) Représente une action pour changer d'arme. Cette arme reste équipée tant que l'on ne 
-         la change pas. En utilisant cette action, on ne peut pas utiliser ShootAction et RotateBladeAction.
+         la change pas. En utilisant cette action, on ne peut pas utiliser ShootAction et RotateBladeAction dans le même tick.
     (en) Represents an action to switch a specified weapon. This weapon remains equiped as long
-         you don't changed. When using this action, ShootAction and RotateBladeAction cannot be used.
+         you don't changed. When using this action, ShootAction and RotateBladeAction cannot be used in the same tick.
 
     Attributes:
         weapon (PlayerWeapon) : (fr) L'arme a équiper.

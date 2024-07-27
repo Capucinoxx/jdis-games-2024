@@ -1,4 +1,4 @@
-# Pour les tests de la plateforme
+# Python Starter pack
 
 À noter, le code du starter pack n'est pas final.
 

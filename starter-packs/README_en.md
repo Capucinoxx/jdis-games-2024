@@ -20,7 +20,7 @@ A refresh cycle (tick) lasts 300 ms ⏱️. During a refresh cycle, the server w
 
 During previous expeditions, some information was gathered 📚. Therefore, in a game, the agent will be placed on one of the maps 🗺️ and will receive information about the [elements]() present, although the exact location of walls was not recorded 🧱. Subsequently, the agent can send multiple [actions]() per refresh cycle.
 
-In each new game, all walls and coins are randomly placed on the map 🎲. A game consists of two phases:
+In each new game, all walls, agents and coins are randomly placed on the map 🎲. A game consists of two phases:
 - [Phase 1: Discovery]() 🔍
 - [Phase 2: Acquisition]() 🗝️
 
@@ -48,7 +48,7 @@ During the final phase of the game, a treasure will be placed on the map 🗺️
 
 ### Death
 
-When the agent loses all its health 💀, it disappears from the map and does not receive any data from the server for a defined period ⏳.
+An agent can deal damage to other agents using the cannon and the blade. When the agent loses all its health 💀, it disappears from the map and does not receive any data from the server for a defined period ⏳.
 
 ## Actions
 
@@ -62,13 +62,16 @@ This action has no usage constraints.
 
 ### Attack
 
+Agents can attack during both phases of the game.
+
 - **Weapon Change** ⚔️
     Each weapon allows you to perform a different action. To use a weapon, you must equip it using the weapon change action.
+    Switching weapons will then allow the agent to either use the cannon to shoot at a target or to adjust the blade's rotation angle.
 
     This action cannot be accompanied by the use of a weapon in the same refresh cycle.
 
 - **Canon** 🔫
-    To use the canon, you need to send the desired destination position of a projectile. The projectile has a defined range. When a projectile collides with another agent, the agent receives damage. The projectile then disappears.
+    To use the cannon, you need to send the desired destination position for a projectile. The projectile has a defined range. When a projectile collides with another agent, that agent takes 15 damage points. The projectile then disappears. 
 
     This action cannot be accompanied by the equipping of a weapon in the same refresh cycle.
 
@@ -102,7 +105,6 @@ save: bytearray               // The memory you can save in the game
 }
 ```
 
-
 ### Discrete Grid
 
 The map is received as a discrete grid. The discrete grid contains only the number of walls per 4 cells. The outer walls delimiting the map are also counted. The grid is sent at the beginning of each game in the map state. The grid does not change during a game, but a new map is generated at the beginning of each game. The walls of a grid are placed randomly at the beginning of each new game 🎲.
@@ -113,6 +115,7 @@ Here is a representation of a discrete grid that can be received for a given map
   <img width="1000" alt="logo" src="./docs/grille_murs.png">
 </div>
 
+In the example grid, the large cells measure 10 by 10 units. The entire grid of the map measures 10 by 10 cells. It is worth noting that an agent measures 1 by 1 unit.
 
 ### Scoring
 

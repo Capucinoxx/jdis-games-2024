@@ -2,25 +2,25 @@
 
 ## Mise en situation
 
-Imaginez-vous au début du 16e siècle 📜, une époque où les cartes du monde étaient encore remplies de zones inconnues et mystérieuses 🗺️. Au milieu de cette période de découvertes et d'explorations , Ferdinand Magellan, un explorateur portugais, se préparait. Son objectif : trouver une route maritime vers les îles aux épices 🌿 dont les richesses étaient convoitées par toute l'Europe 💰.
+Imaginez-vous au début du 16e siècle 📜, une époque où les cartes du monde étaient encore remplies de zones inconnues et mystérieuses 🗺️. Au milieu de cette période de découvertes et d'explorations, Ferdinand Magellan, un explorateur portugais, se préparait. Son objectif : trouver une route maritime vers les îles aux épices 🌿 dont les richesses étaient convoitées par toute l'Europe 💰.
 
 À bord de son navire 🚢, Magellan et son équipage s'aventurèrent dans des eaux inexplorées 🌊, armés de patience et de leurs connaissances en navigation 🧭. Leur principal allié était l'astrolabe, un instrument capable de mesurer l'altitude des étoiles et des planètes ✨. Cet outil était indispensable pour tracer leur chemin à travers les vastes océans, leur permettant de se frayer un chemin vers l'inconnu 🚀.
 
 ## Votre objectif
 
-À l'image de Magellan, vous deviendrez des explorateurs naviguant sur des eaux inconnues à la recherche d'un trésor. Vous connaissez sa coordonnée 📍, mais l'emplacement des obstacles reste floue 🌫️. Il y a aura deux phases dans votre aventure : découverte 🔍 et prise 🗝️.
+À l'image de Magellan, vous deviendrez des explorateurs naviguant sur des eaux inconnues à la recherche d'un trésor. Vous connaissez sa coordonnée 📍, mais l'emplacement des obstacles reste flou 🌫️. Il y aura deux phases dans votre aventure : découverte 🔍 et prise 🗝️.
 
-Dans le jeu Magellan, vous contrôlez un agent pouvant se déplacer sur une carte. Vous devrez vous déplacer sur la carte afin de ramasser les pièces 🪙 et les trésors 💰 se trouvant dans votre chemin tout en vous défendant contre les autres agents ⚔️. 
+Dans le jeu Magellan, vous contrôlez un agent pouvant se déplacer sur une carte. Vous devrez vous déplacer sur la carte afin de ramasser les pièces 🪙 et les trésors 💰 se trouvant sur votre chemin tout en vous défendant contre les autres agents ⚔️.
 
 ## Déroulement du jeu
 
-Le jeu est sous format _"Long running"_ ⏳ce qui signifie qu'il 'n'arrête jamais. Plusieurs parties auront lieu eu courant de toute la journée 🌞. Vous accumulerez des points **tout au long de la journée** 📊. Vous devez prévoir les meilleurs moments pour déconnecter votre agent pour y mettre une nouvelle version. Il est conseillé de concevoir son bot de manière incrémentale et de faire de l’amélioration continue 🚀.
+Le jeu est sous format _"Long running"_ ⏳, ce qui signifie qu'il ne s'arrête jamais. Plusieurs parties auront lieu au cours de toute la journée 🌞. Vous accumulerez des points **tout au long de la journée** 📊. Vous devez prévoir les meilleurs moments pour déconnecter votre agent afin d'y mettre une nouvelle version. Il est conseillé de concevoir son bot de manière incrémentale et de faire de l’amélioration continue 🚀.
 
-Un cycle de rafraichissement (tick) dure 300 ms ⏱️. Durant un cycle de rafraichissement, le serveur effectuera 10 boucles d'action. 
+Un cycle de rafraîchissement (tick) dure 300 ms ⏱️. Durant un cycle de rafraîchissement, le serveur effectuera 10 boucles d'action.
 
 Lors des précédentes expéditions, certaines informations ont été recueillies 📚. Par conséquent, lors d'une partie, l'agent sera placé sur une des carte 🗺️ et recevra des informations sur les [éléments](#éléments-de-la-carte) s'y trouvant, bien que l'emplacement exact des murs n'ait pas été recueilli 🧱. Par la suite, l'agent pourra envoyer plusieurs [actions](#actions) par cycle de rafraîchissement.
 
-À chaque nouvelle partie, tous les murs et les pièces sont placés de manière aléatoire sur la carte 🎲. Une partie est composée de deux phases :
+À chaque nouvelle partie, tous les murs, les agents et les pièces sont placés de manière aléatoire sur la carte 🎲. Une partie est composée de deux phases :
 - [Phase 1 : Découverte](#phase-1) 🔍
 - [Phase 2 : Prise](#phase-2) 🗝️
 
@@ -36,23 +36,23 @@ Les éléments suivants se trouveront sur la carte :
 
 ### Phase 1
 
-Lors de la première phase de la partie, les agents connectés au serveur ainsi que les pièces seront placés de manière aléatoire sur la carte. 🗺️ Ceci est la phase de découverte et d'exploration.
+Lors de la première phase de la partie, les agents connectés au serveur ainsi que les pièces seront placés de manière aléatoire sur la carte 🗺️. Ceci est la phase de découverte et d'exploration.
 
-Lorsqu'un agent prend une pièce, celle-ci réapparraît de manière aléatoire sur la carte.
+Lorsqu'un agent prend une pièce, celle-ci réapparaît de manière aléatoire sur la carte.
 
-Lors de la fin de la phase, les agents et les pièces sont enlevés de la carte pour passer à la deuxième phase.
+À la fin de cette phase, les agents et les pièces sont enlevés de la carte pour passer à la deuxième phase.
 
 ### Phase 2
 
-Lors de la dernière phase de la partie, un trésor sera placé sur la carte  🗺️, les agents apparaîtront à équidistance de déplacement du trésor. Dans cette phase, il n'y aura pas de pièces sur la carte.
+Lors de la dernière phase de la partie, un trésor sera placé sur la carte 🗺️, et les agents apparaîtront à équidistance de déplacement du trésor. Dans cette phase, il n'y aura pas de pièces sur la carte.
 
 ### Mort
 
-Lorsque l'agent perd toute sa vie 💀, ce dernier disparait de la carte et ne reçoit aucune donnée du serveur pendant un temps défini ⏳.
+Un agent pourra infliger des dégâts aux autres agents à l'aide du canon et de la lame. Lorsqu'un agent perd toute sa vie 💀, il disparaît de la carte et ne reçoit aucune donnée du serveur pendant un temps défini ⏳.
 
 ## Actions
 
-Plusieurs actions peuvent être envoyées au serveur dans un même cycle de raifraichissement avec certaines contraintes d'utilisation.
+Plusieurs actions peuvent être envoyées au serveur dans un même cycle de rafraîchissement, mais il y a certaines contraintes d'utilisation.
 
 ### Déplacement
 
@@ -62,30 +62,34 @@ Cette action n'a pas de contraintes d'utilisation.
 
 ###  Attaque
 
-- **Changement d'arme** ⚔️
-    Chaque arme vous permet d'effectuer une action différente. Pour pouvoir l'effectuer, vous devez vous équipez de l'arme à l'aide du changement d'arme.
+Les agents pourront attaquer durant les deux phases du jeu.
 
-    Cette action ne peut pas être accompagnée de l'utilisation d'une arme dans un même cycle de rafraichissement.
+- **Changement d'arme** ⚔️
+    Chaque arme vous permet d'effectuer une action différente. Pour pouvoir utiliser une arme, vous devez d'abord vous équiper de celle-ci à l'aide du changement d'arme.
+
+    Le changement d'arme permettra à l'agent d'utiliser ensuite le canon pour tirer sur une destination ou de changer l'angle de rotation de la lame.
+
+    Cette action ne peut pas être accompagnée de l'utilisation d'une arme dans un même cycle de rafraîchissement.
 
 - **Canon** 🔫
-    Pour utiliser le canon, il faut envoyer la position de destination souhaitée d'un projectile. Le projectile a une portée définie. Lorsqu'un projectile rentre en collision avec un autre agent, ce dernier reçoit du dégât. Le projectile disparaît par la suite.
+    Pour utiliser le canon, il faut envoyer la position de destination souhaitée pour un projectile. Le projectile a une portée définie. Lorsqu'un projectile entre en collision avec un autre agent, ce dernier reçoit 15 points de dégâts. Le projectile disparaît ensuite.
 
-    Cette action ne peut pas être accompagnée de l'équipement d'une arme dans le même cycle de rafraichissement. 
+    Cette action ne peut pas être accompagnée de l'équipement d'une arme dans le même cycle de rafraîchissement.
 
-- **Lame** 🗡️
-    En début de partie, la lame apparaitra à 0 radians du joueur comme illustré à l'image suivante.  
+- **Lame** 🗡️ 
+    En début de partie, la lame apparaîtra à 0 radians du joueur, comme illustré à l'image suivante.  
 
     <div align="center">
     <img width="200" alt="logo" src="./docs/blade2.png">
     </div>
 
-    Pour changer la rotation de la lame, il faut envoyer la nouvelle rotation en radians. Lorsque la lame rentre en collision avec un agent, celui-ci reçoit maximum 40 points de dégât. Le nombre de points de dégâts dependra de la durée que la lame sera en contact avec l'agent durant un cycle de raffraichissement.
+    Pour changer la rotation de la lame, il faut envoyer la nouvelle rotation en radians. Lorsque la lame entre en collision avec un agent, ce dernier reçoit jusqu'à 40 points de dégâts. Le nombre de points de dégâts dépendra de la durée pendant laquelle la lame sera en contact avec l'agent durant un cycle de rafraîchissement.
 
-    Cette action ne peut pas être accompagnée de l'équipement d'une arme dans le même cycle de rafraichissement. 
+    Cette action ne peut pas être accompagnée de l'équipement d'une arme dans le même cycle de rafraîchissement.
 
 ### Sauvegarde
 
-Une quantité limitée d'octects pourra être envoyée au serveur 💾. Ces octets seront sauvegardé le temps d'une partie. Ces données seront reçues par le joueur à chaque fois qu'il va se connecter au serveur. Cette action vous permettra donc de sauvegarder de l'information dont vous aurait accès dans une même partie lorsque votre bot sera déconnecté.
+Une quantité limitée d'octets pourra être envoyée au serveur 💾. Ces octets seront sauvegardés le temps d'une partie. Les données seront reçues par le joueur à chaque fois qu'il se connecte au serveur. Cette action vous permettra donc de sauvegarder des informations accessibles dans une même partie même lorsque votre bot sera déconnecté.
 
 ## Données reçues
 
@@ -104,13 +108,15 @@ MapState {
 
 ### Grille discrète
 
-La carte est reçue sous forme de grille discrète. La grille discrète contient seulement le nombre de murs par 4 cases. Les murs extérieurs délimitant la carte sont aussi comptés. La grille est envoyé à chaque début de partie dans l'état de la carte. La grille ne change pas au long d'une partie, mais une nouvelle carte est générée à chaque début de partie. Les murs d'une grille sont placés de manière aléatoire à chaque nouvelle partie 🎲.
+La carte est reçue sous forme de grille discrète. Cette grille discrète indique le nombre de murs par 4 cases, y compris les murs extérieurs délimitant la carte. La grille est envoyée au début de chaque partie dans l'état de la carte. Elle ne change pas au cours d'une partie, mais une nouvelle carte est générée à chaque début de partie. Les murs de la grille sont placés de manière aléatoire à chaque nouvelle partie 🎲.
 
 Voici la représenttion d'une grille discrète pouvant être reçu pour une carte donnée :
 
 <div align="center">
   <img width="1000" alt="logo" src="./docs/grille_murs.png">
 </div>
+
+Sur la grille en exemple, les grandes cases mesurent 10 par 10 unités. La grille total de la carte mesure 10 par 10 cases. Il est à noter qu'un agent mesure 1 par 1 unité.
 
 ### Pointage
 
