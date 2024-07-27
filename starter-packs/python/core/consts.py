@@ -67,7 +67,7 @@ class Consts:
         """
         SIZE    = 0.35
         SPEED   = 3.0
-        DAMAGE  = 30
+        DAMAGE  = 15
         TTL     = 5.0
 
 
@@ -88,7 +88,7 @@ class Consts:
         """
         LENGTH    = 2.0
         THICKNESS = 0.25
-        DAMAGE    = 20
+        DAMAGE    = 4
 
 
     class Coin:

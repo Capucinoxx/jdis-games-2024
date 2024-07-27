@@ -1,6 +1,8 @@
 import websocket
 import json
 import ssl
+import threading
+import time
 from typing import List, Optional
 
 from src.bot import MyBot
@@ -14,6 +16,7 @@ class Socket:
         self.url = url
         self.token = token
         self.bot = MyBot()
+        self.ping_interval = 1
 
         
     def run(self):
@@ -29,14 +32,14 @@ class Socket:
             print("Error: ", e)
             return
         
-        ws.run_forever(ping_interval=1, ping_timeout=None, sslopt={"cert_reqs": ssl.CERT_NONE})
+        ws.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
 
 
     def handle_message(self, message: bytes) -> Optional[List[Action]]:
         message_type = int(message[0])
         response = None
 
-        decoder = JDISDecoder() # TODO: staticc method ??
+        decoder = JDISDecoder()
 
         if message_type == MessageType.GameStart.value:
             map_state = decoder.decode_map_state(message[1:])
@@ -57,7 +60,7 @@ class Socket:
 
     def on_open(self, ws: websocket.WebSocketApp) -> None:
         print("Connection opened")
-        print("Message sent")
+        self.start_ping_thread()
         
 
     def on_message(self, ws: websocket.WebSocketApp, message: bytes) -> None:
@@ -87,3 +90,15 @@ class Socket:
         print(f"Sending message: {json_message}")
         prefixed_message = bytearray([3]) + json_message.encode('utf-8')
         ws.send(prefixed_message)
+
+
+    def start_ping_thread(selfm ws: websocket.WebsocketApp) -> None:
+        ping_thread = threading.Thread(target=self.ping, args(ws,))
+        ping_thread.daemon = True
+        ping_thread.start()
+
+
+    def ping(self, ws: websocket.WebSocketApp) -> None:
+        while ws.keep_running:
+            ws.send('ping')
+            time.sleep(self.ping_interval)
