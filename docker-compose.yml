@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
       network: host
       args:
-        - API_URL=jdis-ia.dinf.usherbrooke.ca:8087
+        - API_URL=localhost/rank
         - TYPE=rank
     ports:
       - '8087:8087'
@@ -16,7 +16,7 @@ services:
       MONGO_HOST: localhost
       MONGO_PORT: 27017
       MONGO_DB: db
-      DOMAIN: jdis-ia.dinf.usherbrooke.ca
+      DOMAIN: localhost
       RANK: RANKED
 
       REDIS_ADDR: localhost:6379
@@ -33,7 +33,7 @@ services:
       dockerfile: Dockerfile
       network: host
       args:
-        - API_URL=jdis-ia.dinf.fsci.usherbrooke.ca:8088
+        - API_URL=localhost/unrank
         - TYPE=unrank
     ports:
       - '8088:8087'
@@ -44,7 +44,7 @@ services:
       MONGO_HOST: localhost
       MONGO_PORT: 27017
       MONGO_DB: db
-      DOMAIN: jdis-ia.dinf.fsci.usherbrooke.ca
+      DOMAIN: localhost
 
       REDIS_ADDR: localhost:6379
       REDIS_PASSWORD: long_password
@@ -76,18 +76,18 @@ services:
       - data_redis:/data
     network_mode: 'host'
 
-  nginx:
+  prixy:
     build:
-      context: nginx
+      context: haproxy
       dockerfile: Dockerfile
       network: host
       args:
-        - DOMAIN=jdis-ia.dinf.fsci.usherbrooke.ca
+        - DOMAIN=localhost
     ports:
       - '80:80'
       - '443:443'
     volumes:
-      - ssl-certs:/etc/nginx/ssl
+      - ssl-certs:/etc/haproxy/ssl
     network_mode: 'host'
 
 volumes:
