@@ -8,11 +8,11 @@ from core.map_state import MapState
 
 class MyBot:
     """
-     (fr) Cette classe représente votre bot. Vous pouvez y définir des attributs et des méthodes qui 
-          seront conservées entre chaque appel de la méthode `0n_tick`.
+    (fr) Cette classe représente votre bot. Vous pouvez y définir des attributs et des méthodes qui 
+         seront conservées entre chaque appel de la méthode `on_tick`.
 
     (en) This class represents your bot. You can define attributes and methods in it that will be kept 
-         between each call of the `0n_tick` method.
+         between each call of the `on_tick` method.
     """
 
     __map_state: MapState
@@ -20,50 +20,55 @@ class MyBot:
 
     def on_tick(self, game_state: GameState) -> List[Union[MoveAction, SwitchWeaponAction, RotateBladeAction, ShootAction, SaveAction]]:
         """
-          (fr)
-               Cette méthode est appelée à chaque tick de jeu. Vous pouvez y définir 
-               le comportement de votre bot. Elle doit retourner une liste d'actions 
-               qui sera exécutée par le serveur.
+        (fr)    Cette méthode est appelée à chaque tick de jeu. Vous pouvez y définir 
+                le comportement de votre bot. Elle doit retourner une liste d'actions 
+                qui sera exécutée par le serveur.
           
-               Liste des actions possibles:
-               - MoveTo({x, y})    permet de diriger son bot, il ira a vitesse
-                                   constante jusqu'à ce point.
+                Liste des actions possibles:
+                - MoveAction((x, y))        permet de diriger son bot, il ira a vitesse
+                                            constante jusqu'à ce point.
           
-               - ShootAt({x, y})   Si vous avez le fusil comme arme, cela va tirer
-                                   à la coordonnée donnée.
+                - ShootAction((x, y))       Si vous avez le fusil comme arme, cela va tirer
+                                            à la coordonnée donnée.
           
-               - Store([...])      Permet de storer 100 octets dans le serveur. Lors
-                                   de votre reconnection, ces données vous seront
-                                   redonnées par le serveur.
+                - SaveAction([...])         Permet de storer 100 octets dans le serveur. Lors
+                                            de votre reconnection, ces données vous seront
+                                            redonnées par le serveur.
           
-               - SwitchWeapon(id)  Permet de changer d'arme. Par défaut, votre bot
-                                   n'est pas armé, voici vos choix:
-                                        PlayerWeapon.PlayerWeaponNone
-                                        PlayerWeapon.PlayerWeaponCanon
-                                        PlayerWeapon.PlayerWeaponBlade
+                - SwitchWeaponAction(id)     Permet de changer d'arme. Par défaut, votre bot
+                                             n'est pas armé, voici vos choix:
+                                                    PlayerWeapon.PlayerWeaponNone
+                                                    PlayerWeapon.PlayerWeaponCanon
+                                                    PlayerWeapon.PlayerWeaponBlade
+                                                    
+                - BladeRotateAction(rad)    Si vous avez la lame comme arme, vous pouver mettre votre arme
+                                            à la rotation donnée en radian.
           
-          (en)
-               This method is called at each game tick. You can define your bot's behavior here. It must return a list of actions that will be executed by the server.
+        (en)    This method is called at each game tick. You can define your bot's behavior here. It must return a 
+                list of actions that will be executed by the server.
 
-               Possible actions:
+                Possible actions:
+                - MoveAction((x, y))        Directs your bot to move to the specified point at a constant speed.
 
-               - MoveTo({x, y})    Directs your bot to move to the specified point at a constant speed.
+                - ShootAction((x, y))       If you have the gun equipped, it will shoot at the given coordinates.
 
-               - ShootAt({x, y})   If you have the gun equipped, it will shoot at the given coordinates.
+                - SaveAction([...])         Allows you to store 100 bytes on the server. When you reconnect, these 
+                                            data will be provided to you by the server.
 
-               - Store([...])      Allows you to store 100 bytes on the server. When you reconnect, these 
-                                   data will be provided to you by the server.
+                - SwitchWeaponAction(id)    Allows you to change your weapon. By default, your bot is unarmed. Here 
+                                            are your choices:
+                                                PlayerWeapon.PlayerWeaponNone
+                                                PlayerWeapon.PlayerWeaponCanon
+                                                PlayerWeapon.PlayerWeaponBlade
+                
+                - BladeRotateAction(rad)    if you have the blade as a weapon, you can set your
+                                            weapon to the given rotation in radians.
 
-               - SwitchWeapon(id)  Allows you to change your weapon. By default, your bot is unarmed. Here 
-                                   are your choices:
-                                        PlayerWeapon.PlayerWeaponNone
-                                        PlayerWeapon.PlayerWeaponCanon
-                                        PlayerWeapon.PlayerWeaponBlade
-          
-          @param {Model.GameState} message 
-          @returns{Model.Actions}
+        Arguments:
+            game_state (GameState): (fr): L'état de la partie.
+                                    (en): The state of the game.   
         """
-        print(game_state)
+        print(f"Current tick: {game_state.current_tick}")
 
         actions = [
             MoveAction((10.0, 11.34)), 

@@ -1,10 +1,25 @@
 from dataclasses import dataclass
 from typing import Tuple
 import struct
+import uuid
 
 from core.game_state import PlayerInfo, PlayerWeapon, Projectile, Blade, GameState, Coin
 from core.map_state import Point, Collider, ColliderType, MapState
 from utils.utils import read_uuid, read_string_until_null as read_str
+
+
+def read_string_until_null(byte_array, end_index=None):
+    if end_index is None:
+        end_index = byte_array.find(b'\0')
+        if end_index == -1:
+            return None 
+    
+    string = byte_array[:end_index].decode('utf-8')
+    return string, end_index
+
+
+def read_uuid(byte_array, end_index):
+    return str(uuid.UUID(bytes=byte_array[:end_index]))
 
 
 @dataclass
