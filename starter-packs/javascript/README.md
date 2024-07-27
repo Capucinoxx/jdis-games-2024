@@ -13,7 +13,7 @@ npm run start -- -r -s <TOKEN>
 npm run start -- -s <TOKEN>
 ```
 
-Vous pourrez ajouter la logique de votre code dans [src/bot.js](src/bot.py). C'est le seul fichier que vous avez besoin de modifier.
+Vous pourrez ajouter la logique de votre code dans [src/bot.js](src/bot.js). C'est le seul fichier que vous avez besoin de modifier.
 
 
 # Javascript Starter Pack
@@ -32,4 +32,4 @@ npm run start -- -r -s <TOKEN>
 npm run start -- -s <TOKEN>
 ```
 
-You can add your code logic in [src/bot.js](src/bot.py). This is the only file you need to modify.
+You can add your code logic in [src/bot.js](src/bot.js). This is the only file you need to modify.
