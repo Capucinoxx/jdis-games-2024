@@ -21,6 +21,11 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+type PlayerEntry struct {
+	Score int32 `json:"y"`
+	Time  int64 `json:"x"`
+}
+
 // PlayerScore represents the score details of a player.
 type PlayerScore struct {
 	Name    string `json:"name"`
@@ -31,7 +36,7 @@ type PlayerScore struct {
 
 type Cache struct {
 	leaderboard []PlayerScore
-	histories   map[string][]int32
+	histories   map[string][]PlayerEntry
 	lastUpdate  time.Time
 	duration    time.Duration
 	mu          sync.Mutex
@@ -40,11 +45,11 @@ type Cache struct {
 func NewCache(duration time.Duration) *Cache {
 	return &Cache{
 		duration:  duration,
-		histories: make(map[string][]int32),
+		histories: make(map[string][]PlayerEntry),
 	}
 }
 
-func (c *Cache) Get() ([]PlayerScore, map[string][]int32, bool) {
+func (c *Cache) Get() ([]PlayerScore, map[string][]PlayerEntry, bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -54,7 +59,7 @@ func (c *Cache) Get() ([]PlayerScore, map[string][]int32, bool) {
 	return nil, nil, false
 }
 
-func (c *Cache) Set(leaderboard []PlayerScore, histories map[string][]int32) {
+func (c *Cache) Set(leaderboard []PlayerScore, histories map[string][]PlayerEntry) {
 	c.leaderboard = leaderboard
 	c.histories = histories
 	c.lastUpdate = time.Now()
@@ -164,9 +169,9 @@ func (sm *ScoreManager) findColors(names []string) ([]int, error) {
 
 // Rank retrieves the ranked player scores from the Redis leaderboard.
 // It returns a map of player UUIDs to their respective scores and positions.
-func (sm *ScoreManager) Rank() ([]PlayerScore, map[string][]int32, error) {
+func (sm *ScoreManager) Rank() ([]PlayerScore, map[string][]PlayerEntry, error) {
 	if !sm.persist {
-		return []PlayerScore{}, map[string][]int32{}, nil
+		return []PlayerScore{}, map[string][]PlayerEntry{}, nil
 	}
 
 	if leaderboard, histories, ok := sm.cache.Get(); ok {
@@ -210,30 +215,37 @@ func (sm *ScoreManager) Rank() ([]PlayerScore, map[string][]int32, error) {
 		return nil, nil, err
 	}
 
-	histories := make(map[string][]int32)
-	for j, history := range res {
+	histories := make(map[string][]PlayerEntry)
+	for _, history := range res {
 		name := history["_id"].(string)
-		scores, ok := history["scores"].(primitive.A)
+		entries, ok := history["scores"].(primitive.A)
 		if !ok {
 			utils.Log("error", "persist", "error retrieve scores")
 			continue
 		}
 
-		histories[name] = make([]int32, len(scores)+1)
-		for i, score := range scores {
-			doc, ok := score.(bson.M)
+		histories[name] = make([]PlayerEntry, 0, len(entries))
+		for _, entry := range entries {
+			doc, ok := entry.(bson.M)
 			if !ok {
 				utils.Log("error", "persist", "error casting score to bson.M")
 				continue
 			}
 
-			histories[name][i], ok = doc["score"].(int32)
+			score, ok := doc["score"].(int32)
 			if !ok {
-				utils.Log("error", "persist", "error retrieving score as int")
+				utils.Log("error", "persist", "error retrieving score as int %v", doc["score"])
 				continue
 			}
+
+			scoreTime, ok := doc["time"].(primitive.DateTime)
+			if !ok {
+				utils.Log("error", "persist", "error retrieving score time as time.Time, %v", doc["time"])
+				continue
+			}
+
+			histories[name] = append(histories[name], PlayerEntry{Score: score, Time: int64(scoreTime.Time().UnixMilli() / 10_000)})
 		}
-		histories[name][len(histories[name])-1] = int32(leaderboard[j].Score)
 	}
 	sm.cache.Set(leaderboard, histories)
 

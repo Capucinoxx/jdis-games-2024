@@ -66,5 +66,5 @@ type ServerMessage = ServerMapState | ServerGameState | ServerGameEnd | Empty;
 
 type LeaderboardMessage = {
   leaderboard: Array<{name: string, score: number, ranking: number, color: number}>;
-  histories: { [key: string]: Array<number> };
+  histories: { [key: string]: Array<{ x: number, y: number }> };
 };
