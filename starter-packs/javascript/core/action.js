@@ -36,8 +36,8 @@ class Store {
 
 class SwitchWeapon {
     constructor(weapon) {
-        if (typeof value !== 'number') {
-            console.error('Action "Switch" rejected: Expected "value" to be a number.');
+        if (typeof weapon !== 'number') {
+            console.error('Action "Switch" rejected: Expected "weapon" to be a number.');
             return null;
         }
         this.type = 'switch';
@@ -45,4 +45,21 @@ class SwitchWeapon {
     }
 };
 
-export { MoveTo, ShootAt, Store, SwitchWeapon };
+
+class BladeRotate {
+    constructor(rad) {
+        if (typeof rad !== 'number') {
+            console.error('Action "BladeRotate" rejected: Expected "rad" to be a number');
+            this.type = 'rotate_blade'
+            this.rad = rad;
+        }
+    }
+};
+
+const Weapon = {
+    None: 0,
+    Canon: 1,
+    Blade: 2
+}; 
+
+export { MoveTo, ShootAt, Store, SwitchWeapon, BladeRotate, Weapon };

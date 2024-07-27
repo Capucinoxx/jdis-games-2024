@@ -106,6 +106,11 @@ declare class SwitchWeapon {
     constructor(weapon: number);
 }
 
+declare class BladeRotate {
+    type: 'rotate_blade';
+    rad: number;
+    constructor(rad: number);
+};
 
 declare class MyBot {
     on_start(state: Model.MapState): void;
@@ -115,6 +120,6 @@ declare class MyBot {
 
 declare namespace Weapon {
     const None = 0;
-    const Gun = 1;
+    const Canon = 1;
     const Blade = 2;
 }

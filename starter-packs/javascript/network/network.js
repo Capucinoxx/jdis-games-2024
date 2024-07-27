@@ -1,5 +1,19 @@
+import './polyfill.js';
+import { promises as fs } from 'fs';
+
 import { WebSocket } from 'ws';
-import { MyBot } from '../src/bot';
+import { MyBot } from '../src/bot.js';
+import './wasm_exec.js';
+
+
+const load_wasm = async () => {
+    const wasmBuffer = await fs.readFile('network/lib.wasm');
+    
+    const go = new Go();
+    const { instance } = await WebAssembly.instantiate(wasmBuffer, go.importObject);
+    
+    go.run(instance);
+  };
 
 class Socket {
     #url;
@@ -16,18 +30,24 @@ class Socket {
 
 
     run() {
-        this.#connect();
+        load_wasm().then(() => {
+            console.log('WebAssembly loaded and executed');
+            this.#connect();
+          }).catch(err => {
+            console.error('Error loading WebAssembly:', err);
+          });
     }
 
 
     #connect() {
         this.#ws = new WebSocket(this.#url, {
-            headers: { 'Authorization': this.#secret }
+            headers: { 'Authorization': this.#secret },
+            rejectUnauthorized: false
         });
         this.#ws.binaryType = 'arraybuffer';
 
         this.#ws.on('open', () => this.#on_open());  
-        this.#ws.on('on_message', (message) => this.#on_message(message));
+        this.#ws.on('message', (message) => this.#on_message(message));
         this.#ws.on('close', () => this.#on_close());
         this.#ws.on('error', (error) => this.#on_error(error)); 
     }
@@ -41,8 +61,35 @@ class Socket {
 
     #on_message(message) {
         try {
-            
-        } catch(error) {}
+            const data = global.getInformations(message);
+            if (!('type' in data))
+                return;
+
+            switch (data.type) {
+                case 4:
+                    this.#bot.on_start({ map: data.map, walls: data.walls });
+                    break;
+                
+                case 5:
+                    this.#bot.on_end();
+                    break;
+
+                case 1:
+                    const actions = this.#bot.on_tick({ tick: data.tick, round: data.round, players: data.players, coins: data.coins });
+                    const message = encode_actions(actions);
+                    console.log(`Sending message: ${message}`);
+                    const prefix = new Uint8Array([3]);
+                    const buffer = new TextEncoder().encode(message);
+
+                    const prefixed_message = new Uint8Array(prefix.length + buffer.length);
+                    prefixed_message.set(prefix, 0);
+                    prefixed_message.set(buffer, prefix.length);
+                    this.#ws.send(prefixed_message.buffer);
+                    break;
+            }
+        } catch(error) {
+            console.error(error);
+        }
     }
 
 
@@ -81,7 +128,7 @@ class Socket {
 const encode_actions = (actions) => {
     const data = {};
 
-    actions.forEach(action => {
+    actions && actions.forEach(action => {
         if (action === null)
             return;
         
@@ -105,3 +152,5 @@ const encode_actions = (actions) => {
 
     return JSON.stringify(data);
 };
+
+export { Socket };

@@ -1,4 +1,4 @@
-import { MoveTo, ShootAt, Store, SwitchWeapon } from '../core/action';
+import { MoveTo, ShootAt, Store, SwitchWeapon, BladeRotate, Weapon } from '../core/action.js';
 
 class MyBot {
     constructor() {
@@ -50,7 +50,9 @@ class MyBot {
     on_tick(message) {
         console.log(`Current tick: ${message.tick}`);
 
-        return [];
+        return [
+            new SwitchWeapon(Weapon.Blade)
+        ];
     }
 
     on_end() {
