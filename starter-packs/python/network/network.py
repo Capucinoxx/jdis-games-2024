@@ -60,7 +60,7 @@ class Socket:
 
     def on_open(self, ws: websocket.WebSocketApp) -> None:
         print("Connection opened")
-        self.start_ping_thread()
+        self.start_ping_thread(ws)
         
 
     def on_message(self, ws: websocket.WebSocketApp, message: bytes) -> None:

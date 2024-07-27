@@ -5,10 +5,9 @@ import uuid
 
 from core.game_state import PlayerInfo, PlayerWeapon, Projectile, Blade, GameState, Coin
 from core.map_state import Point, Collider, ColliderType, MapState
-from utils.utils import read_uuid, read_string_until_null as read_str
 
 
-def read_string_until_null(byte_array, end_index=None):
+def read_str(byte_array, end_index=None):
     if end_index is None:
         end_index = byte_array.find(b'\0')
         if end_index == -1:

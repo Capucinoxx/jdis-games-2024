@@ -5,6 +5,7 @@ from core.game_state import PlayerWeapon
 
 import base64
 
+
 @dataclass
 class MoveAction:
     """
@@ -15,18 +16,14 @@ class MoveAction:
         dest_pos (Tuple[int, int]) : (fr) La position de destination sous forme de coordonnées (x, y).
                                      (en) The destination position as (x, y) coordinates.
     """
+
     dest_pos: Tuple[int, int]
 
     def __init__(self, dest_pos: Tuple[int, int]):
         self.dest_pos = dest_pos
 
     def serialize(self) -> dict:
-        return {
-            'dest': {
-                'x': self.dest_pos[0],
-                'y': self.dest_pos[1]
-            }
-        }
+        return {"dest": {"x": self.dest_pos[0], "y": self.dest_pos[1]}}
 
 
 @dataclass
@@ -41,24 +38,20 @@ class ShootAction:
         target_pos (Tuple[int, int]) : (fr) La position cible sous forme de coordonnées (x, y).
                                        (en) The target position as (x, y) coordinates.
     """
+
     target_pos: Tuple
 
     def __init__(self, target_pos: Tuple):
         self.target_pos = target_pos
 
     def serialize(self) -> dict:
-        return {
-            'shoot': {
-                'x': self.target_pos[0],
-                'y': self.target_pos[1]
-            }
-        }
-    
+        return {"shoot": {"x": self.target_pos[0], "y": self.target_pos[1]}}
+
 
 @dataclass
 class SwitchWeaponAction:
     """
-    (fr) Représente une action pour changer d'arme. Cette arme reste équipée tant que l'on ne 
+    (fr) Représente une action pour changer d'arme. Cette arme reste équipée tant que l'on ne
          la change pas. En utilisant cette action, on ne peut pas utiliser ShootAction et RotateBladeAction dans le même tick.
     (en) Represents an action to switch a specified weapon. This weapon remains equiped as long
          you don't changed. When using this action, ShootAction and RotateBladeAction cannot be used in the same tick.
@@ -67,6 +60,7 @@ class SwitchWeaponAction:
         weapon (PlayerWeapon) : (fr) L'arme a équiper.
                                 (en) The weapon to switch to.
     """
+
     weapon: PlayerWeapon
 
     def __init__(self, weapon: Union[PlayerWeapon, int]):
@@ -81,10 +75,8 @@ class SwitchWeaponAction:
             raise TypeError("weapon must be an instance of PlayerWeapon or int")
 
     def serialize(self) -> dict:
-        return {
-            'switch': self.weapon.value
-        }
-    
+        return {"switch": self.weapon.value}
+
 
 @dataclass
 class SaveAction:
@@ -98,13 +90,12 @@ class SaveAction:
         save (bytes) : (fr) L'état du jeu à sauvegarder, au format de bytes.
                        (en) The game state to be saved, in bytes format.
     """
+
     save: bytes
 
     def serialize(self) -> dict:
-        return {
-            'save': base64.b64encode(self.save).decode('utf-8')
-        }
-        
+        return {"save": base64.b64encode(self.save).decode("utf-8")}
+
 
 @dataclass
 class RotateBladeAction:
@@ -118,12 +109,13 @@ class RotateBladeAction:
         rad (bytes) : (fr) L'angle en radians pour faire pivoter la lame.
                       (en) The angle in radians to rotate the blade.
     """
+
     rad: float
 
     def serialize(self) -> dict:
-        return {
-            'rotate_blade': self.rad
-        }            
+        return {"rotate_blade": self.rad}
 
 
-Action = Union[MoveAction, ShootAction, SwitchWeaponAction, SaveAction, RotateBladeAction]
+Action = Union[
+    MoveAction, ShootAction, SwitchWeaponAction, SaveAction, RotateBladeAction
+]

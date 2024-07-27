@@ -9,15 +9,11 @@ def main():
 
     args = parser.parse_args()
 
-    args.url = args.url.rstrip()
-
-    channel = "wss://localhost:8088/echo"
+    channel = "wss://jdis-ia.dinf.fsci.usherbrooke.ca:8088/echo"
     if args.rank:
-        channel = "wss://localhost:8087/echo"
-
-    print(f"Starting bot with base URL: {args.url}, token: {args.token}, is ranked: {args.rank}")
+        channel = "wss://jdis-ia.dinf.fsci.usherbrooke.ca:8087/echo"
     
-    Socket(args.url + channel, args.token).run()
+    Socket(channel, args.token).run()
 
 if __name__ == "__main__":
     main()
