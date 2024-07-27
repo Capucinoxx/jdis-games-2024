@@ -83,8 +83,8 @@ func (h *HttpHandler) leaderboard(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := struct {
-		Leaderboard []manager.PlayerScore `json:"leaderboard"`
-		Histories   map[string][]int32    `json:"histories"`
+		Leaderboard []manager.PlayerScore            `json:"leaderboard"`
+		Histories   map[string][]manager.PlayerEntry `json:"histories"`
 	}{
 		Leaderboard: leaderboard,
 		Histories:   histories,
