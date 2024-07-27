@@ -92,8 +92,8 @@ class Socket:
         ws.send(prefixed_message)
 
 
-    def start_ping_thread(selfm ws: websocket.WebsocketApp) -> None:
-        ping_thread = threading.Thread(target=self.ping, args(ws,))
+    def start_ping_thread(self, ws: websocket.WebSocketApp) -> None:
+        ping_thread = threading.Thread(target=self.ping, args=(ws,))
         ping_thread.daemon = True
         ping_thread.start()
 
@@ -102,3 +102,4 @@ class Socket:
         while ws.keep_running:
             ws.send('ping')
             time.sleep(self.ping_interval)
+    

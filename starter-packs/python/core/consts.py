@@ -114,14 +114,14 @@ class Consts:
     class Treasure:
         """
         (fr) Constantes relative au trésor.
-        (en) Constants related to trasure.
+        (en) Constants related to treasure.
 
         Attributes:
             SIZE     (float) : (fr) La taille d'un trésor (rayon = SIZE / 2).
                                (en) The size of the treasure (radius = SIZE / 2).
 
             VALUE    (int)   : (fr) La valeur du trésor lorsque ramassée.
-                               (en) The value of treasure when collected.   
+                               (en) The value of the treasure when collected.   
         """
         SIZE  = 4.0
         VALUE = 1_200
