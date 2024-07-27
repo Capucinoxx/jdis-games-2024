@@ -209,7 +209,7 @@ GameState {
 ## Interaction avec la plateforme 
 
 ### 🤝 Comment m'inscrire ?
-1. 🌐 Rendez-vous sur la page http://jdis-ia.dinf.fsci.usherbrooke.ca
+1. 🌐 Rendez-vous sur la page [http://jdis-ia.dinf.fsci.usherbrooke.ca/rank](http://jdis-ia.dinf.fsci.usherbrooke.ca/rank)
 2. 🖱️ Cliquez sur le bouton en haut à droite pour accéder au formulaire d'inscription.
 3. 📝 Dans le formulaire, inscrivez le nom de votre Bot (3 à 16 caractères).
 4. 🎯 Une fois le nom du bot entré, cliquez sur le bouton pour vous enregistrer.

@@ -209,7 +209,7 @@ GameState {
 ## Interaction with the Platform
 
 ### 🤝 How to Register?
-1. 🌐 Go to the page [http://jdis-ia.dinf.fsci.usherbrooke.ca](http://jdis-ia.dinf.fsci.usherbrooke.ca)
+1. 🌐 Go to the page [http://jdis-ia.dinf.fsci.usherbrooke.ca/rank](http://jdis-ia.dinf.fsci.usherbrooke.ca/rank)
 2. 🖱️ Click the button at the top right to access the registration form.
 3. 📝 In the form, enter your Bot's name (3 to 16 characters).
 4. 🎯 Once the bot name is entered, click the button to register.
