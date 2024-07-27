@@ -1,40 +1,40 @@
-class MoveTo {
+class MoveAction {
     constructor(destination) {
-        if (typeof position.x !== 'number' || typeof position.y !== 'number') {
+        if (typeof destination.x !== 'number' || typeof destination.y !== 'number') {
             console.error('Action "MoveTo" rejected: Expected "destination" with numeric "x" and "y" properties.');
             return null;
         }
-        this.type = 'move_to';
-        this.pos = destination;
+        this.type = 'dest';
+        this.destination = destination;
     }
 };
 
 
-class ShootAt {
+class ShootAction {
     constructor(position) {
         if (typeof position.x !== 'number' || typeof position.y !== 'number') {
             console.error('Action "ShootAt" rejected: Expected "position" with numeric "x" and "y" properties.');
             return null;
         }
-        this.type = 'shoot_at';
+        this.type = 'shoot';
         this.pos = position;
     }
 };
 
 
-class Store {
+class SaveAction {
     constructor(data) {
         if (!(data instanceof Uint8Array)) {
             console.error('Action "Store" rejected: Expected "data" to be a Uint8Array.');
             return null;
         }
-        this.type = 'store';
+        this.type = 'save';
         this.data = data.slice(0, 100);
     }
 };
 
 
-class SwitchWeapon {
+class SwitchWeaponAction {
     constructor(weapon) {
         if (typeof weapon !== 'number') {
             console.error('Action "Switch" rejected: Expected "weapon" to be a number.');
@@ -46,7 +46,7 @@ class SwitchWeapon {
 };
 
 
-class BladeRotate {
+class BladeRotateAction {
     constructor(rad) {
         if (typeof rad !== 'number') {
             console.error('Action "BladeRotate" rejected: Expected "rad" to be a number');
@@ -62,4 +62,4 @@ const Weapon = {
     Blade: 2
 }; 
 
-export { MoveTo, ShootAt, Store, SwitchWeapon, BladeRotate, Weapon };
+export { MoveAction, ShootAction, SaveAction, SwitchWeaponAction, BladeRotateAction, Weapon };

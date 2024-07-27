@@ -1,17 +1,126 @@
 
 /**
- * Model contient l'ensemble de types
- * utilisés pour représenter l'état du jeu.
+ * (fr) Constantes relatives à la carte du jeu.
+ * (en) Constants related to the game map.
  */
+export const Consts: {
+    Map: {
+        /**
+         * (fr) La largeur de la carte en nombre de cellules.
+         * (en) The width of the map in number of cells.
+         */
+        WIDTH: number;
+        /**
+         * (fr) La hauteur de la carte en nombre de cellules.
+         * (en) The height of the map in number of cells.
+         */
+        HEIGHT: number;
+        /**
+         * (fr) La largeur de chaque cellule sur la carte.
+         * (en) The width of each cell in the map.
+         */
+        CELL_WIDTH: number;
+        /**
+         * (fr) La hauteur de chaque cellule sur la carte.
+         * (en) The height of each cell in the map.
+         */
+        CELL_HEIGHT: number;
+    };
+    Player: {
+        /**
+         * (fr) La taille du joueur.
+         * (en) The size of the player.
+         */
+        SIZE: number;
+        /**
+         * (fr) La vitesse du joueur (par seconde).
+         * (en) The speed of the player (per second).
+         */
+        SPEED: number;
+        /**
+         * (fr) La vie maximale du joueur.
+         * (en) The maximum health of the player.
+         */
+        MAX_HEALTH: number;
+        /**
+         * (fr) Le temps nécessaire pour que le joueur réapparaisse après avoir été éliminé.
+         * (en) The time it takes for the player to respawn after being eliminated.
+         */
+        RESPAWN_TIME: number;
+    };
+    Projectile: {
+        /**
+         * (fr) La taille du projectile (rayon = SIZE / 2).
+         * (en) The size of the projectile (radius = SIZE / 2).
+         */
+        SIZE: number;
+        /**
+         * (fr) La vitesse du projectile (par seconde).
+         * (en) The speed of the projectile (per second).
+         */
+        SPEED: number;
+        /**
+         * (fr) Les dégâts infligés par le projectile.
+         * (en) The damage dealt by the projectile.
+         */
+        DAMAGE: number;
+        /**
+         * (fr) La durée de vie du projectile (en secondes).
+         * (en) The time-to-live of the projectile (in seconds).
+         */
+        TTL: number;
+    };
+    Blade: {
+        /**
+         * (fr) La longueur de la lame.
+         * (en) The length of the blade.
+         */
+        LENGTH: number;
+        /**
+         * (fr) L'épaisseur de la lame.
+         * (en) The thickness of the blade.
+         */
+        THICKNESS: number;
+        /**
+         * (fr) Les dégâts infligés par la lame.
+         * (en) The damage dealt by the blade.
+         */
+        DAMAGE: number;
+    };
+    Coin: {
+        /**
+         * (fr) La taille d'une pièce (rayon = SIZE / 2).
+         * (en) The size of the coin (radius = SIZE / 2).
+         */
+        SIZE: number;
+        /**
+         * (fr) La valeur d'une pièce lorsque ramassée.
+         * (en) The value of the coin when collected.
+         */
+        VALUE: number;
+        /**
+         * (fr) La quantité de pièces dans la carte.
+         * (en) The quantity of coins in the map.
+         */
+        QUANTITY: number;
+    };
+    Treasure: {
+        /**
+         * (fr) La taille d'un trésor (rayon = SIZE / 2).
+         * (en) The size of the treasure (radius = SIZE / 2).
+         */
+        SIZE: number;
+        /**
+         * (fr) La valeur du trésor lorsque ramassé.
+         * (en) The value of the treasure when collected.
+         */
+        VALUE: number;
+    };
+};
+
+
+
 declare namespace Model {
-    /**
-    * Représente un agent (bot) dans le jeu.
-    * Chaque agent est unique par son nom.
-    *
-    * Chaque bot possède deux armes soit un pistolet et une épée.
-    * Lorsqu'un bot tire, un projectile est créé et ajouté à la liste des projectiles.
-    * L'attribut current_weapon indique l'arme actuellement utilisée (0 = aucun, 1 = pistolet, 2 = épée).
-    */
     interface Player {
         name: string;
         color: number;
@@ -23,20 +132,11 @@ declare namespace Model {
         blade: Blade;
     }
 
-    /**
-    * Point représente une position dans la map. 
-    * La position (0, 0) est le coin en haut à gauche.
-    */
     interface Point {
         x: number;
         y: number;
     }
 
-
-    /**
-    * Chaque joueur possède une liste de projectiles. 
-    * Un projectile est tiré par le pistolet du joueur.
-    */
     interface Projectile {
         id: string;
         pos: Point;
@@ -61,6 +161,8 @@ declare namespace Model {
     interface MapState {
         map: number[][];
         walls: Point[][];
+        size: number;
+        save: Uint8Array;
     }
 
 
@@ -79,34 +181,34 @@ declare namespace Model {
 }
 
 
-declare class MoveTo {
-    type: 'move_to';
+declare class MoveAction{
+    type: 'dest';
     dest: Model.Point;
     constructor(destination: Model.Point);
 }
 
 
-declare class ShootAt {
-    type: 'shoot_at';
+declare class ShootAction {
+    type: 'shoot';
     pos: Model.Point;
     constructor(position: Model.Point);
 }
 
 
-declare class Store {
-    type: 'store';
+declare class SaveAction {
+    type: 'save';
     data: Uint8Array;
     constructor(data: Uint8Array);
 }
 
 
-declare class SwitchWeapon {
+declare class SwitchWeaponAction {
     type: 'switch';
     weapon: number;
     constructor(weapon: number);
 }
 
-declare class BladeRotate {
+declare class BladeRotateAction {
     type: 'rotate_blade';
     rad: number;
     constructor(rad: number);
@@ -114,6 +216,7 @@ declare class BladeRotate {
 
 declare class MyBot {
     on_start(state: Model.MapState): void;
+    on_end(): void;
     on_tick(state: Model.GameState): Model.Actions;
 }
 

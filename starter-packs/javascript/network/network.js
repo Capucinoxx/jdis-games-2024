@@ -67,7 +67,7 @@ class Socket {
 
             switch (data.type) {
                 case 4:
-                    this.#bot.on_start({ map: data.map, walls: data.walls });
+                    this.#bot.on_start({ map: data.map, walls: data.walls, size: data.size, save: data.save });
                     break;
                 
                 case 5:
@@ -133,18 +133,21 @@ const encode_actions = (actions) => {
             return;
         
         switch (action.type) {
-            case 'move_to':
-                data[action.type] = action.dest;
+            case 'dest':
+                data[action.type] = action.destination;
+    
                 break;
-            case 'shoot_at':
+            case 'shoot':
                 data[action.type] = action.pos;
                 break;
-            case 'store':
-                data[action.type] = action.data;
+            case 'save':
+                data[action.type] = btoa(String.fromCharCode.apply(null, action.data));
                 break;
             case 'switch':
                 data[action.type] = action.weapon;
                 break;
+            case 'rotate_blade':
+                data[action.type] = action.rad;
             default:
                 break;
         }
@@ -152,5 +155,6 @@ const encode_actions = (actions) => {
 
     return JSON.stringify(data);
 };
+
 
 export { Socket };
