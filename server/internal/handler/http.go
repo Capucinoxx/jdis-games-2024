@@ -37,6 +37,7 @@ func (h *HttpHandler) Handle() {
 	network.HandleFunc("/leaderboard", h.leaderboard, h.checkLeaderboardAccess)
 	network.HandleFunc("/toggle_leaderboard", h.toggleLeaderboard, h.adminOnly)
 	network.HandleFunc("/kill", h.kill, h.adminOnly)
+	network.HandleFunc("/users", h.users, h.adminOnly)
 
 	network.HandleFunc("/freeze", h.freeze, h.adminOnly)
 	network.HandleFunc("/unfreeze", h.unfreeze, h.adminOnly)
@@ -73,6 +74,19 @@ func (h *HttpHandler) register(w http.ResponseWriter, r *http.Request) {
 
 func (h *HttpHandler) startGame(w http.ResponseWriter, r *http.Request) {
 	h.gm.Start()
+}
+
+func (h *HttpHandler) users(w http.ResponseWriter, r *http.Request) {
+	users, err := h.am.List()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusOK)
+	}
+
+	payload := map[string]interface{}{
+		"users": users,
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(payload)
 }
 
 func (h *HttpHandler) leaderboard(w http.ResponseWriter, r *http.Request) {

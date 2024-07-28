@@ -68,6 +68,30 @@ func (am *AuthManager) Register(username string, isAdmin bool) (string, error) {
 	return token, nil
 }
 
+func (am *AuthManager) List() ([]TokenInfo, error) {
+	v, err := am.service.Find(am.collection, bson.M{})
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]TokenInfo, 0, len(v))
+	for _, e := range v {
+		bytes, err := bson.Marshal(e)
+		if err != nil {
+			continue
+		}
+
+		var res TokenInfo
+		if err = bson.Unmarshal(bytes, &res); err != nil {
+			continue
+		}
+
+		result = append(result, res)
+	}
+
+	return result, nil
+}
+
 // Authenticate authenticates a user based on their token. It retrieves the user's information
 // from the MongoDB collection and returns their username, color, and a boolean indicating success.
 func (am *AuthManager) Authenticate(token string) (string, int, bool, bool) {

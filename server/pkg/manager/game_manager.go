@@ -195,14 +195,18 @@ func (gm *GameManager) gameLoop() {
 			p.HandleRespawn(gm.state)
 		}
 
+		ok := gm.state.Coins().Update()
+		if ok {
+			gm.state.Stop()
+			break
+		}
+
 		if count == 10 {
 			gm.nm.BroadcastGameState(gm.state, int32(gm.rm.CurrentTick()), gm.rm.CurrentRound())
 			scores := gm.state.PlayersScore()
 			count = 0
 			gm.sm.Adds(scores)
 		}
-
-		gm.state.Coins().Update()
 
 		count++
 		if gm.rm.HasEnded() {
