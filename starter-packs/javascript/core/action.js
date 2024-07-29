@@ -50,9 +50,10 @@ class BladeRotateAction {
     constructor(rad) {
         if (typeof rad !== 'number') {
             console.error('Action "BladeRotate" rejected: Expected "rad" to be a number');
-            this.type = 'rotate_blade'
-            this.rad = rad;
         }
+        
+        this.type = 'rotate_blade'
+        this.rad = rad;
     }
 };
 

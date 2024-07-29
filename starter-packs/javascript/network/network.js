@@ -67,6 +67,7 @@ class Socket {
 
             switch (data.type) {
                 case 4:
+                    data.walls = data.walls.map(wall => ({ x: wall.x / 30, y: wall.y / 30 }));
                     this.#bot.on_start({ map: data.map, walls: data.walls, size: data.size, save: data.save });
                     break;
                 
@@ -75,6 +76,25 @@ class Socket {
                     break;
 
                 case 1:
+                    data.players = data.players.map(player => ({
+                        name: player.name,
+                        color: player.color,
+                        health: player.health,
+                        score: player.score,
+                        pos:    { x: player.pos.x / 30, y: player.pos.y / 30 },
+                        dest:   { x: player.dest.x / 30, y: player.dest.y / 30 },
+                        current_weapon: player.current_weapon,
+                        projectiles: player.projectiles.map(projectile => ({
+                            id: projectile.id,
+                            pos:    { x: projectile.pos.x / 30, y: projectile.pos.y / 30 },
+                            dest:   { x: projectile.dest.x / 30, y: projectile.dest.y / 30 },
+                        })),
+                        blade: {
+                            start:  { x: player.blade.start.x / 30, y: player.blade.start.y / 30 },
+                            end:    { x: player.blade.end.x / 30, y: player.blade.end.y / 30 },
+                            rotation: player.blade.rotation
+                        }
+                    }));
                     const actions = this.#bot.on_tick({ tick: data.tick, round: data.round, players: data.players, coins: data.coins });
                     const message = encode_actions(actions);
                     console.log(`Sending message: ${message}`);
