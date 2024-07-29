@@ -5,7 +5,6 @@ services:
       dockerfile: Dockerfile
       args:
         - API_URL=localhost/rank  # change for your address
-        - TYPE=rank
     ports:
       - '8087:8087'
     environment:
@@ -29,8 +28,7 @@ services:
       dockerfile: Dockerfile
       network: host
       args:
-        - API_URL=localhost/rank # change for your address
-        - TYPE=unrank
+        - API_URL=localhost/unrank # change for your address
     ports:
       - '8088:8087'
     environment:
