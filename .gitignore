@@ -9,3 +9,9 @@ server/interface/src/wasm/wasm_exec.js
 
 # env 
 .env
+
+# vscode
+.vscode
+
+# python cache
+__pycache__
