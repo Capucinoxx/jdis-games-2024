@@ -211,7 +211,52 @@ func (m *MessageMapStateToEncode) Encode(w codec.Writer) (err error) {
 	if err != nil {
 		return
 	}
-
 	_, err = w.WriteBytes(m.Storage[:])
 	return
+}
+
+type MessageMapStateToDecode struct {
+	Size         int8
+	DiscreteGrid [][]uint8
+	Walls        []*Collider
+	Storage      [100]byte
+}
+
+func (m *MessageMapStateToDecode) Decode(r codec.Reader) (err error) {
+	m.Size, err = r.ReadInt8()
+	if err != nil {
+		return err
+	}
+
+	m.DiscreteGrid = make([][]uint8, m.Size)
+	for i := 0; i < int(m.Size); i++ {
+		m.DiscreteGrid[i] = make([]uint8, m.Size)
+		for j := 0; j < int(m.Size); j++ {
+			m.DiscreteGrid[i][j], err = r.ReadUint8()
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	wallsLen, err := r.ReadInt32()
+	if err != nil {
+		return err
+	}
+
+	m.Walls = make([]*Collider, wallsLen)
+	for i := 0; i < int(wallsLen); i++ {
+		m.Walls[i] = &Collider{}
+		if err = m.Walls[i].Decode(r); err != nil {
+			return err
+		}
+	}
+
+	storage, err := r.ReadBytes(100)
+	if err != nil {
+		return err
+	}
+
+	copy(m.Storage[:], storage)
+	return nil
 }
