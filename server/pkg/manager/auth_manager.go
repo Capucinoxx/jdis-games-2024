@@ -8,8 +8,8 @@ package manager
 import (
 	"errors"
 
-	"github.com/capucinoxx/forlorn/pkg/connector"
-	"github.com/capucinoxx/forlorn/pkg/utils"
+	"github.com/capucinoxx/jdis-games-2024/pkg/connector"
+	"github.com/capucinoxx/jdis-games-2024/pkg/utils"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -66,6 +66,30 @@ func (am *AuthManager) Register(username string, isAdmin bool) (string, error) {
 	}
 
 	return token, nil
+}
+
+func (am *AuthManager) List() ([]TokenInfo, error) {
+	v, err := am.service.Find(am.collection, bson.M{})
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]TokenInfo, 0, len(v))
+	for _, e := range v {
+		bytes, err := bson.Marshal(e)
+		if err != nil {
+			continue
+		}
+
+		var res TokenInfo
+		if err = bson.Unmarshal(bytes, &res); err != nil {
+			continue
+		}
+
+		result = append(result, res)
+	}
+
+	return result, nil
 }
 
 // Authenticate authenticates a user based on their token. It retrieves the user's information

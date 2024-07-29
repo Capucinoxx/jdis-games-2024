@@ -6,7 +6,7 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/capucinoxx/forlorn/consts"
+	"github.com/capucinoxx/jdis-games-2024/consts"
 )
 
 func TestCannonShootAt(t *testing.T) {

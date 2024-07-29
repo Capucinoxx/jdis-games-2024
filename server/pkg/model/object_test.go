@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/capucinoxx/forlorn/consts"
+	"github.com/capucinoxx/jdis-games-2024/consts"
 )
 
 func TestScorerCollision(t *testing.T) {
@@ -17,8 +17,8 @@ func TestScorerCollision(t *testing.T) {
 		"Coin collision": {
 			playerPositions: []*Point{{X: 5, Y: 5}},
 			expectedScores:  []int{int(consts.CoinValue)},
-			scorerPositions: []*Point{{X: 5, Y: 5}},
-			expectedChanges: []bool{true},
+			scorerPositions: []*Point{{X: 5, Y: 5}, {X: 1_000, Y: 1_000}},
+			expectedChanges: []bool{true, false},
 		},
 		"No collision": {
 			playerPositions: []*Point{{X: 0, Y: 0}},

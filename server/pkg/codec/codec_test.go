@@ -5,7 +5,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/capucinoxx/forlorn/pkg/codec"
+	"github.com/capucinoxx/jdis-games-2024/pkg/codec"
 )
 
 func floatEqual[T float32 | float64](a, b T) bool {

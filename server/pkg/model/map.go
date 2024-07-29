@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/capucinoxx/forlorn/pkg/codec"
+	"github.com/capucinoxx/jdis-games-2024/pkg/codec"
 )
 
 // ColliderType defines the type of object in the game environment that can collide.

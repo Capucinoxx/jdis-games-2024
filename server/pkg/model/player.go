@@ -6,9 +6,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/capucinoxx/forlorn/consts"
-	"github.com/capucinoxx/forlorn/pkg/codec"
-	"github.com/capucinoxx/forlorn/pkg/utils"
+	"github.com/capucinoxx/jdis-games-2024/consts"
+	"github.com/capucinoxx/jdis-games-2024/pkg/codec"
+	"github.com/capucinoxx/jdis-games-2024/pkg/utils"
 )
 
 // Connection represents a network connection. It can be used for reading and writing data over the network
@@ -426,7 +426,6 @@ func (p *PlayerInfo) Decode(r codec.Reader) (err error) {
 	return
 }
 
-// Client représente un client connecté au serveur.
 type Client struct {
 	Out        chan []byte
 	In         chan ClientMessage
@@ -464,7 +463,6 @@ func (c *Client) SetBlind(b bool) {
 	c.blind = b
 }
 
-// ClientMessage représente un message envoyé par un client.
 type ClientMessage struct {
 	MessageType MessageType
 	Body        interface{}

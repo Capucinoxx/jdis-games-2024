@@ -1,15 +1,20 @@
 package network
 
+// Package network provides an abstraction for managing HTTP requests and
+// responses, including middleware for logging and setting response headers.
+// This package is used to enhance the security and monitoring of HTTP
+// communication
+
 import (
 	"net/http"
 
-	"github.com/capucinoxx/forlorn/pkg/utils"
+	"github.com/capucinoxx/jdis-games-2024/pkg/utils"
 )
 
-// Middleware est une fonction qui prend un http.Handler et renvoie un http.Handler.
+// Middleware is a function that takes an http.Handler and returns an http.Handler.
 type Middleware func(http.Handler) http.Handler
 
-// logMiddleware est un Middleware qui enregistre les requêtes HTTP.
+// logMiddleware is a middleware that logs HTTP requests.
 func logMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		utils.Log("HTTP", r.Method, "request from %s", r.RemoteAddr)
@@ -17,8 +22,8 @@ func logMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// headers est un Middleware qui définit les en-têtes de réponse HTTP
-// en ajoutant certaines protections et configurations.
+// headers is a middleware that sets HTTP response headers
+// by adding certain protections and configurations.
 func headers(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-DNS-Prefetch-Control", "off")
@@ -39,8 +44,7 @@ func headers(next http.HandlerFunc) http.HandlerFunc {
 	})
 }
 
-// chain renvoie une fonction http.HandlerFunc qui exécute les middlewares
-// dans l'ordre donné.
+// chain returns an http.HandlerFunc that executes the middlewares in the given order.
 func chain(handler http.HandlerFunc, middlewares ...Middleware) http.HandlerFunc {
 	handler = headers(handler).ServeHTTP
 	handler = logMiddleware(handler).ServeHTTP
@@ -51,11 +55,12 @@ func chain(handler http.HandlerFunc, middlewares ...Middleware) http.HandlerFunc
 	return handler
 }
 
-// HandleFunc enregistre un gestionnaire de requêtes HTTP avec des middlewares.
+// HandleFunc registers an HTTP request handler with middlewares.
 func HandleFunc(pattern string, handler func(http.ResponseWriter, *http.Request), middlewares ...Middleware) {
 	http.HandleFunc(pattern, chain(handler, middlewares...))
 }
 
+// Handle registers an HTTP request handler with middlewares.
 func Handle(pattern string, handle http.Handler, middlewares ...Middleware) {
 	http.Handle(pattern, chain(handle.ServeHTTP, middlewares...))
 }

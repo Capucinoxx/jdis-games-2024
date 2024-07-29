@@ -1,19 +1,14 @@
 package protocol
 
 import (
-	imodel "github.com/capucinoxx/forlorn/internal/model"
-	"github.com/capucinoxx/forlorn/pkg/codec"
-	"github.com/capucinoxx/forlorn/pkg/model"
-	p "github.com/capucinoxx/forlorn/pkg/protocol"
+	imodel "github.com/capucinoxx/jdis-games-2024/internal/model"
+	"github.com/capucinoxx/jdis-games-2024/pkg/codec"
+	"github.com/capucinoxx/jdis-games-2024/pkg/model"
+	p "github.com/capucinoxx/jdis-games-2024/pkg/protocol"
 )
 
-// BinaryProtocol est une structure vide encapsulant les différentes
-// fonctions de traitement des messages.
 type BinaryProtocol struct{}
 
-// NewBinaryProtocol crée un nouveau protocole binaire. Ce protocole
-// permet de gérer les messages clients en les encodant et les décodant
-// en un tableau d'octets.
 func NewBinaryProtocol() *p.BinaryProtocol {
 	protocol := &p.BinaryProtocol{
 		EncodeHandlers: make(map[model.MessageType]func(w *codec.ByteWriter, message *model.ClientMessage)),

@@ -3,8 +3,8 @@ package model
 import (
 	"math"
 
-	"github.com/capucinoxx/forlorn/consts"
-	"github.com/capucinoxx/forlorn/pkg/utils"
+	"github.com/capucinoxx/jdis-games-2024/consts"
+	"github.com/capucinoxx/jdis-games-2024/pkg/utils"
 )
 
 // Projectile represents a moving projectile in the game.
@@ -72,7 +72,7 @@ func (c *Cannon) Update(players []*Player, dt float64) {
 		p.moveToDestination(dt)
 
 		for _, enemy := range players {
-			if c.owner.Nickname == enemy.Nickname {
+			if c.owner.Nickname == enemy.Nickname || !enemy.IsAlive() {
 				continue
 			}
 
@@ -129,7 +129,7 @@ func (b *Blade) Update(players []*Player, rotation *float64) {
 	}
 
 	for _, enemy := range players {
-		if b.owner.Nickname == enemy.Nickname {
+		if b.owner.Nickname == enemy.Nickname || !enemy.IsAlive() {
 			continue
 		}
 

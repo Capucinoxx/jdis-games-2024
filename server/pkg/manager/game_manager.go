@@ -22,9 +22,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/capucinoxx/forlorn/consts"
-	"github.com/capucinoxx/forlorn/pkg/model"
-	"github.com/capucinoxx/forlorn/pkg/utils"
+	"github.com/capucinoxx/jdis-games-2024/consts"
+	"github.com/capucinoxx/jdis-games-2024/pkg/model"
+	"github.com/capucinoxx/jdis-games-2024/pkg/utils"
 )
 
 // RoundManager is an interface for managing game rounds and tick.
@@ -195,14 +195,18 @@ func (gm *GameManager) gameLoop() {
 			p.HandleRespawn(gm.state)
 		}
 
+		ok := gm.state.Coins().Update()
+		if ok {
+			gm.state.Stop()
+			break
+		}
+
 		if count == 10 {
 			gm.nm.BroadcastGameState(gm.state, int32(gm.rm.CurrentTick()), gm.rm.CurrentRound())
 			scores := gm.state.PlayersScore()
 			count = 0
 			gm.sm.Adds(scores)
 		}
-
-		gm.state.Coins().Update()
 
 		count++
 		if gm.rm.HasEnded() {

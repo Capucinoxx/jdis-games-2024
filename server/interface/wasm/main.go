@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"syscall/js"
 
-	imodel "github.com/capucinoxx/forlorn/internal/model"
+	imodel "github.com/capucinoxx/jdis-games-2024/internal/model"
 
-	"github.com/capucinoxx/forlorn/internal/protocol"
-	"github.com/capucinoxx/forlorn/pkg/model"
+	"github.com/capucinoxx/jdis-games-2024/internal/protocol"
+	"github.com/capucinoxx/jdis-games-2024/pkg/model"
 )
 
 const scale = 30.0

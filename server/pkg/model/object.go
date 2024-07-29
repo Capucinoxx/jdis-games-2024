@@ -5,9 +5,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/capucinoxx/forlorn/consts"
-	"github.com/capucinoxx/forlorn/pkg/codec"
-	"github.com/capucinoxx/forlorn/pkg/utils"
+	"github.com/capucinoxx/jdis-games-2024/consts"
+	"github.com/capucinoxx/jdis-games-2024/pkg/codec"
+	"github.com/capucinoxx/jdis-games-2024/pkg/utils"
 )
 
 type Object struct {
@@ -105,13 +105,17 @@ func (s *Scorers) Set(scorers []*Scorer) {
 	s.scorers = scorers
 }
 
-func (s *Scorers) Update() {
+func (s *Scorers) Update() bool {
 	for i := 0; i < len(s.scorers); i++ {
 		if !s.scorers[i].IsAlive() {
+			if len(s.scorers) == 1 {
+				return true
+			}
 			s.scorers[i] = NewCoin()
 			utils.Log("coin", "score", "new coin spawn position (%f, %f)", s.scorers[i].Position.X, s.scorers[i].Position.Y)
 		}
 	}
+	return false
 }
 
 func (s *Scorers) List() []*Scorer {

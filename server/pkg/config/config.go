@@ -6,8 +6,8 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/capucinoxx/forlorn/pkg/manager"
-	"github.com/capucinoxx/forlorn/pkg/utils"
+	"github.com/capucinoxx/jdis-games-2024/pkg/manager"
+	"github.com/capucinoxx/jdis-games-2024/pkg/utils"
 )
 
 func MongoDNS() string {
@@ -41,7 +41,7 @@ func RequiredAdmins() []manager.TokenInfo {
 func Port() int {
 	v, err := strconv.Atoi(os.Getenv("PORT"))
 	if err != nil {
-		panic(err)
+		return 8087
 	}
 	return v
 }
