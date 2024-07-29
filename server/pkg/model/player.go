@@ -426,7 +426,6 @@ func (p *PlayerInfo) Decode(r codec.Reader) (err error) {
 	return
 }
 
-// Client représente un client connecté au serveur.
 type Client struct {
 	Out        chan []byte
 	In         chan ClientMessage
@@ -464,7 +463,6 @@ func (c *Client) SetBlind(b bool) {
 	c.blind = b
 }
 
-// ClientMessage représente un message envoyé par un client.
 type ClientMessage struct {
 	MessageType MessageType
 	Body        interface{}
