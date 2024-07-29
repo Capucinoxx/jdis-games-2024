@@ -53,11 +53,7 @@ func NewNetwork(address string, port int) *Network {
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
-			CheckOrigin: func(r *http.Request) bool {
-				// Allow connections from any origin.
-				// TODO: Generalize the logic to allow restricting origins.
-				return true
-			},
+			CheckOrigin:     func(r *http.Request) bool { return true },
 		},
 		port:      port,
 		address:   address,
