@@ -4,7 +4,7 @@ services:
       context: server
       dockerfile: Dockerfile
       args:
-        - API_URL=jdis-ia.dinf.fsci.usherbrooke.ca/rank  # change for your address
+        - API_URL=localhost/rank  # change for your address
         - TYPE=rank
     ports:
       - '8087:8087'
@@ -29,7 +29,7 @@ services:
       dockerfile: Dockerfile
       network: host
       args:
-        - API_URL=jdis-ia.dinf.fsci.usherbrooke.ca/unrank # change for your address
+        - API_URL=localhost/rank # change for your address
         - TYPE=unrank
     ports:
       - '8088:8087'
@@ -68,7 +68,7 @@ services:
       context: haproxy
       dockerfile: Dockerfile
       args:
-        - DOMAIN=jdis-ia.dinf.fsci.usherbrooke.ca
+        - DOMAIN=localhost
     ports:
       - '80:80'
       - '443:443'
