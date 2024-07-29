@@ -68,9 +68,10 @@ To create an agent, follow these steps:
 
 Administrators can perform the following actions:
 
-| Action                        | Path                                                                 |
-| : --------------------------  | :------------------------------------------------------------------- |
-| Start a game                  | `https://<URL>/<rank | unrank>/start?tkn=<ADMIN_TOKEN>`              |
-| Toggle leaderboard visibility | `https://<URL>/<rank | unrank>/toggle_leaderboard?tkn=<ADMIN_TOKEN>` |
-| Freeze a game                 | `https://<URL>/<rank | unrank>/freeze?tkn=<ADMIN_TOKEN>`             |
-| Unfreeze a game               | `https://<URL>/<rank | unrank>/unfreeze?tkn=<ADMIN_TOKEN>`           |
+| Action                        | Path                                                               |
+| :---------------------------- | :----------------------------------------------------------------- |
+| Start a game                  | `https://<URL>/<rank,unrank>/start?tkn=<ADMIN_TOKEN>`              |
+| Toggle leaderboard visibility | `https://<URL>/<rank,unrank>/toggle_leaderboard?tkn=<ADMIN_TOKEN>` |
+| Freeze a game                 | `https://<URL>/<rank,unrank>/freeze?tkn=<ADMIN_TOKEN>`             |
+| Unfreeze a game               | `https://<URL>/<rank,unrank>/unfreeze?tkn=<ADMIN_TOKEN>`           |
+
