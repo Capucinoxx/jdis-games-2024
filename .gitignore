@@ -1,14 +1,11 @@
-# influxDB storage
-data
-
 # npm node_modules
 node_modules
 
 # parcel bundler cache
-interface/.cache
-interface/dist
-interface/.parcel-cache
-interface/src/wasm/wasm_exec.js
+server/interface/.cache
+server/interface/dist
+server/interface/.parcel-cache
+server/interface/src/wasm/wasm_exec.js
 
 # env 
 .env

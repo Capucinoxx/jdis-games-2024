@@ -1,0 +1,26 @@
+{
+  "name": "jdis-games-2024-interface",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "parcel index.html --no-cache --open",
+    "build": "parcel build index.html"
+  },
+  "author": "Capucinoxx",
+  "license": "MIT",
+  "dependencies": {
+    "@assemblyscript/loader": "^0.27.27",
+    "chart.js": "^4.4.3",
+    "chartjs-adapter-date-fns": "^3.0.0",
+    "date-fns": "^3.6.0",
+    "gsap": "^3.12.5",
+    "parcel": "^2.12.0",
+    "phaser": "^3.80.1",
+    "typescript": "^5.4.5"
+  },
+  "devDependencies": {
+    "@types/gsap": "^3.0.0",
+    "assemblyscript": "^0.27.27",
+    "process": "^0.11.10"
+  }
+}

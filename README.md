@@ -1,94 +1,77 @@
-# forlorn
+# JDIS Games 2024 - Magellan
 
-Édition 2024 des JDIS Games organisé par le groupe JDIS de l'Université de Sherbrooke. Cette compétition réunie des particiant.e.s le temps d'une 
-journée durant laquelle ils devront programmer un agent devant jouer à un jeu. 
+Programming Agents Competition organized as part of the 2024 edition of the JDIS Games at the University of Sherbrooke.
 
-Cette année, votre agent se fait téléporter dans un labyrinthe inconnu. En essaynt de scruter le labyrinthe, en essayant de scruter chaque recoin du labyrinthe, vous tomberez nez à nez avec d'autres
+## Installation
 
-## Pour démarrer le projet
+### Domain Modification
 
-Actuellement, le projet fonctionne avec de la cache pour l'authentification et peut donc fonctionner sans <mark>connecter externe<mark>.
-```
-go run main.go
-```
+To modify the domain, follow these steps:
 
-Un exemple de bot pouvant être utiliser pour tester la communication:
-```py
-import websocket
-import time
-import traceback
-import struct
+1. Open your command line interface.
 
-# Message format: <rotation: uint32>
-def message(rotation: int) -> bytes:
-  data = []
-  data.append(struct.pack('B', 1))
-  data.append(struct.pack('<I', rotation))
-  return b''.join(data)
+2. Set the new base URL:
 
-def decode(msg: bytes) -> dict:
-  if len(msg) < 6:
-    return {'error': 'invalid message'}
-  id = struct.unpack('c', msg[0:1])[0]
-  message_type = struct.unpack('B', msg[1:2])[0]
-  current_time = struct.unpack('<I', msg[2:6])[0]
+    ```bash
+    base_url="<NEW URL>"
+    ```
 
-  def decode_player(msg: bytes) -> dict:
-    x = struct.unpack('<f', msg[0:4])[0]
-    y = struct.unpack('<f', msg[4:8])[0]
-    rotation = struct.unpack('<I', msg[8:12])[0]
-    
-    return {'x': x, 'y': y, 'rotation': rotation, 'health': int(msg[13])}
+3. Change the Docker Compose URL:
 
-  data = {
-    'id': id,
-    'type': message_type,
-    'time': current_time,
-    'players': [decode_player(msg[i:]) for i in range(6, len(msg), 14)]
-  }
+    ```bash
+    sed -i.bak  -e "s|API_URL=.*rank|API_URL=${base_url}/rank|g" \
+                -e "s|API_URL=.*unrank|API_URL=${base_url}/unrank|g" \
+                -e "s|DOMAIN=.*|DOMAIN=${base_url}|g" \
+                "docker-compose.yml"
+    ```
 
-  return data
+4. Change the action URL in the HTML file:
 
-try:
-  ws = websocket.WebSocket()
-  ws.connect('ws://localhost:8087/echo')
+    ```bash
+    sed -i      -e "s|action='*/create|action='http://${base_url}/create'|g" \
+                "server/interface/index.html"
+    ```
 
-  while True:
-    for i in range(0, 360, 10):
-      opcode, msg = ws.recv_data()
-      print(f'opcode: {opcode}, msg: {decode(msg)}')
-      if opcode == websocket.ABNF.OPCODE_CLOSE:
-        print('close !')
-        break
-      ws.send(message(i))
-except Exception as e:
-  print('close', traceback.format_exc())
+### Create and Modify the `.env` File
+
+1. Copy the example `.env` file:
+
+    ```sh
+    cp .env.example .env
+    ```
+
+2. Modify the administrative information in the `.env` file as needed.
+
+## Starting the Services
+
+To start the services, run:
+
+```sh
+docker compose up --build
 ```
 
-## Structure du serveur Golang
+Then navigate to:
+- `https://<YOUR URL>/rank`
+- `https://<YOUR URL>/unrank`
 
-| Répertoire  | Objectif                                                                 |
-| :---------- | :----------------------------------------------------------------------- |
-| `main.go`   | Point d'entrée du serveur.                                               |
-| `internal/` | Contient le code propre à l'édition. Devra être modifié selon l'édition. |
-| `pkg/`      | Contient les différents bout de code réutilisable d'année en année.      |
+## Creating an Agent
 
-### Liste des différents package pouvant être réutilisé
+To create an agent, follow these steps:
 
-| Répertoire       | Objectif                                                                                                                                                                                      |
-| :--------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pkg/connector/` | Point d'entrée pour la communication avec des services externes à l'application. Actuellement il y a un connecteur pour `influxDB` qui sera utilisé la persistance des pointages.             |
-| `pkg/manager/`   | Gestionnaires des actions, que ce soit au niveau de la communication réseau (arrivée et départ d'une connexion), la connexion par authentification ou encore la gestion avec l'environnement. |
-| `pkg/model/`     | Représentation des différents objets du jeu.                                                                                                                                                  |
-| `pkg/network/`   | Repreésente la couche réseau du serveur. Les headers HTTP ainsi que la mise en place du websocket.                                                                                            |
-| `pkg/protocol/`  | Fonctions d'encodage et de décodage lors de la communication avec les autres instances du jeu.                                                                                                |
-| `pkg/utils`      | Fonctions utilitaires pour l'affichage des journaux.                                                                                                                                          |
+1. Go to the game page at https://<YOUR URL>/unrank.
+2. Click on the menu icon in the top right corner.
+3. Enter the name of your agent.
+4. Copy the token from the message at the bottom right.
+5. Use this token in your starter pack.
 
-## TODOS:
+## Administrato Actions
 
-- [ ] Fragmenter le `game_manager` en deux parties. Une restant dans le dosser `pkg/` et l'autre allant dans le dossier `internal/`
-- [ ] Ajout gestionnaire collisions pour actions spécialer
-- [ ] Ajouter des colliders de type projectile, trigger dans collision_manager
-- [ ] Implémentation formule calcul de point
-- [ ] Utilisation de `InfluxService.Write()` pour insertion des score à chaque fois qu'il augmente
-- ...
+Administrators can perform the following actions:
+
+| Action                        | Path                                                               |
+| :---------------------------- | :----------------------------------------------------------------- |
+| Start a game                  | `https://<URL>/<rank,unrank>/start?tkn=<ADMIN_TOKEN>`              |
+| Toggle leaderboard visibility | `https://<URL>/<rank,unrank>/toggle_leaderboard?tkn=<ADMIN_TOKEN>` |
+| Freeze a game                 | `https://<URL>/<rank,unrank>/freeze?tkn=<ADMIN_TOKEN>`             |
+| Unfreeze a game               | `https://<URL>/<rank,unrank>/unfreeze?tkn=<ADMIN_TOKEN>`           |
+

@@ -1,16 +1,39 @@
-version: '3.8'
-
 services:
-  app:
+  rank-server:
     build:
-      context: .
-      dockerfile: Dockerfile.server
+      context: server
+      dockerfile: Dockerfile
+      args:
+        - API_URL=localhost/rank  # change for your address
+        - TYPE=rank
     ports:
       - '8087:8087'
-    volumes:
-      - .:/app
     environment:
-      PORT: 7855
+      MONGO_USERNAME: admin
+      MONGO_PASSWORD: super_long_password
+      MONGO_HOST: mongodb
+      MONGO_PORT: 27017
+      MONGO_DB: db
+      RANK: RANKED
+
+      REDIS_ADDR: redis:6379
+      REDIS_PASSWORD: long_password
+    env_file:
+      - .env
+    volumes:
+      - ssl-certs:/app/certs
+
+  unrank-server:
+    build:
+      context: server
+      dockerfile: Dockerfile
+      network: host
+      args:
+        - API_URL=localhost/rank # change for your address
+        - TYPE=unrank
+    ports:
+      - '8088:8087'
+    environment:
       MONGO_USERNAME: admin
       MONGO_PASSWORD: super_long_password
       MONGO_HOST: mongodb
@@ -21,18 +44,11 @@ services:
       REDIS_PASSWORD: long_password
     env_file:
       - .env
-
-  interface:
-    build:
-      context: .
-      dockerfile: Dockerfile.interface
-    ports:
-      - '8086:80'
+    volumes:
+      - ssl-certs:/app/certs
 
   mongodb:
     image: mongo
-    ports:
-      - '27017:27017'
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: super_long_password
@@ -44,13 +60,25 @@ services:
     environment:
       - REDIS_PASSWORD=long_password
     command: redis-server --requirepass long_password --databases 16
-    ports:
-      - '6379:6379'
     volumes:
       - data_redis:/data
+
+  proxy:
+    build:
+      context: haproxy
+      dockerfile: Dockerfile
+      args:
+        - DOMAIN=localhost
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ssl-certs:/etc/haproxy/ssl
 
 volumes:
   data_mongo:
     driver: local
   data_redis:
+    driver: local
+  ssl-certs:
     driver: local
