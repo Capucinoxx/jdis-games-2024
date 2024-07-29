@@ -18,7 +18,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/capucinoxx/forlorn/pkg/model"
+	"github.com/capucinoxx/jdis-games-2024/pkg/model"
 	"github.com/gorilla/websocket"
 )
 

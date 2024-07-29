@@ -8,7 +8,7 @@ package network
 import (
 	"net/http"
 
-	"github.com/capucinoxx/forlorn/pkg/utils"
+	"github.com/capucinoxx/jdis-games-2024/pkg/utils"
 )
 
 // Middleware is a function that takes an http.Handler and returns an http.Handler.

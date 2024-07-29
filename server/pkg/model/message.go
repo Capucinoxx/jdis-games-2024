@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/capucinoxx/forlorn/pkg/codec"
+	"github.com/capucinoxx/jdis-games-2024/pkg/codec"
 )
 
 type MessageType uint8

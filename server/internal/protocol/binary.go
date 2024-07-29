@@ -1,10 +1,10 @@
 package protocol
 
 import (
-	imodel "github.com/capucinoxx/forlorn/internal/model"
-	"github.com/capucinoxx/forlorn/pkg/codec"
-	"github.com/capucinoxx/forlorn/pkg/model"
-	p "github.com/capucinoxx/forlorn/pkg/protocol"
+	imodel "github.com/capucinoxx/jdis-games-2024/internal/model"
+	"github.com/capucinoxx/jdis-games-2024/pkg/codec"
+	"github.com/capucinoxx/jdis-games-2024/pkg/model"
+	p "github.com/capucinoxx/jdis-games-2024/pkg/protocol"
 )
 
 type BinaryProtocol struct{}

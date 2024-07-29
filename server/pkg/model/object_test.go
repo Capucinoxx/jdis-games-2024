@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/capucinoxx/forlorn/consts"
+	"github.com/capucinoxx/jdis-games-2024/consts"
 )
 
 func TestScorerCollision(t *testing.T) {

@@ -9,8 +9,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/capucinoxx/forlorn/pkg/manager"
-	"github.com/capucinoxx/forlorn/pkg/network"
+	"github.com/capucinoxx/jdis-games-2024/pkg/manager"
+	"github.com/capucinoxx/jdis-games-2024/pkg/network"
 )
 
 // HttpHandler is a structure that holds references to the game manager,

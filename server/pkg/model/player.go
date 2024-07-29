@@ -6,9 +6,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/capucinoxx/forlorn/consts"
-	"github.com/capucinoxx/forlorn/pkg/codec"
-	"github.com/capucinoxx/forlorn/pkg/utils"
+	"github.com/capucinoxx/jdis-games-2024/consts"
+	"github.com/capucinoxx/jdis-games-2024/pkg/codec"
+	"github.com/capucinoxx/jdis-games-2024/pkg/utils"
 )
 
 // Connection represents a network connection. It can be used for reading and writing data over the network

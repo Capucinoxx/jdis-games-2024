@@ -3,7 +3,7 @@ package model
 import (
 	"math"
 
-	"github.com/capucinoxx/forlorn/pkg/codec"
+	"github.com/capucinoxx/jdis-games-2024/pkg/codec"
 )
 
 // Point represents a continuous point in 2D space.

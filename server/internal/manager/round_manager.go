@@ -6,8 +6,8 @@ package manager
 // predefined rules.
 
 import (
-	"github.com/capucinoxx/forlorn/consts"
-	"github.com/capucinoxx/forlorn/pkg/model"
+	"github.com/capucinoxx/jdis-games-2024/consts"
+	"github.com/capucinoxx/jdis-games-2024/pkg/model"
 )
 
 // Stage represents a game stage.

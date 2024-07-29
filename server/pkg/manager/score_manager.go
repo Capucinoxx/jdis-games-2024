@@ -14,9 +14,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/capucinoxx/forlorn/pkg/connector"
-	"github.com/capucinoxx/forlorn/pkg/model"
-	"github.com/capucinoxx/forlorn/pkg/utils"
+	"github.com/capucinoxx/jdis-games-2024/pkg/connector"
+	"github.com/capucinoxx/jdis-games-2024/pkg/model"
+	"github.com/capucinoxx/jdis-games-2024/pkg/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )

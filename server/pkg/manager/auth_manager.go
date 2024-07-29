@@ -8,8 +8,8 @@ package manager
 import (
 	"errors"
 
-	"github.com/capucinoxx/forlorn/pkg/connector"
-	"github.com/capucinoxx/forlorn/pkg/utils"
+	"github.com/capucinoxx/jdis-games-2024/pkg/connector"
+	"github.com/capucinoxx/jdis-games-2024/pkg/utils"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 )

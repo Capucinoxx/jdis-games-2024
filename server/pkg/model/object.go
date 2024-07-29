@@ -5,9 +5,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/capucinoxx/forlorn/consts"
-	"github.com/capucinoxx/forlorn/pkg/codec"
-	"github.com/capucinoxx/forlorn/pkg/utils"
+	"github.com/capucinoxx/jdis-games-2024/consts"
+	"github.com/capucinoxx/jdis-games-2024/pkg/codec"
+	"github.com/capucinoxx/jdis-games-2024/pkg/utils"
 )
 
 type Object struct {

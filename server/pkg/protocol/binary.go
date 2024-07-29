@@ -3,8 +3,8 @@ package protocol
 import (
 	"encoding/binary"
 
-	"github.com/capucinoxx/forlorn/pkg/codec"
-	"github.com/capucinoxx/forlorn/pkg/model"
+	"github.com/capucinoxx/jdis-games-2024/pkg/codec"
+	"github.com/capucinoxx/jdis-games-2024/pkg/model"
 )
 
 type BinaryProtocol struct {

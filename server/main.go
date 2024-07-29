@@ -6,15 +6,15 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/capucinoxx/forlorn/consts"
-	"github.com/capucinoxx/forlorn/internal/handler"
-	iManager "github.com/capucinoxx/forlorn/internal/manager"
-	iModel "github.com/capucinoxx/forlorn/internal/model"
-	"github.com/capucinoxx/forlorn/internal/protocol"
-	"github.com/capucinoxx/forlorn/pkg/config"
-	"github.com/capucinoxx/forlorn/pkg/connector"
-	"github.com/capucinoxx/forlorn/pkg/manager"
-	"github.com/capucinoxx/forlorn/pkg/network"
+	"github.com/capucinoxx/jdis-games-2024/consts"
+	"github.com/capucinoxx/jdis-games-2024/internal/handler"
+	iManager "github.com/capucinoxx/jdis-games-2024/internal/manager"
+	iModel "github.com/capucinoxx/jdis-games-2024/internal/model"
+	"github.com/capucinoxx/jdis-games-2024/internal/protocol"
+	"github.com/capucinoxx/jdis-games-2024/pkg/config"
+	"github.com/capucinoxx/jdis-games-2024/pkg/connector"
+	"github.com/capucinoxx/jdis-games-2024/pkg/manager"
+	"github.com/capucinoxx/jdis-games-2024/pkg/network"
 )
 
 func init_mongo() *connector.MongoService {

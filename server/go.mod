@@ -1,4 +1,4 @@
-module github.com/capucinoxx/forlorn
+module github.com/capucinoxx/jdis-games-2024
 
 go 1.21.6
 
