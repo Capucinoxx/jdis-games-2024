@@ -1,6 +1,5 @@
-const URL_BASE = '';
-const WS_URL = `wss://${URL_BASE}/echo`;
-let TYPE = '';
+const WS_URL = `wss://${window.location.hostname}${window.location.pathname}/echo`;
+let TYPE = window.location.href.endsWith('unrank') ? 'unrank' : 'rank';
 
 
 const MESSAGE_TYPE = {
@@ -46,4 +45,4 @@ export {
   TICK_ROUND_TWO_START,
 };
 
-export { WS_URL, MESSAGE_TYPE, URL_BASE, TYPE as GAME_TYPE };
+export { WS_URL, MESSAGE_TYPE, TYPE as GAME_TYPE };

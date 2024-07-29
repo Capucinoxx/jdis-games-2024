@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import { CameraController, GameManager } from '../../lib';
-import { URL_BASE } from '../../config';
 
 
 class MainScene extends Phaser.Scene {
@@ -10,9 +9,9 @@ class MainScene extends Phaser.Scene {
   constructor() { super({ key: 'MainScene' }); }
 
   preload() {
-    this.load.image('coin', `https://${URL_BASE}/assets/coin.png`);
-    this.load.image('big-coin', `https://${URL_BASE}/assets/big-coin.png`);
-    this.load.image('agent', `https://${URL_BASE}/assets/agent.png`);
+    this.load.image('coin', `${window.location.href}/assets/coin.png`);
+    this.load.image('big-coin', `${window.location.href}/assets/big-coin.png`);
+    this.load.image('agent', `${window.location.href}/assets/agent.png`);
   }
 
   create() {

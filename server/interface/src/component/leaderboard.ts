@@ -1,6 +1,6 @@
 import { animate_number, switch_button, toggle_btn, toggle_fullscreen, toggle_toast } from "../animation";
 import { LineChart, UpdateOptions } from "../chart";
-import { GAME_TYPE, URL_BASE } from "../config";
+import { GAME_TYPE } from "../config";
 
 interface GlobalData {
   top: UpdateOptions;
@@ -134,7 +134,7 @@ class Leaderboards {
       return;
 
     const fetch_data = async () => {
-      const response = await fetch(`https://${URL_BASE}/leaderboard`);
+      const response = await fetch(`${window.location.href}/leaderboard`);
       if (!response.ok) return;
 
       const result = (await response.json()) as LeaderboardMessage;
