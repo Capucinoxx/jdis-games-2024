@@ -10,26 +10,14 @@ To modify the domain, follow these steps:
 
 1. Open your command line interface.
 
-2. Set the new base URL:
+2. Change the Docker Compose URL:
 
     ```bash
     base_url="<NEW URL>"
-    ```
-
-3. Change the Docker Compose URL:
-
-    ```bash
     sed -i.bak  -e "s|API_URL=.*/rank|API_URL=${base_url}/rank|g" \
                 -e "s|API_URL=.*/unrank|API_URL=${base_url}/unrank|g" \
                 -e "s|DOMAIN=.*|DOMAIN=${base_url}|g" \
                 "docker-compose.yml"
-    ```
-
-4. Change the action URL in the HTML file:
-
-    ```bash
-    sed -i      -e "s|action='*/create|action='http://${base_url}/create'|g" \
-                "server/interface/index.html"
     ```
 
 ### Create and Modify the `.env` File
